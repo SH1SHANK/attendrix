@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "69228740786",
+    "firebase_url": "https://attendrix-5ke7lp-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "attendrix-5ke7lp",
+    "storage_bucket": "attendrix-5ke7lp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69228740786:android:8451e536081e0e06e1c9ab",
+        "android_client_info": {
+          "package_name": "com.shashankstudios.attendrix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "69228740786-1oonf78aimohdjglunrqnbtf6hs5tjks.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shashankstudios.attendrix",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "69228740786-v2j7b56h2f0du5amlkc3nva7fgp03f7j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvOch7Xucm4E6lqBknCKm74nrYuubA76I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "69228740786-v2j7b56h2f0du5amlkc3nva7fgp03f7j.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "69228740786-uiaif1rcjfikr3e0uiv8clgvj6pipdn0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shashankstudios.attendrix"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
