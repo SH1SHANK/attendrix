@@ -135,9 +135,8 @@ class _NewpasswordWidgetState extends State<NewpasswordWidget> {
                       'Create New Password',
                       style:
                           FlutterFlowTheme.of(context).headlineMedium.override(
-                                fontFamily: 'GabrielSans',
+                                fontFamily: 'Montserrat',
                                 letterSpacing: 0.0,
-                                useGoogleFonts: false,
                               ),
                     ),
                   ),
@@ -147,9 +146,8 @@ class _NewpasswordWidgetState extends State<NewpasswordWidget> {
                     child: Text(
                       'If you want to change your current password please enter your current and new password below .',
                       style: FlutterFlowTheme.of(context).labelMedium.override(
-                            fontFamily: 'GabrielSans',
+                            fontFamily: 'Montserrat',
                             letterSpacing: 0.0,
-                            useGoogleFonts: false,
                           ),
                     ),
                   ),
@@ -167,9 +165,8 @@ class _NewpasswordWidgetState extends State<NewpasswordWidget> {
                           labelText: 'Your New Password',
                           labelStyle:
                               FlutterFlowTheme.of(context).labelMedium.override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                           hintText: '**********',
                           hintStyle:
@@ -252,9 +249,8 @@ class _NewpasswordWidgetState extends State<NewpasswordWidget> {
                           labelText: 'Confirm your New Password',
                           labelStyle:
                               FlutterFlowTheme.of(context).labelMedium.override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                           hintText: '**********',
                           hintStyle:

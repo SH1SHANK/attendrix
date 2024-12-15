@@ -1,3 +1,4 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -75,9 +76,8 @@ class _CreateAssignmentWidgetState extends State<CreateAssignmentWidget> {
               Text(
                 'Add Assignment',
                 style: FlutterFlowTheme.of(context).headlineSmall.override(
-                      fontFamily: 'GabrielSans',
+                      fontFamily: 'Montserrat',
                       letterSpacing: 0.0,
-                      useGoogleFonts: false,
                     ),
               ),
               Form(
@@ -438,18 +438,14 @@ class _CreateAssignmentWidgetState extends State<CreateAssignmentWidget> {
               FFButtonWidget(
                 onPressed: () async {
                   await AssignmentsRecord.collection
-                      .doc(
-                          '${_model.subjectValue}-${_model.nameTextController.text}-${dateTimeFormat(
-                        "d/M/y",
-                        _model.datePicked,
-                        locale: FFLocalizations.of(context).languageCode,
-                      )}')
+                      .doc()
                       .set(createAssignmentsRecordData(
                         assignementSubject: _model.subjectValue,
                         assignmentName: _model.nameTextController.text,
                         assignmentDescription:
                             _model.descriptionTextController.text,
                         assignmentDeadline: _model.datePicked,
+                        batch: valueOrDefault(currentUserDocument?.batch, ''),
                       ));
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

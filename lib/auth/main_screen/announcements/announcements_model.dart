@@ -1,8 +1,8 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'announcement_widget.dart' show AnnouncementWidget;
+import 'announcements_widget.dart' show AnnouncementsWidget;
 import 'package:flutter/material.dart';
 
-class AnnouncementModel extends FlutterFlowModel<AnnouncementWidget> {
+class AnnouncementsModel extends FlutterFlowModel<AnnouncementsWidget> {
   @override
   void initState(BuildContext context) {}
 

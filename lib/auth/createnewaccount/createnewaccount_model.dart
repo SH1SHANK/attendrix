@@ -11,13 +11,30 @@ class CreatenewaccountModel extends FlutterFlowModel<CreatenewaccountWidget> {
   FocusNode? usernameFocusNode;
   TextEditingController? usernameTextController;
   String? Function(BuildContext, String?)? usernameTextControllerValidator;
+  String? _usernameTextControllerValidator(BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Field is required';
+    }
+
+    if (val.length < 6) {
+      return 'Requires at least 6 characters.';
+    }
+    if (val.length > 12) {
+      return 'Maximum 12 characters allowed, currently ${val.length}.';
+    }
+    if (!RegExp(kTextValidatorUsernameRegex).hasMatch(val)) {
+      return 'Invalid Username';
+    }
+    return null;
+  }
+
   // State field(s) for email widget.
   FocusNode? emailFocusNode;
   TextEditingController? emailTextController;
   String? Function(BuildContext, String?)? emailTextControllerValidator;
   String? _emailTextControllerValidator(BuildContext context, String? val) {
     if (val == null || val.isEmpty) {
-      return 'An Email is required';
+      return 'A Valid Email is required';
     }
 
     if (!RegExp(kTextValidatorEmailRegex).hasMatch(val)) {
@@ -37,10 +54,10 @@ class CreatenewaccountModel extends FlutterFlowModel<CreatenewaccountWidget> {
     }
 
     if (val.length < 8) {
-      return 'A Password Must Have atleast 8 Characters';
+      return 'must have atleast 8 Characters';
     }
     if (val.length > 20) {
-      return 'A Password cannot exceed 20 characters';
+      return 'cannot exceed 20 characters';
     }
 
     return null;
@@ -59,10 +76,10 @@ class CreatenewaccountModel extends FlutterFlowModel<CreatenewaccountWidget> {
     }
 
     if (val.length < 8) {
-      return 'A Password Must Have atleast 8 Characters';
+      return 'must have atleast 8 Characters';
     }
     if (val.length > 20) {
-      return 'A Password cannot exceed 20 characters';
+      return 'cannot exceed 20 characters';
     }
 
     return null;
@@ -79,6 +96,7 @@ class CreatenewaccountModel extends FlutterFlowModel<CreatenewaccountWidget> {
 
   @override
   void initState(BuildContext context) {
+    usernameTextControllerValidator = _usernameTextControllerValidator;
     emailTextControllerValidator = _emailTextControllerValidator;
     passwordVisibility = false;
     passwordTextControllerValidator = _passwordTextControllerValidator;

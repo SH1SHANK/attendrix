@@ -1,3 +1,5 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -86,11 +88,10 @@ class _AssignExamsWidgetState extends State<AssignExamsWidget> {
                         style: FlutterFlowTheme.of(context)
                             .headlineMedium
                             .override(
-                              fontFamily: 'GabrielSans',
+                              fontFamily: 'Montserrat',
                               color: FlutterFlowTheme.of(context).alternate,
                               fontSize: 22.0,
                               letterSpacing: 0.0,
-                              useGoogleFonts: false,
                             ),
                       ),
                     ),
@@ -128,16 +129,14 @@ class _AssignExamsWidgetState extends State<AssignExamsWidget> {
                                 labelStyle: FlutterFlowTheme.of(context)
                                     .labelMedium
                                     .override(
-                                      fontFamily: 'GabrielSans',
+                                      fontFamily: 'Montserrat',
                                       letterSpacing: 0.0,
-                                      useGoogleFonts: false,
                                     ),
                                 hintStyle: FlutterFlowTheme.of(context)
                                     .labelMedium
                                     .override(
-                                      fontFamily: 'GabrielSans',
+                                      fontFamily: 'Montserrat',
                                       letterSpacing: 0.0,
-                                      useGoogleFonts: false,
                                     ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -238,7 +237,7 @@ class _AssignExamsWidgetState extends State<AssignExamsWidget> {
                           obscureText: false,
                           decoration: InputDecoration(
                             isDense: true,
-                            labelText: 'Reason for Assigning(optional):',
+                            labelText: 'Exam Description(optional):',
                             labelStyle: FlutterFlowTheme.of(context)
                                 .labelMedium
                                 .override(
@@ -250,9 +249,8 @@ class _AssignExamsWidgetState extends State<AssignExamsWidget> {
                             hintStyle: FlutterFlowTheme.of(context)
                                 .labelMedium
                                 .override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: false,
                                 ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
@@ -603,8 +601,23 @@ class _AssignExamsWidgetState extends State<AssignExamsWidget> {
                                 return;
                               }
                               if (_model.switchValue!) {
-                                await Future.delayed(
-                                    const Duration(milliseconds: 100));
+                                await ExamsRecord.collection
+                                    .doc()
+                                    .set(createExamsRecordData(
+                                      batch: valueOrDefault(
+                                          currentUserDocument?.batch, ''),
+                                      examId:
+                                          '${valueOrDefault(currentUserDocument?.batch, '')}-${_model.textController1.text}-${dateTimeFormat(
+                                        "d/M h:mm a",
+                                        _model.datePicked1,
+                                        locale: FFLocalizations.of(context)
+                                            .languageCode,
+                                      )}',
+                                      examName: _model.textController1.text,
+                                      examStartTime: _model.datePicked2,
+                                      examEndTime: _model.datePicked3,
+                                      examType: _model.dropDownValue,
+                                    ));
                               } else {
                                 await Future.delayed(
                                     const Duration(milliseconds: 100));

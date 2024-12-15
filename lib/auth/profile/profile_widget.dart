@@ -81,10 +81,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                     child: Text(
                       'My Profile',
                       style: FlutterFlowTheme.of(context).displaySmall.override(
-                            fontFamily: 'GabrielSans',
+                            fontFamily: 'Montserrat',
                             color: FlutterFlowTheme.of(context).primaryText,
                             letterSpacing: 0.0,
-                            useGoogleFonts: false,
                           ),
                     ),
                   ),
@@ -143,6 +142,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                             .labelMedium
                                             .override(
                                               fontFamily: 'Montserrat',
+                                              fontSize: 12.0,
                                               letterSpacing: 0.0,
                                             ),
                                       ),
@@ -159,6 +159,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                           .labelMedium
                                           .override(
                                             fontFamily: 'Montserrat',
+                                            fontSize: 12.0,
                                             letterSpacing: 0.0,
                                           ),
                                     ),
@@ -172,6 +173,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                         .labelMedium
                                         .override(
                                           fontFamily: 'Montserrat',
+                                          fontSize: 12.0,
                                           letterSpacing: 0.0,
                                         ),
                                   ),
@@ -194,7 +196,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                             .labelMedium
                                             .override(
                                               fontFamily: 'Montserrat',
-                                              fontSize: 14.0,
+                                              fontSize: 12.0,
                                               letterSpacing: 0.0,
                                             ),
                                         colors: [
@@ -215,7 +217,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                             alignment: const AlignmentDirectional(0.0, 0.0),
                             child: Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 30.0, 0.0),
+                                  0.0, 0.0, 30.0, 25.0),
                               child: Container(
                                 width: 70.0,
                                 height: 70.0,
@@ -280,9 +282,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                           'My Account ',
                           style:
                               FlutterFlowTheme.of(context).labelMedium.override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                         ),
                       ),
@@ -412,6 +413,81 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                                 children: [
                                   Text(
                                     'Edit Profile',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyLarge
+                                        .override(
+                                          fontFamily: 'Geomanist',
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts: false,
+                                        ),
+                                  ),
+                                  Expanded(
+                                    child: Align(
+                                      alignment: const AlignmentDirectional(1.0, 0.0),
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryText,
+                                        size: 20.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 1.0),
+                    child: InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () async {
+                        context.pushNamed(
+                          'editprofile',
+                          extra: <String, dynamic>{
+                            kTransitionInfoKey: const TransitionInfo(
+                              hasTransition: true,
+                              transitionType: PageTransitionType.rightToLeft,
+                            ),
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 70.0,
+                        decoration: BoxDecoration(
+                          color:
+                              FlutterFlowTheme.of(context).secondaryBackground,
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 0.0,
+                              color: FlutterFlowTheme.of(context).alternate,
+                              offset: const Offset(
+                                0.0,
+                                1.0,
+                              ),
+                            )
+                          ],
+                          shape: BoxShape.rectangle,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              16.0, 0.0, 16.0, 0.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Text(
+                                    'Export Attendance Records',
                                     style: FlutterFlowTheme.of(context)
                                         .bodyLarge
                                         .override(
@@ -582,9 +658,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                           'Support',
                           style:
                               FlutterFlowTheme.of(context).labelMedium.override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                         ),
                       ),
@@ -835,9 +910,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                           'App Essentials',
                           style:
                               FlutterFlowTheme.of(context).labelMedium.override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                         ),
                       ),

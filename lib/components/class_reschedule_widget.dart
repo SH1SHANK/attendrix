@@ -103,9 +103,8 @@ class _ClassRescheduleWidgetState extends State<ClassRescheduleWidget> {
                               ),
                       hintStyle:
                           FlutterFlowTheme.of(context).labelMedium.override(
-                                fontFamily: 'GabrielSans',
+                                fontFamily: 'Montserrat',
                                 letterSpacing: 0.0,
-                                useGoogleFonts: false,
                               ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(

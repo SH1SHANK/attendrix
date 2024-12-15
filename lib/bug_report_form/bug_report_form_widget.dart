@@ -1,4 +1,3 @@
-import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_choice_chips.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -99,10 +98,9 @@ class _BugReportFormWidgetState extends State<BugReportFormWidget> {
               title: Text(
                 'Report an Issue',
                 style: FlutterFlowTheme.of(context).headlineMedium.override(
-                      fontFamily: 'GabrielSans',
+                      fontFamily: 'Montserrat',
                       color: FlutterFlowTheme.of(context).primaryBackground,
                       letterSpacing: 0.0,
-                      useGoogleFonts: false,
                     ),
               ),
               actions: const [],
@@ -141,9 +139,8 @@ class _BugReportFormWidgetState extends State<BugReportFormWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .headlineSmall
                                       .override(
-                                        fontFamily: 'GabrielSans',
+                                        fontFamily: 'Montserrat',
                                         letterSpacing: 0.0,
-                                        useGoogleFonts: false,
                                       ),
                                 ),
                                 Text(
@@ -178,7 +175,7 @@ class _BugReportFormWidgetState extends State<BugReportFormWidget> {
                           ),
                           child: Form(
                             key: _model.formKey,
-                            autovalidateMode: AutovalidateMode.disabled,
+                            autovalidateMode: AutovalidateMode.always,
                             child: Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   24.0, 24.0, 24.0, 24.0),
@@ -841,7 +838,7 @@ class _BugReportFormWidgetState extends State<BugReportFormWidget> {
                                 'subject':
                                     '${_model.issueTypeValue} Bug Report- ${_model.priorityValue} Priority!',
                                 'body':
-                                    '${_model.textController1.text}${_model.issueTypeValue}${_model.priorityValue}${_model.textController2.text}${_model.textController3.text}${_model.textController4.text}${_model.textController5.text}$currentUserDisplayName$currentUserEmail${_model.textController6.text}',
+                                    '${_model.textController1.text}${_model.issueTypeValue}${_model.priorityValue}${_model.textController2.text}${_model.textController3.text}${_model.textController4.text}${_model.textController5.text}${_model.textController6.text}',
                               }
                                   .entries
                                   .map((MapEntry<String, String> e) =>

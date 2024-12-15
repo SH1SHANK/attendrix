@@ -1,6 +1,20 @@
 {
   "indexes": [
     {
+      "collectionGroup": "announcements",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "batch",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_time",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "timetable",
       "queryScope": "COLLECTION",
       "fields": [
@@ -23,7 +37,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "classStatus",
+          "fieldPath": "batch",
           "order": "ASCENDING"
         },
         {
@@ -31,7 +45,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "batch",
+          "fieldPath": "classStatus",
           "order": "ASCENDING"
         },
         {
@@ -44,10 +58,6 @@
       "collectionGroup": "timetable",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "batch",
-          "order": "ASCENDING"
-        },
         {
           "fieldPath": "course_name",
           "order": "ASCENDING"
@@ -71,8 +81,30 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "classStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "course_name",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "classDate",
-          "order": "DESCENDING"
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "assignments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "batch",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "assignmentDeadline",
+          "order": "ASCENDING"
         }
       ]
     },
@@ -85,12 +117,40 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "ClassId",
+          "fieldPath": "classDate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "exams",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "batch",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "examStartTime",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "timetable",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "batch",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "scheduledDate",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "classDate",
-          "order": "DESCENDING"
+          "order": "ASCENDING"
         }
       ]
     }

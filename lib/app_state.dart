@@ -22,54 +22,6 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  final _checkInDetailsManager =
-      StreamRequestManager<List<AttendanceRecordRecord>>();
-  Stream<List<AttendanceRecordRecord>> checkInDetails({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Stream<List<AttendanceRecordRecord>> Function() requestFn,
-  }) =>
-      _checkInDetailsManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearCheckInDetailsCache() => _checkInDetailsManager.clear();
-  void clearCheckInDetailsCacheKey(String? uniqueKey) =>
-      _checkInDetailsManager.clearRequest(uniqueKey);
-
-  final _upcomingClassDetailsManager =
-      StreamRequestManager<List<TimetableRecord>>();
-  Stream<List<TimetableRecord>> upcomingClassDetails({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Stream<List<TimetableRecord>> Function() requestFn,
-  }) =>
-      _upcomingClassDetailsManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearUpcomingClassDetailsCache() => _upcomingClassDetailsManager.clear();
-  void clearUpcomingClassDetailsCacheKey(String? uniqueKey) =>
-      _upcomingClassDetailsManager.clearRequest(uniqueKey);
-
-  final _attendanceOverviewManager =
-      StreamRequestManager<List<ClassDetailsRecord>>();
-  Stream<List<ClassDetailsRecord>> attendanceOverview({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Stream<List<ClassDetailsRecord>> Function() requestFn,
-  }) =>
-      _attendanceOverviewManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearAttendanceOverviewCache() => _attendanceOverviewManager.clear();
-  void clearAttendanceOverviewCacheKey(String? uniqueKey) =>
-      _attendanceOverviewManager.clearRequest(uniqueKey);
-
   final _attendanceRecordCountManager = FutureRequestManager<int>();
   Future<int> attendanceRecordCount({
     String? uniqueQueryKey,
@@ -100,4 +52,36 @@ class FFAppState extends ChangeNotifier {
   void clearTotalClassCountCache() => _totalClassCountManager.clear();
   void clearTotalClassCountCacheKey(String? uniqueKey) =>
       _totalClassCountManager.clearRequest(uniqueKey);
+
+  final _attendanceRecordsManager =
+      FutureRequestManager<List<TimetableRecord>>();
+  Future<List<TimetableRecord>> attendanceRecords({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<TimetableRecord>> Function() requestFn,
+  }) =>
+      _attendanceRecordsManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearAttendanceRecordsCache() => _attendanceRecordsManager.clear();
+  void clearAttendanceRecordsCacheKey(String? uniqueKey) =>
+      _attendanceRecordsManager.clearRequest(uniqueKey);
+
+  final _attendedClassesLogManager =
+      StreamRequestManager<List<AttendanceRecordRecord>>();
+  Stream<List<AttendanceRecordRecord>> attendedClassesLog({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Stream<List<AttendanceRecordRecord>> Function() requestFn,
+  }) =>
+      _attendedClassesLogManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearAttendedClassesLogCache() => _attendedClassesLogManager.clear();
+  void clearAttendedClassesLogCacheKey(String? uniqueKey) =>
+      _attendedClassesLogManager.clearRequest(uniqueKey);
 }

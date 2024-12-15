@@ -1,4 +1,4 @@
-package com.shashankstudios.attendrix
+package com.archonstudios.attendrix
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -7,6 +7,8 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'join_the_dev_team_model.dart';
 export 'join_the_dev_team_model.dart';
 
@@ -120,7 +122,7 @@ class _JoinTheDevTeamWidgetState extends State<JoinTheDevTeamWidget> {
                     ),
                     child: Form(
                       key: _model.formKey,
-                      autovalidateMode: AutovalidateMode.disabled,
+                      autovalidateMode: AutovalidateMode.always,
                       child: Padding(
                         padding: const EdgeInsetsDirectional.fromSTEB(
                             32.0, 24.0, 32.0, 24.0),
@@ -458,6 +460,10 @@ class _JoinTheDevTeamWidgetState extends State<JoinTheDevTeamWidget> {
                                           validator: _model
                                               .textController3Validator
                                               .asValidator(context),
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(
+                                                RegExp('[0-9]'))
+                                          ],
                                         ),
                                       ),
                                       Padding(
@@ -1768,8 +1774,41 @@ class _JoinTheDevTeamWidgetState extends State<JoinTheDevTeamWidget> {
                                     safeSetState(() => _model.error = false);
                                     return;
                                   }
+                                  if (_model.dropDownValue == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Please Select Any choice from The dropdown',
+                                          style: TextStyle(
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryBackground,
+                                          ),
+                                        ),
+                                        duration: const Duration(milliseconds: 4000),
+                                        backgroundColor:
+                                            FlutterFlowTheme.of(context)
+                                                .secondary,
+                                      ),
+                                    );
+                                    _model.error = false;
+                                    safeSetState(() {});
+                                    return;
+                                  }
                                   shouldSetState = true;
                                   if (_model.error!) {
+                                    await launchUrl(Uri(
+                                        scheme: 'mailto',
+                                        path: 'shashankmergu@gmail.com',
+                                        query: {
+                                          'subject':
+                                              'Attendrix Dev Team Application Alert!',
+                                          'body':
+                                              'Name: ${_model.textController1.text}Email Address: ${_model.textController2.text}Phone Number: ${_model.textController3.text}Experience: ${_model.dropDownValue}${_model.choiceChipsValue1}Github/Personal Website: ${_model.textController5.text}Experience With Firebase/APIs${_model.choiceChipsValue4}Areas Of Interest:${_model.choiceChipsValue5}Previous Works/Portofolio:${_model.textController6.text}Availability: ${_model.choiceChipsValue6}Why Join Us? ${_model.textController7.text}Other Comments: ${_model.textController8.text}',
+                                        }
+                                            .entries
+                                            .map((MapEntry<String, String> e) =>
+                                                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+                                            .join('&')));
                                     await Future.wait([
                                       Future(() async {
                                         await showModalBottomSheet(

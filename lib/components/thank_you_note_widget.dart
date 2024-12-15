@@ -73,10 +73,9 @@ class _ThankYouNoteWidgetState extends State<ThankYouNoteWidget> {
                       textAlign: TextAlign.center,
                       style:
                           FlutterFlowTheme.of(context).headlineMedium.override(
-                                fontFamily: 'GabrielSans',
+                                fontFamily: 'Montserrat',
                                 fontSize: 22.0,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: false,
                               ),
                     ),
                   ),

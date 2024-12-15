@@ -166,12 +166,11 @@ class _PasswordresetWidgetState extends State<PasswordresetWidget> {
                               textStyle: FlutterFlowTheme.of(context)
                                   .labelMedium
                                   .override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     color: FlutterFlowTheme.of(context)
                                         .primaryBackground,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: false,
                                   ),
                               elevation: 0.0,
                               borderRadius: BorderRadius.circular(6.0),
@@ -197,7 +196,7 @@ class _PasswordresetWidgetState extends State<PasswordresetWidget> {
                                   child: SizedBox(
                                     width: 20.0,
                                     height: 20.0,
-                                    child: SpinKitCircle(
+                                    child: SpinKitChasingDots(
                                       color:
                                           FlutterFlowTheme.of(context).primary,
                                       size: 20.0,
@@ -286,12 +285,11 @@ class _PasswordresetWidgetState extends State<PasswordresetWidget> {
                                   textStyle: FlutterFlowTheme.of(context)
                                       .labelMedium
                                       .override(
-                                        fontFamily: 'GabrielSans',
+                                        fontFamily: 'Montserrat',
                                         color: FlutterFlowTheme.of(context)
                                             .primaryBackground,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w600,
-                                        useGoogleFonts: false,
                                       ),
                                   elevation: 0.0,
                                   borderRadius: BorderRadius.circular(8.0),

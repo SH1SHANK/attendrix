@@ -117,22 +117,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'dashboard',
           path: '/dashboard',
+          requireAuth: true,
           builder: (context, params) => params.isEmpty
               ? const NavBarPage(initialPage: 'dashboard')
-              : NavBarPage(
+              : const NavBarPage(
                   initialPage: 'dashboard',
-                  page: DashboardWidget(
-                    upcomingClasses: params.getParam(
-                      'upcomingClasses',
-                      ParamType.String,
-                    ),
-                  ),
+                  page: DashboardWidget(),
                 ),
         ),
         FFRoute(
-          name: 'announements',
-          path: '/announements',
-          builder: (context, params) => const AnnounementsWidget(),
+          name: 'announcements',
+          path: '/announcements',
+          builder: (context, params) => const AnnouncementsWidget(),
         ),
         FFRoute(
           name: 'profile',
@@ -201,6 +197,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'privacyPolicy',
           path: '/privacyPolicy',
           builder: (context, params) => const PrivacyPolicyWidget(),
+        ),
+        FFRoute(
+          name: 'exportAttendanceLogs',
+          path: '/exportAttendanceLogs',
+          builder: (context, params) => const ExportAttendanceLogsWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

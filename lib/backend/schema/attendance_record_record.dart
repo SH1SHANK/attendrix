@@ -55,6 +55,11 @@ class AttendanceRecordRecord extends FirestoreRecord {
   String get classId => _classId ?? '';
   bool hasClassId() => _classId != null;
 
+  // "checkedin" field.
+  bool? _checkedin;
+  bool get checkedin => _checkedin ?? false;
+  bool hasCheckedin() => _checkedin != null;
+
   void _initializeFields() {
     _batch = snapshotData['batch'] as String?;
     _courseName = snapshotData['course_name'] as String?;
@@ -64,6 +69,7 @@ class AttendanceRecordRecord extends FirestoreRecord {
     _isPresent = snapshotData['isPresent'] as bool?;
     _checkinTime = snapshotData['checkin_time'] as DateTime?;
     _classId = snapshotData['ClassId'] as String?;
+    _checkedin = snapshotData['checkedin'] as bool?;
   }
 
   static CollectionReference get collection =>
@@ -110,6 +116,7 @@ Map<String, dynamic> createAttendanceRecordRecordData({
   bool? isPresent,
   DateTime? checkinTime,
   String? classId,
+  bool? checkedin,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -121,6 +128,7 @@ Map<String, dynamic> createAttendanceRecordRecordData({
       'isPresent': isPresent,
       'checkin_time': checkinTime,
       'ClassId': classId,
+      'checkedin': checkedin,
     }.withoutNulls,
   );
 
@@ -140,7 +148,8 @@ class AttendanceRecordRecordDocumentEquality
         e1?.userId == e2?.userId &&
         e1?.isPresent == e2?.isPresent &&
         e1?.checkinTime == e2?.checkinTime &&
-        e1?.classId == e2?.classId;
+        e1?.classId == e2?.classId &&
+        e1?.checkedin == e2?.checkedin;
   }
 
   @override
@@ -152,7 +161,8 @@ class AttendanceRecordRecordDocumentEquality
         e?.userId,
         e?.isPresent,
         e?.checkinTime,
-        e?.classId
+        e?.classId,
+        e?.checkedin
       ]);
 
   @override

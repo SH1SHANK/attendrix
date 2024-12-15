@@ -7,8 +7,8 @@ export '/auth/forgotpassword/forgotpassword_widget.dart'
     show ForgotpasswordWidget;
 export '/auth/passwordreset/passwordreset_widget.dart' show PasswordresetWidget;
 export '/auth/main_screen/dashboard/dashboard_widget.dart' show DashboardWidget;
-export '/auth/main_screen/announements/announements_widget.dart'
-    show AnnounementsWidget;
+export '/auth/main_screen/announcements/announcements_widget.dart'
+    show AnnouncementsWidget;
 export '/auth/profile/profile_widget.dart' show ProfileWidget;
 export '/auth/newpassword/newpassword_widget.dart' show NewpasswordWidget;
 export '/auth/editprofile/editprofile_widget.dart' show EditprofileWidget;
@@ -24,3 +24,5 @@ export '/auth/exams/exams_widget.dart' show ExamsWidget;
 export '/terms_and_conditions/terms_and_conditions_widget.dart'
     show TermsAndConditionsWidget;
 export '/privacy_policy/privacy_policy_widget.dart' show PrivacyPolicyWidget;
+export '/export_attendance_logs/export_attendance_logs_widget.dart'
+    show ExportAttendanceLogsWidget;

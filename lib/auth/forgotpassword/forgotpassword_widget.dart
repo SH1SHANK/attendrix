@@ -92,10 +92,9 @@ class _ForgotpasswordWidgetState extends State<ForgotpasswordWidget>
                               style: FlutterFlowTheme.of(context)
                                   .displaySmall
                                   .override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     fontSize: 33.0,
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                             ),
                             Padding(
@@ -142,9 +141,8 @@ class _ForgotpasswordWidgetState extends State<ForgotpasswordWidget>
                                     labelStyle: FlutterFlowTheme.of(context)
                                         .labelMedium
                                         .override(
-                                          fontFamily: 'GabrielSans',
+                                          fontFamily: 'Montserrat',
                                           letterSpacing: 0.0,
-                                          useGoogleFonts: false,
                                           lineHeight: 2.0,
                                         ),
                                     hintText: 'example@email.com',
@@ -317,12 +315,11 @@ class _ForgotpasswordWidgetState extends State<ForgotpasswordWidget>
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   color: FlutterFlowTheme.of(context).alternate,
                                   fontSize: 16.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w800,
-                                  useGoogleFonts: false,
                                 ),
                           ),
                           textAlign: TextAlign.center,

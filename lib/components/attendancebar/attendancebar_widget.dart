@@ -73,14 +73,12 @@ class _AttendancebarWidgetState extends State<AttendancebarWidget> {
               ],
             ),
             AuthUserStreamWidget(
-              builder: (context) => StreamBuilder<List<ClassDetailsRecord>>(
-                stream: FFAppState().attendanceOverview(
-                  requestFn: () => queryClassDetailsRecord(
-                    queryBuilder: (classDetailsRecord) =>
-                        classDetailsRecord.where(
-                      'batch',
-                      isEqualTo: valueOrDefault(currentUserDocument?.batch, ''),
-                    ),
+              builder: (context) => FutureBuilder<List<ClassDetailsRecord>>(
+                future: queryClassDetailsRecordOnce(
+                  queryBuilder: (classDetailsRecord) =>
+                      classDetailsRecord.where(
+                    'batch',
+                    isEqualTo: valueOrDefault(currentUserDocument?.batch, ''),
                   ),
                 ),
                 builder: (context, snapshot) {
@@ -90,7 +88,7 @@ class _AttendancebarWidgetState extends State<AttendancebarWidget> {
                       child: SizedBox(
                         width: 20.0,
                         height: 20.0,
-                        child: SpinKitCircle(
+                        child: SpinKitChasingDots(
                           color: FlutterFlowTheme.of(context).primary,
                           size: 20.0,
                         ),
@@ -161,7 +159,7 @@ class _AttendancebarWidgetState extends State<AttendancebarWidget> {
                                           child: SizedBox(
                                             width: 20.0,
                                             height: 20.0,
-                                            child: SpinKitCircle(
+                                            child: SpinKitChasingDots(
                                               color:
                                                   FlutterFlowTheme.of(context)
                                                       .primary,
@@ -229,7 +227,7 @@ class _AttendancebarWidgetState extends State<AttendancebarWidget> {
                                                     child: SizedBox(
                                                       width: 20.0,
                                                       height: 20.0,
-                                                      child: SpinKitCircle(
+                                                      child: SpinKitChasingDots(
                                                         color:
                                                             FlutterFlowTheme.of(
                                                                     context)

@@ -9,7 +9,11 @@ import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'index.dart';
+
+import '/flutter_flow/admob_util.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +21,12 @@ void main() async {
   usePathUrlStrategy();
 
   await initFirebase();
+
+  adMobUpdateRequestConfiguration();
+
+  if (!kIsWeb) {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  }
 
   runApp(const MyApp());
 }
@@ -141,9 +151,9 @@ class _NavBarPageState extends State<NavBarPage> {
   Widget build(BuildContext context) {
     final tabs = {
       'dashboard': const DashboardWidget(),
+      'CompletedClasses': const CompletedClassesWidget(),
       'exams': const ExamsWidget(),
       'Assignments': const AssignmentsWidget(),
-      'CompletedClasses': const CompletedClassesWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
 
@@ -180,6 +190,18 @@ class _NavBarPageState extends State<NavBarPage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(
+                Icons.person_outlined,
+                size: 30.0,
+              ),
+              activeIcon: Icon(
+                Icons.person,
+                size: 30.0,
+              ),
+              label: 'Classes',
+              tooltip: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
                 Icons.text_snippet_outlined,
                 size: 24.0,
               ),
@@ -200,18 +222,6 @@ class _NavBarPageState extends State<NavBarPage> {
                 size: 28.0,
               ),
               label: 'Assignments',
-              tooltip: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person_outlined,
-                size: 30.0,
-              ),
-              activeIcon: Icon(
-                Icons.person,
-                size: 30.0,
-              ),
-              label: 'Classes',
               tooltip: '',
             )
           ],

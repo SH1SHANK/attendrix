@@ -13,36 +13,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '/backend/schema/enums/enums.dart';
 import '/auth/firebase_auth/auth_util.dart';
 
-String? calculateTimeRemaining(String? targetTime) {
-  // A Function to calculate the time difference between the given time and the current time
+String? calculateTimeRemaining(DateTime? targetTime) {
+  // give the time remaning until the target time also make sure its efficient and will not run into infinite write loop and if the time is over 1 day it should show only days and if its under 1 day it should in hours and if under 1 hour it should show in minutes and if the class is in 10 Minutes then have a list of words like hurry up or about to begin and randomly show any one of them
   if (targetTime == null) {
     return null;
   }
 
-  DateTime target = DateTime.parse(targetTime);
-  DateTime now = DateTime.now();
-
-  Duration difference = target.difference(now);
-
-  if (difference.isNegative) {
-    return 'Time has passed';
-  }
-
-  String formattedTime = '';
+  DateTime currentTime = DateTime.now();
+  Duration difference = targetTime.difference(currentTime);
 
   if (difference.inDays > 0) {
-    formattedTime += '${difference.inDays} days ';
+    return '${difference.inDays} days';
+  } else if (difference.inHours > 0) {
+    return '${difference.inHours} hours';
+  } else if (difference.inMinutes > 10) {
+    return '${difference.inMinutes} minutes';
+  } else {
+    List<String> messages = ['Hurry up!', 'About to begin!'];
+    int randomIndex = math.Random().nextInt(messages.length);
+    return messages[randomIndex];
   }
-
-  if (difference.inHours.remainder(24) > 0) {
-    formattedTime += '${difference.inHours.remainder(24)} hours ';
-  }
-
-  if (difference.inMinutes.remainder(60) > 0) {
-    formattedTime += '${difference.inMinutes.remainder(60)} minutes ';
-  }
-
-  return formattedTime;
 }
 
 int? attendancePercentage(
@@ -95,11 +85,25 @@ List<DateTime> generateSurroundingDays(DateTime? selectedDay) {
   List<DateTime> surroundingDays = [];
 
   if (selectedDay != null) {
-    for (int i = 1; i <= 10; i++) {
+    for (int i = 1; i <= 4; i++) {
       DateTime newDay = selectedDay.add(Duration(days: i));
       surroundingDays.add(newDay);
     }
   }
 
   return surroundingDays;
+}
+
+bool? isLastestAnnounement(AnnouncementsRecord? announements) {
+  // A Function which returns true if the announement is created in the last 24 hours or else if there are non then returns false
+  if (announements == null || !announements.hasCreatedTime()) {
+    return false;
+  }
+
+  DateTime currentTime = DateTime.now();
+  DateTime createdTime = announements.createdTime!;
+
+  Duration difference = currentTime.difference(createdTime);
+
+  return difference.inHours < 24;
 }

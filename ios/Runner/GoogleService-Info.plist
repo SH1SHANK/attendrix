@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>69228740786-uiaif1rcjfikr3e0uiv8clgvj6pipdn0.apps.googleusercontent.com</string>
+	<string>69228740786-hffo1b8ktot2c7cn7vgj3q1nsitskplr.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.69228740786-uiaif1rcjfikr3e0uiv8clgvj6pipdn0</string>
+	<string>com.googleusercontent.apps.69228740786-hffo1b8ktot2c7cn7vgj3q1nsitskplr</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>69228740786-1oonf78aimohdjglunrqnbtf6hs5tjks.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.shashankstudios.attendrix</string>
+	<string>com.archonstudios.attendrix</string>
 	<key>PROJECT_ID</key>
 	<string>attendrix-5ke7lp</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:69228740786:ios:ec55527cf976fe76e1c9ab</string>
+	<string>1:69228740786:ios:9595ece7e5942ce7e1c9ab</string>
 	<key>DATABASE_URL</key>
 	<string>https://attendrix-5ke7lp-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>

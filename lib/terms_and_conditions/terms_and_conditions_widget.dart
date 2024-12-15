@@ -66,11 +66,10 @@ class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
               title: Text(
                 'Terms and Conditions',
                 style: FlutterFlowTheme.of(context).headlineMedium.override(
-                      fontFamily: 'GabrielSans',
+                      fontFamily: 'Montserrat',
                       color: Colors.white,
                       fontSize: 22.0,
                       letterSpacing: 0.0,
-                      useGoogleFonts: false,
                     ),
               ),
               actions: const [],

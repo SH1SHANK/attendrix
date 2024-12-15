@@ -159,51 +159,51 @@ class ThemeTypography extends Typography {
 
   final FlutterFlowTheme theme;
 
-  String get displayLargeFamily => 'GabrielSans';
-  TextStyle get displayLarge => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get displayLargeFamily => 'Montserrat';
+  TextStyle get displayLarge => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 64.0,
       );
-  String get displayMediumFamily => 'GabrielSans';
-  TextStyle get displayMedium => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get displayMediumFamily => 'Montserrat';
+  TextStyle get displayMedium => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 44.0,
       );
-  String get displaySmallFamily => 'GabrielSans';
-  TextStyle get displaySmall => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get displaySmallFamily => 'Montserrat';
+  TextStyle get displaySmall => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 36.0,
       );
-  String get headlineLargeFamily => 'GabrielSans';
-  TextStyle get headlineLarge => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get headlineLargeFamily => 'Montserrat';
+  TextStyle get headlineLarge => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 32.0,
       );
-  String get headlineMediumFamily => 'GabrielSans';
-  TextStyle get headlineMedium => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get headlineMediumFamily => 'Montserrat';
+  TextStyle get headlineMedium => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 28.0,
       );
-  String get headlineSmallFamily => 'GabrielSans';
-  TextStyle get headlineSmall => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get headlineSmallFamily => 'Montserrat';
+  TextStyle get headlineSmall => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get titleLargeFamily => 'Geomanist';
-  TextStyle get titleLarge => TextStyle(
-        fontFamily: 'Geomanist',
+  String get titleLargeFamily => 'Montserrat';
+  TextStyle get titleLarge => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 20.0,
@@ -222,23 +222,23 @@ class ThemeTypography extends Typography {
         fontWeight: FontWeight.w600,
         fontSize: 16.0,
       );
-  String get labelLargeFamily => 'GabrielSans';
-  TextStyle get labelLarge => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get labelLargeFamily => 'Montserrat';
+  TextStyle get labelLarge => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
-  String get labelMediumFamily => 'GabrielSans';
-  TextStyle get labelMedium => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get labelMediumFamily => 'Montserrat';
+  TextStyle get labelMedium => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
-  String get labelSmallFamily => 'GabrielSans';
-  TextStyle get labelSmall => TextStyle(
-        fontFamily: 'GabrielSans',
+  String get labelSmallFamily => 'Montserrat';
+  TextStyle get labelSmall => GoogleFonts.getFont(
+        'Montserrat',
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,

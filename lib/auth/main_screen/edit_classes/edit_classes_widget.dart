@@ -61,83 +61,38 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
           child: Scaffold(
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(80.0),
-              child: AppBar(
-                backgroundColor: FlutterFlowTheme.of(context).primary,
-                automaticallyImplyLeading: false,
-                actions: const [],
-                flexibleSpace: FlexibleSpaceBar(
-                  title: Padding(
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 14.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 0.0, 8.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 2.0, 0.0, 0.0),
-                                child: FlutterFlowIconButton(
-                                  borderColor: Colors.transparent,
-                                  borderRadius: 30.0,
-                                  borderWidth: 1.0,
-                                  buttonSize: 50.0,
-                                  icon: const Icon(
-                                    Icons.chevron_left_rounded,
-                                    color: Colors.white,
-                                    size: 30.0,
-                                  ),
-                                  onPressed: () async {
-                                    context.pushNamed(
-                                      'dashboard',
-                                      extra: <String, dynamic>{
-                                        kTransitionInfoKey: const TransitionInfo(
-                                          hasTransition: true,
-                                          transitionType:
-                                              PageTransitionType.leftToRight,
-                                        ),
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    4.0, 0.0, 0.0, 0.0),
-                                child: Text(
-                                  'Back',
-                                  style: FlutterFlowTheme.of(context)
-                                      .headlineMedium
-                                      .override(
-                                        fontFamily: 'GabrielSans',
-                                        color: Colors.white,
-                                        fontSize: 20.0,
-                                        letterSpacing: 0.0,
-                                        useGoogleFonts: false,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  centerTitle: true,
-                  expandedTitleScale: 1.0,
-                  titlePadding:
-                      const EdgeInsetsDirectional.fromSTEB(0.0, 30.0, 0.0, 0.0),
+            appBar: AppBar(
+              backgroundColor: FlutterFlowTheme.of(context).primary,
+              automaticallyImplyLeading: false,
+              leading: FlutterFlowIconButton(
+                borderColor: Colors.transparent,
+                borderRadius: 30.0,
+                borderWidth: 1.0,
+                buttonSize: 60.0,
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Colors.white,
+                  size: 30.0,
                 ),
-                elevation: 2.0,
+                onPressed: () async {
+                  context.pop();
+                },
               ),
+              title: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
+                child: Text(
+                  'Back',
+                  style: FlutterFlowTheme.of(context).headlineMedium.override(
+                        fontFamily: 'Montserrat',
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        letterSpacing: 0.0,
+                      ),
+                ),
+              ),
+              actions: const [],
+              centerTitle: false,
+              elevation: 1.0,
             ),
             body: SafeArea(
               top: true,
@@ -194,13 +149,12 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .headlineMedium
                                                 .override(
-                                                  fontFamily: 'GabrielSans',
+                                                  fontFamily: 'Montserrat',
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .alternate,
                                                   fontSize: 22.0,
                                                   letterSpacing: 0.0,
-                                                  useGoogleFonts: false,
                                                 ),
                                           ),
                                         ),
@@ -325,9 +279,8 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
                                                         .labelMedium
                                                         .override(
                                                           fontFamily:
-                                                              'GabrielSans',
+                                                              'Montserrat',
                                                           letterSpacing: 0.0,
-                                                          useGoogleFonts: false,
                                                         ),
                                                 enabledBorder:
                                                     OutlineInputBorder(
@@ -868,13 +821,12 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .headlineMedium
                                               .override(
-                                                fontFamily: 'GabrielSans',
+                                                fontFamily: 'Montserrat',
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .alternate,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: false,
                                               ),
                                         ),
                                       ),
@@ -913,7 +865,7 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
                                               child: SizedBox(
                                                 width: 20.0,
                                                 height: 20.0,
-                                                child: SpinKitCircle(
+                                                child: SpinKitChasingDots(
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primary,
@@ -1195,13 +1147,12 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .headlineMedium
                                               .override(
-                                                fontFamily: 'GabrielSans',
+                                                fontFamily: 'Montserrat',
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .alternate,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: false,
                                               ),
                                         ),
                                       ),
@@ -1240,7 +1191,7 @@ class _EditClassesWidgetState extends State<EditClassesWidget> {
                                               child: SizedBox(
                                                 width: 20.0,
                                                 height: 20.0,
-                                                child: SpinKitCircle(
+                                                child: SpinKitChasingDots(
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primary,

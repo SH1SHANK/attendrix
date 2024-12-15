@@ -108,9 +108,8 @@ class _ClassCancellationWidgetState extends State<ClassCancellationWidget> {
                           hintText: 'Reason',
                           hintStyle:
                               FlutterFlowTheme.of(context).labelMedium.override(
-                                    fontFamily: 'GabrielSans',
+                                    fontFamily: 'Montserrat',
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: false,
                                   ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(

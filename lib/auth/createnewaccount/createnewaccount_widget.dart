@@ -9,7 +9,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'createnewaccount_model.dart';
 export 'createnewaccount_model.dart';
@@ -187,9 +186,8 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                         style: FlutterFlowTheme.of(context)
                                             .displaySmall
                                             .override(
-                                              fontFamily: 'GabrielSans',
+                                              fontFamily: 'Montserrat',
                                               letterSpacing: 0.0,
-                                              useGoogleFonts: false,
                                             ),
                                       ),
                                     ),
@@ -226,7 +224,7 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                       padding: const EdgeInsetsDirectional.fromSTEB(
                                           0.0, 0.0, 0.0, 5.0),
                                       child: SizedBox(
-                                        width: 330.0,
+                                        width: double.infinity,
                                         child: TextFormField(
                                           controller:
                                               _model.usernameTextController,
@@ -240,9 +238,8 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                 FlutterFlowTheme.of(context)
                                                     .labelMedium
                                                     .override(
-                                                      fontFamily: 'GabrielSans',
+                                                      fontFamily: 'Montserrat',
                                                       letterSpacing: 0.0,
-                                                      useGoogleFonts: false,
                                                     ),
                                             hintText: '@yourname',
                                             hintStyle:
@@ -329,7 +326,7 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                       padding: const EdgeInsetsDirectional.fromSTEB(
                                           0.0, 0.0, 0.0, 5.0),
                                       child: SizedBox(
-                                        width: 330.0,
+                                        width: double.infinity,
                                         child: TextFormField(
                                           controller:
                                               _model.emailTextController,
@@ -343,9 +340,8 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                 FlutterFlowTheme.of(context)
                                                     .labelMedium
                                                     .override(
-                                                      fontFamily: 'GabrielSans',
+                                                      fontFamily: 'Montserrat',
                                                       letterSpacing: 0.0,
-                                                      useGoogleFonts: false,
                                                       lineHeight: 2.0,
                                                     ),
                                             hintText: 'example@email.com',
@@ -438,7 +434,7 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                       padding: const EdgeInsetsDirectional.fromSTEB(
                                           0.0, 0.0, 0.0, 5.0),
                                       child: SizedBox(
-                                        width: 330.0,
+                                        width: double.infinity,
                                         child: TextFormField(
                                           controller:
                                               _model.passwordTextController,
@@ -456,9 +452,8 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                 FlutterFlowTheme.of(context)
                                                     .labelMedium
                                                     .override(
-                                                      fontFamily: 'GabrielSans',
+                                                      fontFamily: 'Montserrat',
                                                       letterSpacing: 0.0,
-                                                      useGoogleFonts: false,
                                                     ),
                                             hintText: '**********',
                                             hintStyle:
@@ -569,7 +564,7 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                       padding: const EdgeInsetsDirectional.fromSTEB(
                                           0.0, 0.0, 0.0, 5.0),
                                       child: SizedBox(
-                                        width: 330.0,
+                                        width: double.infinity,
                                         child: TextFormField(
                                           controller: _model
                                               .confirmpasswordTextController,
@@ -588,9 +583,8 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                 FlutterFlowTheme.of(context)
                                                     .labelMedium
                                                     .override(
-                                                      fontFamily: 'GabrielSans',
+                                                      fontFamily: 'Montserrat',
                                                       letterSpacing: 0.0,
-                                                      useGoogleFonts: false,
                                                     ),
                                             hintText: '**********',
                                             hintStyle:
@@ -691,7 +685,7 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                         options: const ['Mechanical Engineering'],
                                         onChanged: (val) => safeSetState(() =>
                                             _model.branchselectionValue = val),
-                                        width: 330.0,
+                                        width: double.infinity,
                                         height: 45.0,
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -734,7 +728,7 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                         options: [Batch.ME02.name],
                                         onChanged: (val) => safeSetState(() =>
                                             _model.batchselectionValue = val),
-                                        width: 330.0,
+                                        width: double.infinity,
                                         height: 45.0,
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -773,13 +767,15 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                             0.0, 0.0, 0.0, 16.0),
                                         child: FFButtonWidget(
                                           onPressed: () async {
-                                            Function() navigate = () {};
+                                            var shouldSetState = false;
                                             _model.createAccountForm = true;
                                             if (_model.formKey.currentState ==
                                                     null ||
                                                 !_model.formKey.currentState!
                                                     .validate()) {
-                                              _model.createAccountForm = false;
+                                              safeSetState(() => _model
+                                                  .createAccountForm = false);
+                                              return;
                                             }
                                             if (_model.branchselectionValue ==
                                                 null) {
@@ -789,10 +785,9 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                   content: Text(
                                                     'Please Choose your branch!',
                                                     style: TextStyle(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .primaryBackground,
                                                     ),
                                                   ),
                                                   duration: const Duration(
@@ -800,10 +795,12 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                   backgroundColor:
                                                       FlutterFlowTheme.of(
                                                               context)
-                                                          .tertiary,
+                                                          .primary,
                                                 ),
                                               );
                                               _model.createAccountForm = false;
+                                              safeSetState(() {});
+                                              return;
                                             }
                                             if (_model.batchselectionValue ==
                                                 null) {
@@ -815,10 +812,9 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                   content: Text(
                                                     'Please Choose Your Batch!',
                                                     style: TextStyle(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .error,
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .primaryBackground,
                                                     ),
                                                   ),
                                                   duration: const Duration(
@@ -826,130 +822,114 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                                   backgroundColor:
                                                       FlutterFlowTheme.of(
                                                               context)
-                                                          .secondary,
+                                                          .primary,
                                                 ),
                                               );
                                               _model.createAccountForm = false;
+                                              safeSetState(() {});
+                                              return;
                                             }
+                                            shouldSetState = true;
                                             if (_model.createAccountForm!) {
-                                              await Future.wait([
-                                                Future(() async {
-                                                  GoRouter.of(context)
-                                                      .prepareAuthEvent();
-                                                  if (_model
-                                                          .passwordTextController
-                                                          .text !=
-                                                      _model
-                                                          .confirmpasswordTextController
-                                                          .text) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          'Passwords don\'t match!',
-                                                        ),
-                                                      ),
-                                                    );
-                                                    return;
-                                                  }
+                                              GoRouter.of(context)
+                                                  .prepareAuthEvent(true);
+                                              if (_model.passwordTextController
+                                                      .text !=
+                                                  _model
+                                                      .confirmpasswordTextController
+                                                      .text) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Passwords don\'t match!',
+                                                    ),
+                                                  ),
+                                                );
+                                                return;
+                                              }
 
-                                                  final user = await authManager
-                                                      .createAccountWithEmail(
-                                                    context,
-                                                    _model.emailTextController
+                                              final user = await authManager
+                                                  .createAccountWithEmail(
+                                                context,
+                                                _model.emailTextController.text,
+                                                _model.passwordTextController
+                                                    .text,
+                                              );
+                                              if (user == null) {
+                                                return;
+                                              }
+
+                                              await UsersRecord.collection
+                                                  .doc(user.uid)
+                                                  .update(createUsersRecordData(
+                                                    displayName: _model
+                                                        .usernameTextController
                                                         .text,
-                                                    _model
-                                                        .passwordTextController
-                                                        .text,
-                                                  );
-                                                  if (user == null) {
-                                                    return;
-                                                  }
+                                                    batch: _model
+                                                        .batchselectionValue,
+                                                    branch: _model
+                                                        .branchselectionValue,
+                                                    role: UserRole.student,
+                                                  ));
 
-                                                  await UsersRecord.collection
-                                                      .doc(user.uid)
-                                                      .update(
-                                                          createUsersRecordData(
-                                                        displayName: _model
-                                                            .usernameTextController
-                                                            .text,
-                                                        batch: _model
-                                                            .batchselectionValue,
-                                                        branch: _model
-                                                            .branchselectionValue,
-                                                        role: UserRole.student,
-                                                      ));
-
-                                                  navigate = () =>
-                                                      context.goNamedAuth(
-                                                          'dashboard',
-                                                          context.mounted);
-                                                  await authManager
-                                                      .sendEmailVerification();
-                                                  await Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 1000));
-                                                }),
-                                                Future(() async {
-                                                  await Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 3000));
-                                                  await Future.wait([
-                                                    Future(() async {
-                                                      // Welcome Message!
-                                                      await showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (dialogContext) {
-                                                          return Dialog(
-                                                            elevation: 0,
-                                                            insetPadding:
-                                                                EdgeInsets.zero,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            alignment: const AlignmentDirectional(
-                                                                    0.0, 0.0)
-                                                                .resolve(
-                                                                    Directionality.of(
-                                                                        context)),
-                                                            child:
-                                                                GestureDetector(
-                                                              onTap: () {
-                                                                FocusScope.of(
-                                                                        dialogContext)
-                                                                    .unfocus();
-                                                                FocusManager
-                                                                    .instance
-                                                                    .primaryFocus
-                                                                    ?.unfocus();
-                                                              },
-                                                              child: const SizedBox(
-                                                                width: 330.0,
-                                                                child:
-                                                                    FirstTimeUserPromptWidget(),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      );
-                                                    }),
-                                                    Future(() async {
-                                                      HapticFeedback
-                                                          .lightImpact();
-                                                    }),
-                                                  ]);
-                                                }),
-                                              ]);
-                                              await Future.delayed(
-                                                  const Duration(
-                                                      milliseconds: 1000));
+                                              await authManager
+                                                  .sendEmailVerification();
+                                            } else {
+                                              if (shouldSetState) {
+                                                safeSetState(() {});
+                                              }
+                                              return;
                                             }
 
-                                            navigate();
+                                            context.goNamedAuth(
+                                              'dashboard',
+                                              context.mounted,
+                                              ignoreRedirect: true,
+                                            );
 
-                                            safeSetState(() {});
+                                            await Future.delayed(const Duration(
+                                                milliseconds: 1000));
+                                            await showDialog(
+                                              context: context,
+                                              builder: (dialogContext) {
+                                                return Dialog(
+                                                  elevation: 0,
+                                                  insetPadding: EdgeInsets.zero,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  alignment:
+                                                      const AlignmentDirectional(
+                                                              0.0, 0.0)
+                                                          .resolve(
+                                                              Directionality.of(
+                                                                  context)),
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      FocusScope.of(
+                                                              dialogContext)
+                                                          .unfocus();
+                                                      FocusManager
+                                                          .instance.primaryFocus
+                                                          ?.unfocus();
+                                                    },
+                                                    child: const SizedBox(
+                                                      height: 700.0,
+                                                      width: 330.0,
+                                                      child:
+                                                          FirstTimeUserPromptWidget(),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+
+                                            await Future.delayed(const Duration(
+                                                milliseconds: 5000));
+                                            Navigator.pop(context);
+                                            if (shouldSetState) {
+                                              safeSetState(() {});
+                                            }
                                           },
                                           text: 'Let\'s Go',
                                           options: FFButtonOptions(
@@ -1058,6 +1038,112 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                                         ),
                                       ),
                                     ),
+                                    Text(
+                                      'Or',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Geomanist',
+                                            letterSpacing: 0.0,
+                                            useGoogleFonts: false,
+                                          ),
+                                    ),
+                                    Builder(
+                                      builder: (context) => Padding(
+                                        padding: const EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 0.0, 0.0, 16.0),
+                                        child: FFButtonWidget(
+                                          onPressed: () async {
+                                            GoRouter.of(context)
+                                                .prepareAuthEvent(true);
+                                            final user = await authManager
+                                                .signInWithGoogle(context);
+                                            if (user == null) {
+                                              return;
+                                            }
+
+                                            context.goNamedAuth(
+                                              'dashboard',
+                                              context.mounted,
+                                              ignoreRedirect: true,
+                                            );
+
+                                            await Future.delayed(const Duration(
+                                                milliseconds: 1000));
+                                            await showDialog(
+                                              context: context,
+                                              builder: (dialogContext) {
+                                                return Dialog(
+                                                  elevation: 0,
+                                                  insetPadding: EdgeInsets.zero,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  alignment:
+                                                      const AlignmentDirectional(
+                                                              0.0, 0.0)
+                                                          .resolve(
+                                                              Directionality.of(
+                                                                  context)),
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      FocusScope.of(
+                                                              dialogContext)
+                                                          .unfocus();
+                                                      FocusManager
+                                                          .instance.primaryFocus
+                                                          ?.unfocus();
+                                                    },
+                                                    child:
+                                                        const FirstTimeUserPromptWidget(),
+                                                  ),
+                                                );
+                                              },
+                                            );
+
+                                            await Future.delayed(const Duration(
+                                                milliseconds: 5000));
+                                            Navigator.pop(context);
+                                          },
+                                          text: 'Continue With Google',
+                                          icon: const Icon(
+                                            FFIcons.kgoogle,
+                                            size: 15.0,
+                                          ),
+                                          options: FFButtonOptions(
+                                            width: 263.0,
+                                            height: 44.0,
+                                            padding:
+                                                const EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            iconPadding:
+                                                const EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            color: FlutterFlowTheme.of(context)
+                                                .alternate,
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .override(
+                                                      fontFamily: 'Geomanist',
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .primaryBackground,
+                                                      letterSpacing: 0.0,
+                                                      useGoogleFonts: false,
+                                                    ),
+                                            elevation: 0.0,
+                                            borderSide: const BorderSide(
+                                              width: 2.0,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                            hoverColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .primaryBackground,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1069,57 +1155,116 @@ class _CreatenewaccountWidgetState extends State<CreatenewaccountWidget>
                           child: Padding(
                             padding: const EdgeInsetsDirectional.fromSTEB(
                                 15.0, 0.0, 15.0, 24.0),
-                            child: RichText(
-                              textScaler: MediaQuery.of(context).textScaler,
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        'By continuing, you agree to Attendrix ',
-                                    style: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily: 'Geomanist',
-                                          fontSize: 10.0,
-                                          letterSpacing: 0.0,
-                                          useGoogleFonts: false,
-                                        ),
-                                  ),
-                                  TextSpan(
-                                    text: 'Terms and Conditions',
-                                    style: TextStyle(
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12.0,
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                context.pushNamed(
+                                  'TermsAndConditions',
+                                  extra: <String, dynamic>{
+                                    kTransitionInfoKey: const TransitionInfo(
+                                      hasTransition: true,
+                                      transitionType:
+                                          PageTransitionType.rightToLeft,
                                     ),
-                                  ),
-                                  const TextSpan(
-                                    text: ' and confirm you have read our ',
-                                    style: TextStyle(
-                                      fontSize: 10.0,
+                                  },
+                                );
+                              },
+                              child: RichText(
+                                textScaler: MediaQuery.of(context).textScaler,
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          'By continuing, you agree to Attendrix ',
+                                      style: FlutterFlowTheme.of(context)
+                                          .labelLarge
+                                          .override(
+                                            fontFamily: 'Geomanist',
+                                            fontSize: 10.0,
+                                            letterSpacing: 0.0,
+                                            useGoogleFonts: false,
+                                          ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: 'Privacy Policy',
-                                    style: TextStyle(
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12.0,
-                                    ),
-                                  )
-                                ],
-                                style: FlutterFlowTheme.of(context)
-                                    .labelLarge
-                                    .override(
-                                      fontFamily: 'Geomanist',
-                                      fontSize: 13.0,
-                                      letterSpacing: 0.0,
-                                      useGoogleFonts: false,
-                                    ),
+                                    TextSpan(
+                                      text: 'Terms and Conditions',
+                                      style: TextStyle(
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12.0,
+                                      ),
+                                    )
+                                  ],
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelLarge
+                                      .override(
+                                        fontFamily: 'Geomanist',
+                                        fontSize: 13.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts: false,
+                                      ),
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: const AlignmentDirectional(0.0, 1.0),
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                15.0, 0.0, 15.0, 12.0),
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                context.pushNamed(
+                                  'privacyPolicy',
+                                  extra: <String, dynamic>{
+                                    kTransitionInfoKey: const TransitionInfo(
+                                      hasTransition: true,
+                                      transitionType:
+                                          PageTransitionType.rightToLeft,
+                                    ),
+                                  },
+                                );
+                              },
+                              child: RichText(
+                                textScaler: MediaQuery.of(context).textScaler,
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: ' and confirm you have read our ',
+                                      style: TextStyle(
+                                        fontSize: 10.0,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: 'Privacy Policy',
+                                      style: TextStyle(
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12.0,
+                                      ),
+                                    )
+                                  ],
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelLarge
+                                      .override(
+                                        fontFamily: 'Geomanist',
+                                        fontSize: 13.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts: false,
+                                      ),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),

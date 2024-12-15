@@ -75,9 +75,8 @@ class _CreateAnnouncementWidgetState extends State<CreateAnnouncementWidget> {
               Text(
                 'Create Announcement',
                 style: FlutterFlowTheme.of(context).headlineSmall.override(
-                      fontFamily: 'GabrielSans',
+                      fontFamily: 'Montserrat',
                       letterSpacing: 0.0,
-                      useGoogleFonts: false,
                     ),
               ),
               Form(

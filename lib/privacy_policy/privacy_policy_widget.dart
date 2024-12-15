@@ -65,11 +65,10 @@ class _PrivacyPolicyWidgetState extends State<PrivacyPolicyWidget> {
               title: Text(
                 'Privacy Policy',
                 style: FlutterFlowTheme.of(context).headlineMedium.override(
-                      fontFamily: 'GabrielSans',
+                      fontFamily: 'Montserrat',
                       color: Colors.white,
                       fontSize: 22.0,
                       letterSpacing: 0.0,
-                      useGoogleFonts: false,
                     ),
               ),
               actions: const [],

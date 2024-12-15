@@ -130,11 +130,10 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                           style: FlutterFlowTheme.of(context)
                               .headlineMedium
                               .override(
-                                fontFamily: 'GabrielSans',
+                                fontFamily: 'Montserrat',
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 fontSize: 22.0,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: false,
                               ),
                         ),
                       ),
@@ -202,15 +201,13 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                         labelText: 'Your Name',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: false,
                                 ),
                         hintStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: false,
                                 ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -254,9 +251,6 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                           ),
                       validator: _model.yourNameTextControllerValidator
                           .asValidator(context),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp('[0-9]'))
-                      ],
                     ),
                   ),
                 ),
@@ -273,15 +267,13 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                       labelText: 'Your Email Adddress',
                       labelStyle:
                           FlutterFlowTheme.of(context).labelMedium.override(
-                                fontFamily: 'GabrielSans',
+                                fontFamily: 'Montserrat',
                                 letterSpacing: 0.0,
-                                useGoogleFonts: false,
                               ),
                       hintStyle:
                           FlutterFlowTheme.of(context).labelMedium.override(
-                                fontFamily: 'GabrielSans',
+                                fontFamily: 'Montserrat',
                                 letterSpacing: 0.0,
-                                useGoogleFonts: false,
                               ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
@@ -335,22 +327,20 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                     builder: (context) => TextFormField(
                       controller: _model.phoneNumberTextController,
                       focusNode: _model.phoneNumberFocusNode,
-                      textCapitalization: TextCapitalization.words,
+                      textCapitalization: TextCapitalization.none,
                       textInputAction: TextInputAction.next,
                       obscureText: false,
                       decoration: InputDecoration(
                         labelText: 'Your Phone Number',
                         labelStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: false,
                                 ),
                         hintStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: false,
                                 ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -421,16 +411,14 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                         labelStyle: FlutterFlowTheme.of(context)
                             .labelMedium
                             .override(
-                              fontFamily: 'GabrielSans',
+                              fontFamily: 'Montserrat',
                               color: FlutterFlowTheme.of(context).primaryText,
                               letterSpacing: 0.0,
-                              useGoogleFonts: false,
                             ),
                         hintStyle:
                             FlutterFlowTheme.of(context).labelMedium.override(
-                                  fontFamily: 'GabrielSans',
+                                  fontFamily: 'Montserrat',
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: false,
                                 ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -490,6 +478,20 @@ class _EditprofileWidgetState extends State<EditprofileWidget>
                           displayName: _model.yourNameTextController.text,
                           phoneNumber: _model.phoneNumberTextController.text,
                         ));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Profile Updated',
+                              style: TextStyle(
+                                color: FlutterFlowTheme.of(context)
+                                    .primaryBackground,
+                              ),
+                            ),
+                            duration: const Duration(milliseconds: 4000),
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).primary,
+                          ),
+                        );
 
                         context.pushNamed(
                           'profile',

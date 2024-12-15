@@ -1,8 +1,9 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'announements_widget.dart' show AnnounementsWidget;
+import 'announement_bottom_sheet_widget.dart' show AnnounementBottomSheetWidget;
 import 'package:flutter/material.dart';
 
-class AnnounementsModel extends FlutterFlowModel<AnnounementsWidget> {
+class AnnounementBottomSheetModel
+    extends FlutterFlowModel<AnnounementBottomSheetWidget> {
   @override
   void initState(BuildContext context) {}
 
