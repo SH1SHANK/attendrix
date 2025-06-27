@@ -311,4 +311,4 @@ Contributors will be recognized in:
 
 ---
 
-Thank you for contributing to our Flutter app! Your contributions help make this project better for everyone. 🚀
+Thank you for contributing to Attendrix! Your contributions help make this project better for everyone. 🚀
