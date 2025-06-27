@@ -1,0 +1,20 @@
+{
+    "recommendations": [
+        "dart-code.dart-code",
+        "dart-code.flutter",
+        "alexisvt.flutter-snippets",
+        "nash.awesome-flutter-snippets",
+        "flutterando.flutter-coverage",
+        "circlecodesolution.ccs-flutter-color",
+        "gmlewis-vscode.flutter-stylizer",
+        "ms-vscode.vscode-json",
+        "bradlc.vscode-tailwindcss",
+        "usernamehw.errorlens",
+        "github.vscode-pull-request-github",
+        "ms-vscode.vscode-yaml",
+        "redhat.vscode-xml"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.vscode-typescript-next"
+    ]
+}
