@@ -235,7 +235,10 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 For support, feature requests, or bug reports:
 - 📧 Email: support@attendrix.com
-- 🐛 Issues: [GitHub Issues](https://github.com/sh1shank/attendrix/issues)
+- 🐛 Issues: [GitHub Issues](https://github.com/SH1SHANK/attendrix/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D
+)
+- 💡 Have an idea? [Suggest a feature!](https://github.com/SH1SHANK/attendrix/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=%5BFEATURE%5D
+)
 - 💬 Discussions: [GitHub Discussions](https://github.com/sh1shank/attendrix/discussions)
 
 ---
@@ -276,6 +279,7 @@ Set custom goals such as 90% for a class and get notified if you are below it or
 
 ### 📊 **Advanced Analytics**
 Detailed insights into your academic performance with predictive analytics.
+
 ---
 
 <div align="center">
