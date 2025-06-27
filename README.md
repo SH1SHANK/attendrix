@@ -104,10 +104,10 @@ Attendrix revolutionizes the way NIT Calicut students manage their academic sche
 
 <div align="center">
 
-[![Download APK](https://img.shields.io/badge/📱_Download-Latest%20APK-6366F1?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sh1shank/attendrix/releases/latest/download/attendrix-alpha.apk)
+[![Download APK](https://img.shields.io/badge/Download-Latest%20APK-6366F1?style=for-the-badge&logo=android&logoColor=white)](https://github.com/sh1shank/attendrix/releases/latest/download/attendrix-alpha.apk)
 
 **⚠️ Alpha Testing Phase**  
-*Attendrix is currently in alpha testing. Features may be unstable and bugs are expected. Please report any issues you encounter.*
+*Attendrix is currently in alpha testing. Features may be unstable, and bugs are expected. Please report any issues you encounter.*
 
 </div>
 
@@ -175,7 +175,7 @@ Attendrix revolutionizes the way NIT Calicut students manage their academic sche
 
 ### 🧠 Backend Services
 - **Supabase (PostgreSQL)** – Primary database for:
-  - `timetableRecords`, `attendanceLogs`, `amplixLogs`, `streakHistory`
+  - `timetableRecords`, `attendanceRecords`, `amplixLogs`
   - Enforced **Row-Level Security (RLS)** per user
   - **RPC Functions** and **Edge Functions** for streaks, rollback, challenge updates, analytics
 - **Firestore (Selective Use)** – Stores sensitive real-time metadata (e.g., Amplix scores, session info)
@@ -189,7 +189,7 @@ Attendrix revolutionizes the way NIT Calicut students manage their academic sche
   - Parses attendance data from external tools
 - **Google Cloud APIs**:
   - **Google Calendar API** *(Planned)*: Syncs class schedules with user calendars
-  - **Google Drive API**: Upload, fetch, and organize shared academic resources
+  - **Google Drive API**: Upload, fetch, and organise shared academic resources
 
 ### 🧠 AI Integration (Planned)
 - **Gemini 2.0 Flash Lite** with NotebookLLM via MCP servers for real-time LLM-based doubt resolution
@@ -234,7 +234,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 ## 📞 Support
 
 For support, feature requests, or bug reports:
-- 📧 Email: support@attendrix.com
+- 📧 Email: [support@attendrix.site](mailto:support@attendrix.site)
 - 🐛 Issues: [GitHub Issues](https://github.com/SH1SHANK/attendrix/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D
 )
 - 💡 Have an idea? [Suggest a feature!](https://github.com/SH1SHANK/attendrix/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=%5BFEATURE%5D
