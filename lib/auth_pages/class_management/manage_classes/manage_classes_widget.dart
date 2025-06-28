@@ -703,7 +703,7 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     18.0, 16.0, 0.0, 4.0),
                                 child: Text(
-                                  'Course Details:',
+                                  'Available Courses:',
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -739,12 +739,16 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                         (currentUserDocument?.coursesEnrolled
                                                     .toList() ??
                                                 [])
+                                            .where((e) => e.isEditable == true)
+                                            .toList()
                                             .map((e) => e.courseID)
                                             .toList()),
                                     optionLabels: (currentUserDocument
                                                 ?.coursesEnrolled
                                                 .toList() ??
                                             [])
+                                        .where((e) => e.isEditable == true)
+                                        .toList()
                                         .map((e) => e.courseName)
                                         .toList(),
                                     onChanged: (val) => safeSetState(
@@ -897,7 +901,7 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                                 'MANAGE_CLASSES_PAGE_Icon_oakrtlfy_ON_TAP');
                                             logFirebaseEvent(
                                                 'Icon_date_time_picker');
-                                            final _datePicked1Date =
+                                            final _datePickedDate =
                                                 await showDatePicker(
                                               context: context,
                                               initialDate: getCurrentTimestamp,
@@ -958,26 +962,26 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                               },
                                             );
 
-                                            if (_datePicked1Date != null) {
+                                            if (_datePickedDate != null) {
                                               safeSetState(() {
-                                                _model.datePicked1 = DateTime(
-                                                  _datePicked1Date.year,
-                                                  _datePicked1Date.month,
-                                                  _datePicked1Date.day,
+                                                _model.datePicked = DateTime(
+                                                  _datePickedDate.year,
+                                                  _datePickedDate.month,
+                                                  _datePickedDate.day,
                                                 );
                                               });
-                                            } else if (_model.datePicked1 !=
+                                            } else if (_model.datePicked !=
                                                 null) {
                                               safeSetState(() {
-                                                _model.datePicked1 =
+                                                _model.datePicked =
                                                     getCurrentTimestamp;
                                               });
                                             }
                                             logFirebaseEvent(
                                                 'Icon_update_page_state');
                                             _model.selectedDate =
-                                                _model.datePicked1 != null
-                                                    ? _model.datePicked1
+                                                _model.datePicked != null
+                                                    ? _model.datePicked
                                                     : getCurrentTimestamp;
                                             safeSetState(() {});
                                           },
@@ -1022,144 +1026,6 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
-                                    ),
-                                    FFButtonWidget(
-                                      onPressed: () async {
-                                        logFirebaseEvent(
-                                            'MANAGE_CLASSES_PAGE_CUSTOM_BTN_ON_TAP');
-                                        logFirebaseEvent(
-                                            'Button_date_time_picker');
-
-                                        final _datePicked2Time =
-                                            await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.fromDateTime(
-                                              getCurrentTimestamp),
-                                          builder: (context, child) {
-                                            return wrapInMaterialTimePickerTheme(
-                                              context,
-                                              child!,
-                                              headerBackgroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              headerForegroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .info,
-                                              headerTextStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineLarge
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .headlineLargeFamily,
-                                                        fontSize: 32.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .headlineLargeIsCustom,
-                                                      ),
-                                              pickerBackgroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                              pickerForegroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              selectedDateTimeBackgroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              selectedDateTimeForegroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .info,
-                                              actionButtonForegroundColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              iconSize: 18.0,
-                                            );
-                                          },
-                                        );
-                                        if (_datePicked2Time != null) {
-                                          safeSetState(() {
-                                            _model.datePicked2 = DateTime(
-                                              getCurrentTimestamp.year,
-                                              getCurrentTimestamp.month,
-                                              getCurrentTimestamp.day,
-                                              _datePicked2Time.hour,
-                                              _datePicked2Time.minute,
-                                            );
-                                          });
-                                        } else if (_model.datePicked2 != null) {
-                                          safeSetState(() {
-                                            _model.datePicked2 =
-                                                getCurrentTimestamp;
-                                          });
-                                        }
-                                        if (_model.datePicked2 != null) {
-                                          logFirebaseEvent(
-                                              'Button_update_page_state');
-                                          _model.customStartTime = true;
-                                          _model.startTime =
-                                              int.parse(dateTimeFormat(
-                                            "hh",
-                                            _model.datePicked2,
-                                            locale: FFLocalizations.of(context)
-                                                .languageCode,
-                                          ));
-                                          safeSetState(() {});
-                                        }
-                                      },
-                                      text: 'Custom',
-                                      icon: Icon(
-                                        FFIcons.kcalendar,
-                                        size: 14.0,
-                                      ),
-                                      options: FFButtonOptions(
-                                        width: 100.0,
-                                        height: 20.0,
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            16.0, 0.0, 16.0, 0.0),
-                                        iconAlignment: IconAlignment.end,
-                                        iconPadding:
-                                            EdgeInsetsDirectional.fromSTEB(
-                                                0.0, 0.0, 0.0, 0.0),
-                                        iconColor: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .override(
-                                              font: GoogleFonts.outfit(
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmall
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmall
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryBackground,
-                                              fontSize: 12.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                        elevation: 0.0,
-                                        borderRadius:
-                                            BorderRadius.circular(6.0),
-                                      ),
                                     ),
                                   ],
                                 ),
@@ -1313,108 +1179,6 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                         [],
                                       ),
                                       wrapped: true,
-                                    ),
-                                  ),
-                                ),
-                              if (valueOrDefault<bool>(
-                                _model.customStartTime,
-                                false,
-                              ))
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 0.0, 16.0, 0.0),
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 48.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      border: Border.all(
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        width: 2.0,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(-1.0, 0.0),
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    10.0, 0.0, 0.0, 0.0),
-                                            child: Text(
-                                              '${dateTimeFormat(
-                                                "jm",
-                                                _model.datePicked2,
-                                                locale:
-                                                    FFLocalizations.of(context)
-                                                        .languageCode,
-                                              )}, ${dateTimeFormat(
-                                                "yMMMd",
-                                                _model.selectedDate,
-                                                locale:
-                                                    FFLocalizations.of(context)
-                                                        .languageCode,
-                                              )}',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    font: GoogleFonts.outfit(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                                    fontSize: 16.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 12.0, 0.0),
-                                          child: InkWell(
-                                            splashColor: Colors.transparent,
-                                            focusColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onTap: () async {
-                                              logFirebaseEvent(
-                                                  'MANAGE_CLASSES_PAGE_Icon_njnave9j_ON_TAP');
-                                              logFirebaseEvent(
-                                                  'Icon_update_page_state');
-                                              _model.customStartTime = false;
-                                              _model.startTime = 8;
-                                              safeSetState(() {});
-                                            },
-                                            child: Icon(
-                                              FFIcons.kcloseMD,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              size: 24.0,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                   ),
                                 ),

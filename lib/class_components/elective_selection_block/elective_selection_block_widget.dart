@@ -15,8 +15,8 @@ class ElectiveSelectionBlockWidget extends StatefulWidget {
     required this.placeholderText,
     required this.placeHolderIcon,
     required this.electiveCategory,
-    required this.updateCoursesEnrolled,
-    required this.removeCoursesEnrolled,
+    this.updateCoursesEnrolled,
+    this.removeCoursesEnrolled,
   });
 
   final List<CourseRecordsRow>? electiveCoursesCatalog;
@@ -227,7 +227,7 @@ class _ElectiveSelectionBlockWidgetState
               ),
             ),
           );
-        } else {
+        } else if (_model.skipElectiveSelection) {
           return Padding(
             padding: EdgeInsetsDirectional.fromSTEB(18.0, 0.0, 18.0, 0.0),
             child: InkWell(
@@ -236,7 +236,7 @@ class _ElectiveSelectionBlockWidgetState
               hoverColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () async {
-                logFirebaseEvent('ELECTIVE_SELECTION_BLOCK_Container_maegx');
+                logFirebaseEvent('ELECTIVE_SELECTION_BLOCK_Container_aky5e');
                 logFirebaseEvent('Container_bottom_sheet');
                 await showModalBottomSheet(
                   isScrollControlled: true,
@@ -253,7 +253,8 @@ class _ElectiveSelectionBlockWidgetState
                                     ?.electiveCategory ==
                                 widget.electiveCategory)
                             .toList(),
-                        callback: (courseId) async {
+                        electiveType: widget.electiveCategory!,
+                        callback: (courseId, skipSelection) async {
                           logFirebaseEvent('_backend_call');
                           _model.courseRecordRow =
                               await CourseRecordsTable().queryRows(
@@ -262,22 +263,159 @@ class _ElectiveSelectionBlockWidgetState
                               courseId,
                             ),
                           );
-                          logFirebaseEvent('_update_component_state');
-                          _model.courseRecord =
-                              _model.courseRecordRow?.firstOrNull;
-                          _model.courseChoosen = true;
-                          _model.userChoosenCourseId = courseId;
-                          safeSetState(() {});
+                          if (skipSelection!) {
+                            logFirebaseEvent('_update_component_state');
+                            _model.courseChoosen = false;
+                            _model.skipElectiveSelection = true;
+                            safeSetState(() {});
+                          } else {
+                            logFirebaseEvent('_update_component_state');
+                            _model.courseRecord =
+                                _model.courseRecordRow?.firstOrNull;
+                            _model.courseChoosen = true;
+                            _model.userChoosenCourseId = courseId;
+                            _model.skipElectiveSelection = false;
+                            safeSetState(() {});
+                          }
                         },
                       ),
                     );
                   },
                 ).then((value) => safeSetState(() {}));
 
-                logFirebaseEvent('Container_execute_callback');
-                await widget.updateCoursesEnrolled?.call(
-                  _model.courseRecord!,
-                );
+                if (!_model.skipElectiveSelection) {
+                  logFirebaseEvent('Container_execute_callback');
+                  await widget.updateCoursesEnrolled?.call(
+                    _model.courseRecord!,
+                  );
+                }
+
+                safeSetState(() {});
+              },
+              child: Material(
+                color: Colors.transparent,
+                elevation: 2.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).secondaryText,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 0.0, 0.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  12.0, 0.0, 0.0, 0.0),
+                              child: Text(
+                                '${widget.electiveCategory} Elective Selection Skipped',
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      font: GoogleFonts.outfit(
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                      color: FlutterFlowTheme.of(context).info,
+                                      fontSize: 14.0,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w600,
+                                      fontStyle: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .fontStyle,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional(1.0, 0.0),
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 15.0, 0.0),
+                            child: Icon(
+                              Icons.sync_outlined,
+                              color: FlutterFlowTheme.of(context).info,
+                              size: 24.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else {
+          return Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(18.0, 0.0, 18.0, 0.0),
+            child: InkWell(
+              splashColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () async {
+                logFirebaseEvent('ELECTIVE_SELECTION_BLOCK_Container_rwo1y');
+                logFirebaseEvent('Container_bottom_sheet');
+                await showModalBottomSheet(
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  enableDrag: false,
+                  context: context,
+                  builder: (context) {
+                    return Padding(
+                      padding: MediaQuery.viewInsetsOf(context),
+                      child: CourseSearchWidget(
+                        electiveCatelog: widget.electiveCoursesCatalog!
+                            .where((e) =>
+                                CourseTypeStruct.maybeFromMap(e.courseType)
+                                    ?.electiveCategory ==
+                                widget.electiveCategory)
+                            .toList(),
+                        electiveType: widget.electiveCategory!,
+                        callback: (courseId, skipSelection) async {
+                          logFirebaseEvent('_backend_call');
+                          _model.courseRecordRow2 =
+                              await CourseRecordsTable().queryRows(
+                            queryFn: (q) => q.eqOrNull(
+                              'courseID',
+                              courseId,
+                            ),
+                          );
+                          if (!skipSelection!) {
+                            logFirebaseEvent('_update_component_state');
+                            _model.courseRecord =
+                                _model.courseRecordRow2?.firstOrNull;
+                            _model.courseChoosen = true;
+                            _model.userChoosenCourseId = courseId;
+                            safeSetState(() {});
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ).then((value) => safeSetState(() {}));
+
+                if (!_model.skipElectiveSelection) {
+                  logFirebaseEvent('Container_execute_callback');
+                  await widget.updateCoursesEnrolled?.call(
+                    _model.courseRecord!,
+                  );
+                }
 
                 safeSetState(() {});
               },

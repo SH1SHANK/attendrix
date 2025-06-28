@@ -258,10 +258,14 @@ dynamic deserializeParam<T>(
         switch (T) {
           case AttendanceSummaryMvRow:
             return AttendanceSummaryMvRow(data);
+          case UserCourseRecordsRow:
+            return UserCourseRecordsRow(data);
           case ClassNotificationLogRow:
             return ClassNotificationLogRow(data);
           case AmplixChallengeProgressRow:
             return AmplixChallengeProgressRow(data);
+          case AdminusersRow:
+            return AdminusersRow(data);
           case CourseRecordsRow:
             return CourseRecordsRow(data);
           case TimetableRecordsRow:
@@ -274,10 +278,14 @@ dynamic deserializeParam<T>(
             return TaskRecordsRow(data);
           case TimetableSubscriptionsRow:
             return TimetableSubscriptionsRow(data);
+          case PendingadminrequestsRow:
+            return PendingadminrequestsRow(data);
           case ErrorLogsRow:
             return ErrorLogsRow(data);
           case AmplixLogsRow:
             return AmplixLogsRow(data);
+          case PreapprovedadminemailsRow:
+            return PreapprovedadminemailsRow(data);
           case BatchRecordsRow:
             return BatchRecordsRow(data);
           case AttendanceRecordsRow:

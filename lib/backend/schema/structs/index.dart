@@ -13,6 +13,7 @@ export 'course_faculty_struct.dart';
 export 'course_type_struct.dart';
 export 'course_type2_struct.dart';
 export 'courses_enrolled_struct.dart';
+export 'feedback_struct.dart';
 export 'file_info_struct.dart';
 export 'file_metadata_struct.dart';
 export 'nptel_course_struct.dart';

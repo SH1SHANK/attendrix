@@ -15,6 +15,7 @@ import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/flutter_flow/permissions_util.dart';
 import '/index.dart';
 import 'package:styled_divider/styled_divider.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -625,8 +626,10 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                     child: Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
-                                      child: Text(
+                                      child: AutoSizeText(
                                         'Manage Classes',
+                                        maxLines: 1,
+                                        minFontSize: 14.0,
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
@@ -654,55 +657,117 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        5.0, 0.0, 5.0, 0.0),
-                                    child: Container(
-                                      height: 25.0,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xB0FF5963),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                        border: Border.all(
-                                          color: FlutterFlowTheme.of(context)
-                                              .absentRed,
-                                          width: 2.0,
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment:
-                                            AlignmentDirectional(0.0, 0.0),
-                                        child: Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  5.0, 0.0, 5.0, 0.0),
-                                          child: Text(
-                                            'Admin Access',
-                                            style: FlutterFlowTheme.of(context)
-                                                .labelMedium
-                                                .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelMediumFamily,
-                                                  color: Colors.black,
-                                                  fontSize: 10.0,
-                                                  letterSpacing: 0.0,
-                                                  useGoogleFonts:
-                                                      !FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelMediumIsCustom,
-                                                ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
                           ),
                         ),
+                        if (valueOrDefault<bool>(
+                          valueOrDefault(currentUserDocument?.userRole, '') !=
+                              'admin',
+                          true,
+                        ))
+                          AuthUserStreamWidget(
+                            builder: (context) => InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                logFirebaseEvent(
+                                    'DASHBOARD_PAGE_convertComponent_ON_TAP');
+                                await Future.wait([
+                                  Future(() async {
+                                    logFirebaseEvent('convertComponent_drawer');
+                                    if (scaffoldKey
+                                            .currentState!.isDrawerOpen ||
+                                        scaffoldKey
+                                            .currentState!.isEndDrawerOpen) {
+                                      Navigator.pop(context);
+                                    }
+                                  }),
+                                  Future(() async {
+                                    logFirebaseEvent(
+                                        'convertComponent_navigate_to');
+
+                                    context.goNamed(
+                                      RequestAdminAccessWidget.routeName,
+                                      extra: <String, dynamic>{
+                                        kTransitionInfoKey: TransitionInfo(
+                                          hasTransition: true,
+                                          transitionType:
+                                              PageTransitionType.rightToLeft,
+                                        ),
+                                      },
+                                    );
+                                  }),
+                                ]);
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(),
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 8.0, 0.0, 8.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            12.0, 0.0, 0.0, 0.0),
+                                        child: Icon(
+                                          FFIcons.kuserShield,
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                          size: 25.0,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  6.0, 0.0, 0.0, 0.0),
+                                          child: AutoSizeText(
+                                            'Request Admin Access',
+                                            maxLines: 1,
+                                            minFontSize: 14.0,
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  font: GoogleFonts.outfit(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
+                                                  fontSize: 20.0,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         InkWell(
                           splashColor: Colors.transparent,
                           focusColor: Colors.transparent,
@@ -1134,18 +1199,22 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                   ),
                                   Align(
                                     alignment: AlignmentDirectional(0.7, 0.0),
-                                    child: AuthUserStreamWidget(
-                                      builder: (context) => Container(
-                                        width: 70.0,
-                                        height: 35.0,
-                                        child:
-                                            custom_widgets.AmplixChangeWidget(
+                                    child: Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0.0, 0.0, 4.0, 0.0),
+                                      child: AuthUserStreamWidget(
+                                        builder: (context) => Container(
                                           width: 70.0,
                                           height: 35.0,
-                                          fontSize: 18.0,
-                                          amplix: valueOrDefault(
-                                              currentUserDocument?.amplix, 0),
-                                          animationDuration: 600,
+                                          child:
+                                              custom_widgets.AmplixChangeWidget(
+                                            width: 70.0,
+                                            height: 35.0,
+                                            fontSize: 18.0,
+                                            amplix: valueOrDefault(
+                                                currentUserDocument?.amplix, 0),
+                                            animationDuration: 600,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -1195,7 +1264,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                   FlutterFlowTheme.of(context)
                                                       .headlineSmallFamily,
                                               color: Colors.black,
-                                              fontSize: 18.0,
+                                              fontSize: 16.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.bold,
                                               useGoogleFonts:
@@ -1217,7 +1286,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                   FlutterFlowTheme.of(context)
                                                       .headlineSmallFamily,
                                               color: Colors.black,
-                                              fontSize: 10.0,
+                                              fontSize: 9.0,
                                               letterSpacing: 0.0,
                                               useGoogleFonts:
                                                   !FlutterFlowTheme.of(context)
@@ -1663,7 +1732,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                           4.0,
                                                                           0.0,
                                                                           4.0,
-                                                                          2.0),
+                                                                          4.0),
                                                                   child:
                                                                       wrapWithModel(
                                                                     model: _model

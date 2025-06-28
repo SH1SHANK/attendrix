@@ -1,5 +1,4 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
 import '/class_components/elective_selection_block/elective_selection_block_widget.dart';
@@ -17,6 +16,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart'
     as smooth_page_indicator;
 import 'package:styled_divider/styled_divider.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +59,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
       _model.userDoc = await UsersRecord.getDocumentOnce(currentUserReference!);
       if ((_model.userDoc?.username != null &&
               _model.userDoc?.username != '') &&
-          (_model.userDoc!.coursesEnrolled.length >= 6) &&
+          (_model.userDoc!.coursesEnrolled.length >= 4) &&
           ((_model.userDoc?.batchID != null && _model.userDoc?.batchID != '') &&
               (_model.userDoc?.semesterID != null &&
                   _model.userDoc?.semesterID != ''))) {
@@ -98,9 +98,6 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
             true,
           ),
         );
-        logFirebaseEvent('onboarding_backend_call');
-        _model.nptelCourse = await NPTELCoursesQueryCall.call();
-
         logFirebaseEvent('onboarding_update_page_state');
         _model.coursesEnrolled =
             _model.coreCourses!.toList().cast<CourseRecordsRow>();
@@ -108,13 +105,6 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
             _model.coreCourses!.toList().cast<CourseRecordsRow>();
         _model.batchElectiveCourses =
             _model.electiveCourses!.toList().cast<CourseRecordsRow>();
-        _model.nptelCourses = ((_model.nptelCourse?.jsonBody ?? '')
-                .toList()
-                .map<NptelCourseStruct?>(NptelCourseStruct.maybeFromMap)
-                .toList() as Iterable<NptelCourseStruct?>)
-            .withoutNulls
-            .toList()
-            .cast<NptelCourseStruct>();
         safeSetState(() {});
       }
     });
@@ -1175,7 +1165,9 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                       ?.toString(),
                                                   displayName: _model
                                                       .usernameTextController1
-                                                      .text,
+                                                      .text
+                                                      .toLowerCase()
+                                                      .trim(),
                                                   userBio: _model
                                                       .userBioTextController
                                                       .text,
@@ -1224,7 +1216,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 EdgeInsetsDirectional.fromSTEB(
                                                     0.0, 0.0, 0.0, 0.0),
                                             color: FlutterFlowTheme.of(context)
-                                                .primary,
+                                                .velvetSky,
                                             textStyle: FlutterFlowTheme.of(
                                                     context)
                                                 .titleSmall
@@ -1249,7 +1241,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 ),
                                             elevation: 2.0,
                                             borderRadius:
-                                                BorderRadius.circular(8.0),
+                                                BorderRadius.circular(12.0),
                                           ),
                                         ),
                                       ),
@@ -1354,6 +1346,13 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                       .usernameTextController2,
                                                   focusNode:
                                                       _model.usernameFocusNode2,
+                                                  onChanged: (_) =>
+                                                      EasyDebounce.debounce(
+                                                    '_model.usernameTextController2',
+                                                    Duration(
+                                                        milliseconds: 2000),
+                                                    () => safeSetState(() {}),
+                                                  ),
                                                   onFieldSubmitted: (_) async {
                                                     logFirebaseEvent(
                                                         'ONBOARDING_username_ON_TEXTFIELD_SUBMIT');
@@ -1510,7 +1509,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                                         context)
                                                                     .bodyLargeIsCustom,
                                                           ),
-                                                  maxLength: 15,
+                                                  maxLength: 16,
                                                   maxLengthEnforcement:
                                                       MaxLengthEnforcement
                                                           .enforced,
@@ -2195,26 +2194,19 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(
-                                                          6.0, 8.0, 0.0, 4.0),
+                                                          0.0, 8.0, 0.0, 4.0),
                                                   child: Row(
                                                     mainAxisSize:
                                                         MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    8.0,
-                                                                    0.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Icon(
-                                                          FFIcons
-                                                              .kalertTriangle,
-                                                          color:
-                                                              Color(0xFFFA000E),
-                                                          size: 12.0,
-                                                        ),
+                                                      Icon(
+                                                        FFIcons.kalertTriangle,
+                                                        color:
+                                                            Color(0xFFFA000E),
+                                                        size: 12.0,
                                                       ),
                                                       Padding(
                                                         padding:
@@ -2444,27 +2436,13 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                                 ?.courseType)
                                                         ?.isLab,
                                                   ),
-                                                  courseFaculty:
-                                                      CourseFacultyStruct(
-                                                    electiveFaculty: CourseFacultyStruct
-                                                            .maybeFromMap(_model
-                                                                .coursesEnrolled
-                                                                .elementAtOrNull(
-                                                                    _model
-                                                                        .loopParameter!)
-                                                                ?.courseType)
-                                                        ?.electiveFaculty,
-                                                    batchFaculty: CourseFacultyStruct
-                                                            .maybeFromMap(_model
-                                                                .coursesEnrolled
-                                                                .elementAtOrNull(
-                                                                    _model
-                                                                        .loopParameter!)
-                                                                ?.courseType)
-                                                        ?.batchFaculty,
-                                                  ),
                                                   attendedClasses: 0,
                                                   totalClasses: 0,
+                                                  isEditable: _model
+                                                      .coursesEnrolled
+                                                      .elementAtOrNull(
+                                                          _model.loopParameter!)
+                                                      ?.isElective,
                                                 ));
                                                 _model.loopParameter =
                                                     _model.loopParameter! + 1;
@@ -2480,6 +2458,9 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
 
                                               await currentUserReference!
                                                   .update({
+                                                ...createUsersRecordData(
+                                                  userRole: 'student',
+                                                ),
                                                 ...mapToFirestore(
                                                   {
                                                     'coursesEnrolled':
@@ -2598,7 +2579,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        fontSize: 20.0,
+                                        fontSize: 24.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.bold,
                                         fontStyle: FlutterFlowTheme.of(context)
@@ -2666,8 +2647,11 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                           4,
                                       0.3,
                                     ),
-                                    width: 120.0,
-                                    lineHeight: 8.0,
+                                    width: valueOrDefault<double>(
+                                      MediaQuery.sizeOf(context).width * 0.8,
+                                      0.8,
+                                    ),
+                                    lineHeight: 10.0,
                                     animation: true,
                                     animateFromLastPercent: true,
                                     progressColor:

@@ -13,10 +13,14 @@ class ElectiveSelectionBlockModel
 
   bool courseChoosen = false;
 
+  bool skipElectiveSelection = false;
+
   ///  State fields for stateful widgets in this component.
 
   // Stores action output result for [Backend Call - Query Rows] action in Container widget.
   List<CourseRecordsRow>? courseRecordRow;
+  // Stores action output result for [Backend Call - Query Rows] action in Container widget.
+  List<CourseRecordsRow>? courseRecordRow2;
 
   @override
   void initState(BuildContext context) {}

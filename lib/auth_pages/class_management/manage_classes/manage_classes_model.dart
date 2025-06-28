@@ -42,8 +42,7 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
   // State field(s) for courseName widget.
   String? courseNameValue;
   FormFieldController<String>? courseNameValueController;
-  DateTime? datePicked1;
-  DateTime? datePicked2;
+  DateTime? datePicked;
   // State field(s) for classStartTime widget.
   FormFieldController<List<String>>? classStartTimeValueController;
   String? get classStartTimeValue =>

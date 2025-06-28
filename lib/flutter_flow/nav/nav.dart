@@ -300,6 +300,50 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: ClassArchivesWidget.routeName,
               path: ClassArchivesWidget.routePath,
               builder: (context, params) => ClassArchivesWidget(),
+            ),
+            FFRoute(
+              name: RequestAdminAccessWidget.routeName,
+              path: RequestAdminAccessWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => RequestAdminAccessWidget(),
+            ),
+            FFRoute(
+              name: RequestAccessFollowUpWidget.routeName,
+              path: RequestAccessFollowUpWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => RequestAccessFollowUpWidget(
+                status: params.getParam(
+                  'status',
+                  ParamType.String,
+                ),
+                message: params.getParam(
+                  'message',
+                  ParamType.String,
+                ),
+                email: params.getParam(
+                  'email',
+                  ParamType.String,
+                ),
+                details: params.getParam(
+                  'details',
+                  ParamType.String,
+                ),
+                error: params.getParam(
+                  'error',
+                  ParamType.String,
+                ),
+              ),
+            ),
+            FFRoute(
+              name: AdminPageWidget.routeName,
+              path: AdminPageWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => AdminPageWidget(),
+            ),
+            FFRoute(
+              name: CustomizeNotificationsWidget.routeName,
+              path: CustomizeNotificationsWidget.routePath,
+              builder: (context, params) => CustomizeNotificationsWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

@@ -15,6 +15,7 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
     CourseFacultyStruct? courseFaculty,
     int? attendedClasses,
     int? totalClasses,
+    bool? isEditable,
     FirestoreUtilData firestoreUtilData = const FirestoreUtilData(),
   })  : _courseID = courseID,
         _courseName = courseName,
@@ -22,6 +23,7 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
         _courseFaculty = courseFaculty,
         _attendedClasses = attendedClasses,
         _totalClasses = totalClasses,
+        _isEditable = isEditable,
         super(firestoreUtilData);
 
   // "courseID" field.
@@ -81,6 +83,13 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
 
   bool hasTotalClasses() => _totalClasses != null;
 
+  // "isEditable" field.
+  bool? _isEditable;
+  bool get isEditable => _isEditable ?? false;
+  set isEditable(bool? val) => _isEditable = val;
+
+  bool hasIsEditable() => _isEditable != null;
+
   static CoursesEnrolledStruct fromMap(Map<String, dynamic> data) =>
       CoursesEnrolledStruct(
         courseID: data['courseID'] as String?,
@@ -93,6 +102,7 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
             : CourseFacultyStruct.maybeFromMap(data['courseFaculty']),
         attendedClasses: castToType<int>(data['attendedClasses']),
         totalClasses: castToType<int>(data['totalClasses']),
+        isEditable: data['isEditable'] as bool?,
       );
 
   static CoursesEnrolledStruct? maybeFromMap(dynamic data) => data is Map
@@ -106,6 +116,7 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
         'courseFaculty': _courseFaculty?.toMap(),
         'attendedClasses': _attendedClasses,
         'totalClasses': _totalClasses,
+        'isEditable': _isEditable,
       }.withoutNulls;
 
   @override
@@ -133,6 +144,10 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
         'totalClasses': serializeParam(
           _totalClasses,
           ParamType.int,
+        ),
+        'isEditable': serializeParam(
+          _isEditable,
+          ParamType.bool,
         ),
       }.withoutNulls;
 
@@ -168,6 +183,11 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
         totalClasses: deserializeParam(
           data['totalClasses'],
           ParamType.int,
+          false,
+        ),
+        isEditable: deserializeParam(
+          data['isEditable'],
+          ParamType.bool,
           false,
         ),
       );
@@ -206,6 +226,11 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
           ParamType.int,
           false,
         ),
+        isEditable: convertAlgoliaParam(
+          data['isEditable'],
+          ParamType.bool,
+          false,
+        ),
         firestoreUtilData: FirestoreUtilData(
           clearUnsetFields: false,
           create: true,
@@ -223,7 +248,8 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
         courseType == other.courseType &&
         courseFaculty == other.courseFaculty &&
         attendedClasses == other.attendedClasses &&
-        totalClasses == other.totalClasses;
+        totalClasses == other.totalClasses &&
+        isEditable == other.isEditable;
   }
 
   @override
@@ -233,7 +259,8 @@ class CoursesEnrolledStruct extends FFFirebaseStruct {
         courseType,
         courseFaculty,
         attendedClasses,
-        totalClasses
+        totalClasses,
+        isEditable
       ]);
 }
 
@@ -244,6 +271,7 @@ CoursesEnrolledStruct createCoursesEnrolledStruct({
   CourseFacultyStruct? courseFaculty,
   int? attendedClasses,
   int? totalClasses,
+  bool? isEditable,
   Map<String, dynamic> fieldValues = const {},
   bool clearUnsetFields = true,
   bool create = false,
@@ -257,6 +285,7 @@ CoursesEnrolledStruct createCoursesEnrolledStruct({
           courseFaculty ?? (clearUnsetFields ? CourseFacultyStruct() : null),
       attendedClasses: attendedClasses,
       totalClasses: totalClasses,
+      isEditable: isEditable,
       firestoreUtilData: FirestoreUtilData(
         clearUnsetFields: clearUnsetFields,
         create: create,

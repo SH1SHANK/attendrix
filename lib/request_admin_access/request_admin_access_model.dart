@@ -1,0 +1,36 @@
+import '/backend/schema/structs/index.dart';
+import '/backend/supabase/supabase.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
+import 'request_admin_access_widget.dart' show RequestAdminAccessWidget;
+import 'package:flutter/material.dart';
+
+class RequestAdminAccessModel
+    extends FlutterFlowModel<RequestAdminAccessWidget> {
+  ///  Local state fields for this page.
+
+  bool invalidEmail = false;
+
+  String errorMessage = 'Invalid Email Format';
+
+  ///  State fields for stateful widgets in this page.
+
+  Stream<List<AdminusersRow>>? requestAdminAccessSupabaseStream;
+  // Stores action output result for [Backend Call - Query Rows] action in requestAdminAccess widget.
+  List<AdminusersRow>? userQuery;
+  // State field(s) for TextField widget.
+  FocusNode? textFieldFocusNode;
+  TextEditingController? textController;
+  String? Function(BuildContext, String?)? textControllerValidator;
+  // Stores action output result for [Custom Action - requestAdminAccess] action in Button widget.
+  FeedbackStruct? serverRes;
+
+  @override
+  void initState(BuildContext context) {}
+
+  @override
+  void dispose() {
+    textFieldFocusNode?.dispose();
+    textController?.dispose();
+  }
+}

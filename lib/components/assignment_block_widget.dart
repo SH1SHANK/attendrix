@@ -1,3 +1,4 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/schema/enums/enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/edit_tasks_widget.dart';
@@ -196,39 +197,48 @@ class _AssignmentBlockWidgetState extends State<AssignmentBlockWidget>
                               ),
                         ),
                       ),
-                      Builder(
-                        builder: (context) => InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            logFirebaseEvent(
-                                'ASSIGNMENT_BLOCK_Icon_04gsl91m_ON_TAP');
-                            logFirebaseEvent('Icon_alert_dialog');
-                            await showDialog(
-                              context: context,
-                              builder: (dialogContext) {
-                                return Dialog(
-                                  elevation: 0,
-                                  insetPadding: EdgeInsets.zero,
-                                  backgroundColor: Colors.transparent,
-                                  alignment: AlignmentDirectional(0.0, 0.0)
-                                      .resolve(Directionality.of(context)),
-                                  child: EditTasksWidget(
-                                    refRow: widget.taskRecord!,
-                                  ),
+                      if ((currentUserDocument?.coursesEnrolled.toList() ?? [])
+                              .where((e) =>
+                                  e.courseID == widget.taskRecord?.courseID)
+                              .toList()
+                              .firstOrNull
+                              ?.isEditable ==
+                          true)
+                        Builder(
+                          builder: (context) => AuthUserStreamWidget(
+                            builder: (context) => InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                logFirebaseEvent(
+                                    'ASSIGNMENT_BLOCK_Icon_04gsl91m_ON_TAP');
+                                logFirebaseEvent('Icon_alert_dialog');
+                                await showDialog(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return Dialog(
+                                      elevation: 0,
+                                      insetPadding: EdgeInsets.zero,
+                                      backgroundColor: Colors.transparent,
+                                      alignment: AlignmentDirectional(0.0, 0.0)
+                                          .resolve(Directionality.of(context)),
+                                      child: EditTasksWidget(
+                                        refRow: widget.taskRecord!,
+                                      ),
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                          child: Icon(
-                            FFIcons.ksetting,
-                            color: FlutterFlowTheme.of(context).primaryText,
-                            size: 24.0,
+                              child: Icon(
+                                FFIcons.ksetting,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 24.0,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),

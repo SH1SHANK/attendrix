@@ -34,6 +34,11 @@ class FFAppState extends ChangeNotifier {
           await secureStorage.getString('ff_GOOGLEDRIVEAPIKEY') ??
               _GOOGLEDRIVEAPIKEY;
     });
+    await _safeInitAsync(() async {
+      _weatherForecastForMessages =
+          await secureStorage.getBool('ff_weatherForecastForMessages') ??
+              _weatherForecastForMessages;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -114,6 +119,17 @@ class FFAppState extends ChangeNotifier {
 
   void insertAtIndexInCustomClasses(int index, ClassRowStruct value) {
     customClasses.insert(index, value);
+  }
+
+  bool _weatherForecastForMessages = true;
+  bool get weatherForecastForMessages => _weatherForecastForMessages;
+  set weatherForecastForMessages(bool value) {
+    _weatherForecastForMessages = value;
+    secureStorage.setBool('ff_weatherForecastForMessages', value);
+  }
+
+  void deleteWeatherForecastForMessages() {
+    secureStorage.delete(key: 'ff_weatherForecastForMessages');
   }
 
   final _timetableRecordsQueryDayManager =

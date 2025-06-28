@@ -20,6 +20,8 @@ class CourseSearchModel extends FlutterFlowModel<CourseSearchWidget> {
 
   bool isSearchActive = false;
 
+  String electiveType = 'open Elective';
+
   ///  State fields for stateful widgets in this component.
 
   // State field(s) for TextField widget.

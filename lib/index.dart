@@ -44,3 +44,10 @@ export '/analytics/analytics_widget.dart' show AnalyticsWidget;
 export '/custom_classes/custom_classes_widget.dart' show CustomClassesWidget;
 export '/task_archives/task_archives_widget.dart' show TaskArchivesWidget;
 export '/class_archives/class_archives_widget.dart' show ClassArchivesWidget;
+export '/request_admin_access/request_admin_access_widget.dart'
+    show RequestAdminAccessWidget;
+export '/request_access_follow_up/request_access_follow_up_widget.dart'
+    show RequestAccessFollowUpWidget;
+export '/admin_page/admin_page_widget.dart' show AdminPageWidget;
+export '/customize_notifications/customize_notifications_widget.dart'
+    show CustomizeNotificationsWidget;

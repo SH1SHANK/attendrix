@@ -1,6 +1,7 @@
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/actions/index.dart' as actions;
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +14,13 @@ class CourseSearchWidget extends StatefulWidget {
   const CourseSearchWidget({
     super.key,
     required this.electiveCatelog,
-    required this.callback,
-  });
+    this.callback,
+    String? electiveType,
+  }) : this.electiveType = electiveType ?? 'OE';
 
   final List<CourseRecordsRow>? electiveCatelog;
-  final Future Function(String courseId)? callback;
+  final Future Function(String? courseId, bool? skipSelection)? callback;
+  final String electiveType;
 
   @override
   State<CourseSearchWidget> createState() => _CourseSearchWidgetState();
@@ -258,6 +261,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                             logFirebaseEvent('taskDetails_execute_callback');
                             await widget.callback?.call(
                               electivesItem.courseID,
+                              false,
                             );
                             logFirebaseEvent('taskDetails_bottom_sheet');
                             Navigator.pop(context);
@@ -468,6 +472,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                             logFirebaseEvent('taskDetails_execute_callback');
                             await widget.callback?.call(
                               electivesItem.courseID,
+                              false,
                             );
                             logFirebaseEvent('taskDetails_bottom_sheet');
                             Navigator.pop(context);
@@ -650,6 +655,94 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                   );
                 },
               ),
+            Text(
+              'Can\'t find the course you were searching for?',
+              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                    letterSpacing: 0.0,
+                    fontWeight: FontWeight.w600,
+                    useGoogleFonts:
+                        !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                  ),
+            ),
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
+              child: RichText(
+                textScaler: MediaQuery.of(context).textScaler,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          'Looking for a specific course that’s not listed? You can request it ',
+                      style: TextStyle(),
+                    ),
+                    TextSpan(
+                      text: 'right here',
+                      style: GoogleFonts.outfit(
+                        color: FlutterFlowTheme.of(context).tertiary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14.0,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                          '. If you\'re planning to take an NPTEL course, you can add it later as a custom class. In that case, you can skip selecting  ',
+                      style: TextStyle(),
+                    ),
+                    TextSpan(
+                      text: '${widget.electiveType}.',
+                      style: TextStyle(),
+                    )
+                  ],
+                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).bodyMediumFamily,
+                        fontSize: 12.0,
+                        letterSpacing: 0.0,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                      ),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 20.0),
+              child: FFButtonWidget(
+                onPressed: () async {
+                  logFirebaseEvent('COURSE_SEARCH_Button_a9thpgfj_ON_TAP');
+                  logFirebaseEvent('Button_bottom_sheet');
+                  Navigator.pop(context);
+                  logFirebaseEvent('Button_execute_callback');
+                  await widget.callback?.call(
+                    'null',
+                    true,
+                  );
+                },
+                text: 'Skip ${valueOrDefault<String>(
+                  widget.electiveType,
+                  'OE',
+                )} Selection',
+                options: FFButtonOptions(
+                  height: 38.0,
+                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                  iconPadding:
+                      EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  color: FlutterFlowTheme.of(context).primary,
+                  textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).titleSmallFamily,
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        letterSpacing: 0.0,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                      ),
+                  elevation: 0.0,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
           ].addToEnd(SizedBox(height: 30.0)),
         ),
       ),

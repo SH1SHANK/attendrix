@@ -29,3 +29,7 @@ export 'check_class_cancellation.dart' show checkClassCancellation;
 export 'initialize_one_signal.dart' show initializeOneSignal;
 export 'setup_one_signal_user.dart' show setupOneSignalUser;
 export 'logout_one_signal_user.dart' show logoutOneSignalUser;
+export 'set_user_courses.dart' show setUserCourses;
+export 'request_admin_access.dart' show requestAdminAccess;
+export 'verify_admin_code.dart' show verifyAdminCode;
+export 'mark_all_courses_editable.dart' show markAllCoursesEditable;

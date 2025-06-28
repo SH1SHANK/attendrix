@@ -1,4 +1,3 @@
-import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
 import '/class_components/elective_selection_block/elective_selection_block_widget.dart';
@@ -83,16 +82,9 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
 
   String? courseEnrollmentFeedback;
 
-  List<NptelCourseStruct> nptelCourses = [];
-  void addToNptelCourses(NptelCourseStruct item) => nptelCourses.add(item);
-  void removeFromNptelCourses(NptelCourseStruct item) =>
-      nptelCourses.remove(item);
-  void removeAtIndexFromNptelCourses(int index) => nptelCourses.removeAt(index);
-  void insertAtIndexInNptelCourses(int index, NptelCourseStruct item) =>
-      nptelCourses.insert(index, item);
-  void updateNptelCoursesAtIndex(
-          int index, Function(NptelCourseStruct) updateFn) =>
-      nptelCourses[index] = updateFn(nptelCourses[index]);
+  bool isAdmin = false;
+
+  int verifyCount = 0;
 
   ///  State fields for stateful widgets in this page.
 
@@ -104,8 +96,6 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   List<CourseRecordsRow>? coreCourses;
   // Stores action output result for [Backend Call - Query Rows] action in onboarding widget.
   List<CourseRecordsRow>? electiveCourses;
-  // Stores action output result for [Backend Call - API (NPTELCoursesQuery)] action in onboarding widget.
-  ApiCallResponse? nptelCourse;
   // State field(s) for onboardingPages widget.
   PageController? onboardingPagesController;
 

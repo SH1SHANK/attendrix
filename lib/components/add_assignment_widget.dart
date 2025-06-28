@@ -243,12 +243,16 @@ class _AddAssignmentWidgetState extends State<AddAssignmentWidget> {
                                           ?.coursesEnrolled
                                           .toList() ??
                                       [])
+                                  .where((e) => e.isEditable == true)
+                                  .toList()
                                   .map((e) => e.courseID)
                                   .toList()),
                               optionLabels: (currentUserDocument
                                           ?.coursesEnrolled
                                           .toList() ??
                                       [])
+                                  .where((e) => e.isEditable == true)
+                                  .toList()
                                   .map((e) => e.courseName)
                                   .toList(),
                               onChanged: (val) => safeSetState(
