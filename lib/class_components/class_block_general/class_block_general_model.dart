@@ -9,12 +9,16 @@ class ClassBlockGeneralModel extends FlutterFlowModel<ClassBlockGeneralWidget> {
 
   bool isCancelled = false;
 
+  bool hasChanges = false;
+
   ///  State fields for stateful widgets in this component.
 
   // Stores action output result for [Custom Action - checkClassAttendance] action in classBlock_general widget.
   bool? classAttendance;
   // Stores action output result for [Custom Action - checkClassCancellation] action in classBlock_general widget.
   bool? isCancelledQuery;
+  // Stores action output result for [Custom Action - checkClassAttendance] action in Container widget.
+  bool? isAttendedForced;
 
   @override
   void initState(BuildContext context) {}

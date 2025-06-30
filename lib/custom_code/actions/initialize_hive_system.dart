@@ -14,18 +14,18 @@ import 'package:flutter/material.dart';
 
 import '/custom_code/actions/index.dart';
 import '/flutter_flow/custom_functions.dart';
+
 import 'dart:async';
-import 'package:hive_ce/hive.dart';
 import 'dart:io';
+import 'package:hive_ce/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 
-// Enhanced global state with better error handling
+/// Simplified Android-optimized Hive manager
 class HiveManager {
-  static bool _isInitialized = false;
-  static String? _hivePath;
-  static final Map<String, Box> _openBoxes = <String, Box>{};
-  static final Set<String> _initializingBoxes = <String>{};
+  static bool _initialized = false;
+  static final Map<String, Box> _boxes = {};
+  static Timer? _cleanupTimer;
 
   // Box constants
   static const String ATTENDANCE_BOX = 'attendance_cache';
@@ -34,260 +34,194 @@ class HiveManager {
   static const String COURSE_ATTENDANCE_BOX = 'course_attendance_cache';
   static const String FILE_CACHE_BOX = 'file_cache_data';
 
-  // Optimized cache limits for Android
-  static const int MAX_CACHE_MB = 25; // Reduced for Android memory constraints
-  static const int MAX_FILES = 50;
-  static const Duration CACHE_CLEANUP_INTERVAL = Duration(hours: 6);
+  // Android-optimized limits
+  static const int maxCacheFiles = 30;
+  static const int maxCacheMB = 15;
 }
 
-/// Initialize Hive with Android-optimized path selection
+/// Initialize Hive with Android optimization
 Future<bool> initializeHiveSystem() async {
-  if (HiveManager._isInitialized) return true;
+  if (HiveManager._initialized) return true;
 
   try {
     if (!kIsWeb) {
-      // Android-optimized path selection with fallbacks
-      Directory? baseDir;
-
-      try {
-        // Primary: Use getApplicationSupportDirectory (most reliable on Android)
-        baseDir = await getApplicationSupportDirectory();
-      } catch (e) {
-        try {
-          // Fallback: Use getApplicationDocumentsDirectory
-          baseDir = await getApplicationDocumentsDirectory();
-        } catch (e2) {
-          // Final fallback: Use temporary directory
-          baseDir = await getTemporaryDirectory();
-        }
+      // Get the best available directory for Android
+      final dir = await _getBestDirectory();
+      if (dir != null) {
+        final hivePath = '${dir.path}/.hive';
+        await Directory(hivePath).create(recursive: true);
+        Hive.init(hivePath);
       }
-
-      if (baseDir == null) {
-        // Let Hive use default system path
-        Hive.init(null);
-      } else {
-        HiveManager._hivePath = '${baseDir.path}/hive_cache';
-
-        // Ensure directory exists with proper error handling
-        final hiveDir = Directory(HiveManager._hivePath!);
-        if (!await hiveDir.exists()) {
-          await hiveDir.create(recursive: true);
-        }
-
-        // Verify directory is writable (Android-specific check)
-        await _verifyDirectoryWritable(hiveDir);
-
-        Hive.init(HiveManager._hivePath);
-      }
-    } else {
-      // Web initialization
-      Hive.init(null);
     }
 
-    HiveManager._isInitialized = true;
+    HiveManager._initialized = true;
 
-    // Schedule periodic cache cleanup for Android memory management
+    // Start cleanup timer for Android memory management
     if (!kIsWeb && Platform.isAndroid) {
-      _schedulePeriodicCleanup();
+      _startCleanupTimer();
     }
 
     return true;
   } catch (e) {
-    debugPrint('Hive initialization failed: $e');
+    debugPrint('Hive init failed: $e');
 
-    // Emergency fallback: try default Hive initialization
+    // Fallback to default initialization
     try {
       Hive.init(null);
-      HiveManager._isInitialized = true;
+      HiveManager._initialized = true;
       return true;
-    } catch (fallbackError) {
-      debugPrint('Fallback Hive initialization also failed: $fallbackError');
+    } catch (_) {
       return false;
     }
   }
 }
 
-/// Verify directory is writable (Android compatibility check)
-Future<void> _verifyDirectoryWritable(Directory dir) async {
-  final testFile = File('${dir.path}/.test_write');
+/// Get best directory for Android storage
+Future<Directory?> _getBestDirectory() async {
   try {
-    await testFile.writeAsString('test');
-    await testFile.delete();
-  } catch (e) {
-    throw Exception('Directory not writable: ${dir.path}');
+    // Try application support directory first (most reliable)
+    return await getApplicationSupportDirectory();
+  } catch (_) {
+    try {
+      // Fallback to documents directory
+      return await getApplicationDocumentsDirectory();
+    } catch (_) {
+      try {
+        // Last resort: temporary directory
+        return await getTemporaryDirectory();
+      } catch (_) {
+        return null;
+      }
+    }
   }
 }
 
-/// Enhanced box getter with concurrent access protection
-Future<Box<T>?> getHiveBox<T>(String boxName) async {
-  if (!HiveManager._isInitialized) {
-    final initialized = await initializeHiveSystem();
-    if (!initialized) return null;
+/// Get or open a Hive box with error handling
+Future<Box<T>?> getBox<T>(String boxName) async {
+  if (!HiveManager._initialized) {
+    final success = await initializeHiveSystem();
+    if (!success) return null;
   }
 
-  // Check if box is already open and valid
-  if (HiveManager._openBoxes.containsKey(boxName)) {
-    final box = HiveManager._openBoxes[boxName];
-    if (box != null && box.isOpen) {
+  // Return existing box if already open
+  if (HiveManager._boxes.containsKey(boxName)) {
+    final box = HiveManager._boxes[boxName];
+    if (box?.isOpen == true) {
       return box as Box<T>;
     } else {
-      // Remove invalid box reference
-      HiveManager._openBoxes.remove(boxName);
+      HiveManager._boxes.remove(boxName);
     }
   }
-
-  // Prevent concurrent box opening
-  if (HiveManager._initializingBoxes.contains(boxName)) {
-    // Wait for concurrent initialization to complete
-    int attempts = 0;
-    while (HiveManager._initializingBoxes.contains(boxName) && attempts < 50) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      attempts++;
-    }
-
-    // Return the box if it was opened by concurrent operation
-    if (HiveManager._openBoxes.containsKey(boxName)) {
-      return HiveManager._openBoxes[boxName] as Box<T>?;
-    }
-  }
-
-  HiveManager._initializingBoxes.add(boxName);
 
   try {
     final box = await Hive.openBox<T>(boxName);
-    HiveManager._openBoxes[boxName] = box;
+    HiveManager._boxes[boxName] = box;
     return box;
   } catch (e) {
-    debugPrint('Failed to open Hive box $boxName: $e');
-
-    // Android-specific recovery: try with different box name
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        final recoveryBoxName = '${boxName}_recovery';
-        final recoveryBox = await Hive.openBox<T>(recoveryBoxName);
-        HiveManager._openBoxes[boxName] = recoveryBox;
-        return recoveryBox;
-      } catch (recoveryError) {
-        debugPrint('Recovery box creation failed: $recoveryError');
-      }
-    }
-
+    debugPrint('Failed to open box $boxName: $e');
     return null;
-  } finally {
-    HiveManager._initializingBoxes.remove(boxName);
   }
 }
 
-/// Safe box closure with error handling
-Future<void> closeHiveBox(String boxName) async {
-  if (!HiveManager._openBoxes.containsKey(boxName)) return;
-
-  final box = HiveManager._openBoxes[boxName];
-  if (box != null && box.isOpen) {
+/// Close a specific box
+Future<void> closeBox(String boxName) async {
+  final box = HiveManager._boxes[boxName];
+  if (box?.isOpen == true) {
     try {
-      await box.close();
+      await box!.close();
     } catch (e) {
       debugPrint('Error closing box $boxName: $e');
     }
   }
-  HiveManager._openBoxes.remove(boxName);
+  HiveManager._boxes.remove(boxName);
 }
 
-/// Enhanced cleanup for all boxes
-Future<void> closeAllHiveBoxes() async {
-  final boxNames = List<String>.from(HiveManager._openBoxes.keys);
+/// Close all boxes and cleanup
+Future<void> closeAllBoxes() async {
+  HiveManager._cleanupTimer?.cancel();
 
-  for (final boxName in boxNames) {
-    await closeHiveBox(boxName);
+  final boxNames = List<String>.from(HiveManager._boxes.keys);
+  for (final name in boxNames) {
+    await closeBox(name);
   }
 
-  HiveManager._openBoxes.clear();
-  HiveManager._initializingBoxes.clear();
+  HiveManager._boxes.clear();
 }
 
-/// Android-optimized cache management with memory awareness
-Future<void> optimizedCacheCleanup() async {
+/// Start periodic cleanup timer for Android
+void _startCleanupTimer() {
+  HiveManager._cleanupTimer?.cancel();
+  HiveManager._cleanupTimer = Timer.periodic(
+    const Duration(hours: 4),
+    (_) => _performCleanup(),
+  );
+}
+
+/// Perform cache cleanup optimized for Android memory
+Future<void> _performCleanup() async {
   try {
-    final cacheBox = await getHiveBox<Map>(HiveManager.FILE_CACHE_BOX);
+    final cacheBox = await getBox<Map>('file_cache');
     if (cacheBox == null || cacheBox.isEmpty) return;
 
     final entries = cacheBox.toMap().entries.toList();
-    if (entries.length <= HiveManager.MAX_FILES) return;
+    if (entries.length <= HiveManager.maxCacheFiles) return;
 
-    // Sort by access frequency and recency (Android memory optimization)
+    // Sort by last access time (oldest first)
     entries.sort((a, b) {
-      final aData = a.value;
-      final bData = b.value;
-
-      final aLastAccessed =
-          DateTime.tryParse(aData['lastAccessed'] ?? '') ?? DateTime(1970);
-      final bLastAccessed =
-          DateTime.tryParse(bData['lastAccessed'] ?? '') ?? DateTime(1970);
-      final aAccessCount = aData['accessCount'] ?? 0;
-      final bAccessCount = bData['accessCount'] ?? 0;
-
-      // Prioritize by access frequency, then by recency
-      final aScore = aAccessCount * 1000 + aLastAccessed.millisecondsSinceEpoch;
-      final bScore = bAccessCount * 1000 + bLastAccessed.millisecondsSinceEpoch;
-
-      return aScore.compareTo(bScore);
+      final aTime =
+          DateTime.tryParse(a.value['lastAccessed'] ?? '') ?? DateTime(0);
+      final bTime =
+          DateTime.tryParse(b.value['lastAccessed'] ?? '') ?? DateTime(0);
+      return aTime.compareTo(bTime);
     });
-    // Remove least used 30% for Android memory efficiency
-    final removeCount = (entries.length * 0.3).ceil();
-    final List<Future<void>> deletionTasks = [];
 
-    for (int i = 0; i < removeCount && i < entries.length; i++) {
-      final entryData = entries[i].value;
-      final filePath = entryData['filePath'];
+    // Remove oldest 40% of files
+    final removeCount = (entries.length * 0.4).round();
+    final toRemove = entries.take(removeCount);
 
+    for (final entry in toRemove) {
+      final filePath = entry.value['filePath'];
       if (filePath != null) {
-        deletionTasks.add(_safeFileDelete(filePath));
+        await _deleteFile(filePath);
       }
-      deletionTasks.add(cacheBox.delete(entries[i].key));
+      await cacheBox.delete(entry.key);
     }
 
-    // Execute deletions concurrently for better performance
-    await Future.wait(deletionTasks, eagerError: false);
-
-    // Compact the box after cleanup (Android optimization)
+    // Compact box for better performance
     await cacheBox.compact();
   } catch (e) {
-    debugPrint('Cache cleanup failed: $e');
+    debugPrint('Cleanup failed: $e');
   }
 }
 
-/// Safe file deletion with error handling
-Future<void> _safeFileDelete(String filePath) async {
+/// Safely delete a file
+Future<void> _deleteFile(String path) async {
   try {
-    final file = File(filePath);
+    final file = File(path);
     if (await file.exists()) {
       await file.delete();
     }
   } catch (e) {
-    debugPrint('Failed to delete file $filePath: $e');
+    debugPrint('Failed to delete file: $e');
   }
 }
 
-/// Schedule periodic cleanup for Android memory management
-void _schedulePeriodicCleanup() {
-  Timer.periodic(HiveManager.CACHE_CLEANUP_INTERVAL, (timer) {
-    optimizedCacheCleanup();
-  });
+/// Manual cleanup trigger
+Future<void> cleanupCache() async {
+  await _performCleanup();
 }
 
-/// Enhanced getters with null safety
-bool get isHiveInitialized => HiveManager._isInitialized;
-String? get hivePath => HiveManager._hivePath;
-int get openBoxCount => HiveManager._openBoxes.length;
-
-/// Utility function to check Hive health (Android diagnostics)
-Future<Map<String, dynamic>> getHiveSystemStatus() async {
+/// Get system status for debugging
+Map<String, dynamic> getSystemStatus() {
   return {
-    'initialized': HiveManager._isInitialized,
-    'hivePath': HiveManager._hivePath,
-    'openBoxes': HiveManager._openBoxes.keys.toList(),
-    'initializingBoxes': HiveManager._initializingBoxes.toList(),
+    'initialized': HiveManager._initialized,
+    'openBoxes': HiveManager._boxes.keys.toList(),
     'platform': kIsWeb ? 'web' : Platform.operatingSystem,
-    'timestamp': DateTime.now().toIso8601String(),
   };
 }
+
+/// Check if Hive is initialized
+bool get isInitialized => HiveManager._initialized;
+
+/// Get number of open boxes
+int get openBoxCount => HiveManager._boxes.length;

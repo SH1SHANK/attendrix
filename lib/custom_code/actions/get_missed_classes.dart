@@ -21,6 +21,7 @@ import 'package:hive_ce/hive.dart';
 Future<List<ClassRowStruct>> getMissedClasses(
   String userID,
   List<String> enrolledCourseIDs,
+  bool forceRefresh, // New parameter to force refresh
 ) async {
   try {
     final initialized = await initializeHiveSystem();
@@ -48,92 +49,137 @@ Future<List<ClassRowStruct>> getMissedClasses(
     final DateTime today = DateTime.now();
     final String todayStr = today.toIso8601String().split('T')[0];
 
-    // Check cache metadata
-    final cachedMeta = metadataBox.get(metaKey);
+    // Initialize variables
     String? lastFetchDate;
     DateTime? enrollmentStartDate;
-
-    if (cachedMeta != null && cachedMeta is Map) {
-      final meta = Map<String, dynamic>.from(cachedMeta);
-      lastFetchDate = meta['last_fetch_date'] as String?;
-      final enrollmentStart = meta['enrollment_start_date'] as String?;
-      if (enrollmentStart != null) {
-        enrollmentStartDate = DateTime.parse(enrollmentStart);
-      }
-    }
-
-    // Get cached missed classes
     List<dynamic> cachedClasses = [];
-    final cachedData = missedClassesBox.get(cacheKey);
-    if (cachedData != null && cachedData is List) {
-      cachedClasses = List<dynamic>.from(cachedData);
-    }
 
-    // Determine date range to check
-    bool needsFetch = false;
-    DateTime? fetchStartDate;
-    DateTime fetchEndDate = today;
-    List<String> daysToFetch = [];
+    if (forceRefresh) {
+      // Force refresh: Clear existing cache and fetch all data
+      debugPrint('FlutterFlow: Force refresh triggered - clearing cache');
 
-    if (lastFetchDate == null) {
-      // First run - fetch all from enrollment start
-      needsFetch = true;
-      enrollmentStartDate ??= today.subtract(Duration(days: 365));
-      fetchStartDate = enrollmentStartDate;
-      debugPrint('FlutterFlow: First run - fetching all missed classes');
-    } else if (lastFetchDate != todayStr) {
-      // Check which days need fetching based on attendance verification
-      fetchStartDate = DateTime.parse(lastFetchDate).add(Duration(days: 1));
+      // Clear existing cache
+      await missedClassesBox.delete(cacheKey);
+      await metadataBox.delete(metaKey);
 
-      // Get list of days between last fetch and today
-      DateTime currentDay = fetchStartDate!;
-      while (currentDay.isBefore(today) || currentDay.day == today.day) {
-        final dayStr = currentDay.toIso8601String().split('T')[0];
-
-        // Check if this day needs fetching by comparing attendance cache count
-        final needsDayFetch = await _verifyDayRequiresFetch(
-            userID, dayStr, enrolledCourseIDs, attendanceBox);
-
-        if (needsDayFetch) {
-          daysToFetch.add(dayStr);
-          needsFetch = true;
-        } else {
-          debugPrint(
-              'FlutterFlow: Skipping $dayStr - attendance records complete');
+      // Set enrollment start date (fallback to 1 year ago if not found)
+      final cachedMeta = metadataBox.get(metaKey);
+      if (cachedMeta != null && cachedMeta is Map) {
+        final meta = Map<String, dynamic>.from(cachedMeta);
+        final enrollmentStart = meta['enrollment_start_date'] as String?;
+        if (enrollmentStart != null) {
+          enrollmentStartDate = DateTime.parse(enrollmentStart);
         }
-
-        currentDay = currentDay.add(Duration(days: 1));
       }
-    }
+      enrollmentStartDate ??= today.subtract(Duration(days: 365));
 
-    if (needsFetch && fetchStartDate != null) {
-      try {
-        if (daysToFetch.isEmpty) {
-          // First run or large range - fetch all
-          await _fetchMissedClassesForDateRange(
-              userID,
-              enrolledCourseIDs,
-              fetchStartDate,
-              fetchEndDate,
-              cachedClasses,
-              missedClassesBox,
-              cacheKey);
-        } else {
-          // Incremental fetch - only specific days
-          await _fetchMissedClassesForSpecificDays(userID, enrolledCourseIDs,
-              daysToFetch, cachedClasses, missedClassesBox, cacheKey);
+      // Fetch all data from enrollment start
+      await _fetchMissedClassesForDateRange(
+          userID,
+          enrolledCourseIDs,
+          enrollmentStartDate,
+          today,
+          cachedClasses,
+          missedClassesBox,
+          cacheKey);
+
+      // Update metadata
+      await metadataBox.put(metaKey, {
+        'last_fetch_date': todayStr,
+        'enrollment_start_date':
+            enrollmentStartDate.toIso8601String().split('T')[0],
+        'last_update': DateTime.now().millisecondsSinceEpoch,
+        'total_count': cachedClasses.length,
+        'force_refresh_timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+
+      debugPrint(
+          'FlutterFlow: Force refresh completed - fetched ${cachedClasses.length} missed classes');
+    } else {
+      // Normal flow: Check cache metadata and perform incremental sync
+      final cachedMeta = metadataBox.get(metaKey);
+
+      if (cachedMeta != null && cachedMeta is Map) {
+        final meta = Map<String, dynamic>.from(cachedMeta);
+        lastFetchDate = meta['last_fetch_date'] as String?;
+        final enrollmentStart = meta['enrollment_start_date'] as String?;
+        if (enrollmentStart != null) {
+          enrollmentStartDate = DateTime.parse(enrollmentStart);
         }
+      }
 
-        // Update metadata
-        await metadataBox.put(metaKey, {
-          'last_fetch_date': todayStr,
-          'enrollment_start_date':
-              enrollmentStartDate?.toIso8601String().split('T')[0],
-          'last_update': DateTime.now().millisecondsSinceEpoch,
-          'total_count': cachedClasses.length,
-        });
-      } catch (e) {
-        debugPrint('FlutterFlow: Error fetching missed classes: $e');
+      // Get cached missed classes
+      final cachedData = missedClassesBox.get(cacheKey);
+      if (cachedData != null && cachedData is List) {
+        cachedClasses = List<dynamic>.from(cachedData);
+      }
+
+      // Determine date range to check
+      bool needsFetch = false;
+      DateTime? fetchStartDate;
+      DateTime fetchEndDate = today;
+      List<String> daysToFetch = [];
+
+      if (lastFetchDate == null) {
+        // First run - fetch all from enrollment start
+        needsFetch = true;
+        enrollmentStartDate ??= today.subtract(Duration(days: 365));
+        fetchStartDate = enrollmentStartDate;
+        debugPrint('FlutterFlow: First run - fetching all missed classes');
+      } else if (lastFetchDate != todayStr) {
+        // Check which days need fetching based on attendance verification
+        fetchStartDate = DateTime.parse(lastFetchDate).add(Duration(days: 1));
+
+        // Get list of days between last fetch and today
+        DateTime currentDay = fetchStartDate!;
+        while (currentDay.isBefore(today) || currentDay.day == today.day) {
+          final dayStr = currentDay.toIso8601String().split('T')[0];
+
+          // Check if this day needs fetching by comparing attendance cache count
+          final needsDayFetch = await _verifyDayRequiresFetch(
+              userID, dayStr, enrolledCourseIDs, attendanceBox);
+
+          if (needsDayFetch) {
+            daysToFetch.add(dayStr);
+            needsFetch = true;
+          } else {
+            debugPrint(
+                'FlutterFlow: Skipping $dayStr - attendance records complete');
+          }
+
+          currentDay = currentDay.add(Duration(days: 1));
+        }
+      }
+
+      if (needsFetch && fetchStartDate != null) {
+        try {
+          if (daysToFetch.isEmpty) {
+            // First run or large range - fetch all
+            await _fetchMissedClassesForDateRange(
+                userID,
+                enrolledCourseIDs,
+                fetchStartDate,
+                fetchEndDate,
+                cachedClasses,
+                missedClassesBox,
+                cacheKey);
+          } else {
+            // Incremental fetch - only specific days
+            await _fetchMissedClassesForSpecificDays(userID, enrolledCourseIDs,
+                daysToFetch, cachedClasses, missedClassesBox, cacheKey);
+          }
+
+          // Update metadata
+          await metadataBox.put(metaKey, {
+            'last_fetch_date': todayStr,
+            'enrollment_start_date':
+                enrollmentStartDate?.toIso8601String().split('T')[0],
+            'last_update': DateTime.now().millisecondsSinceEpoch,
+            'total_count': cachedClasses.length,
+          });
+        } catch (e) {
+          debugPrint('FlutterFlow: Error fetching missed classes: $e');
+        }
       }
     }
 

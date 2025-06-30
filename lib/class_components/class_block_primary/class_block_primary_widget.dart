@@ -7,7 +7,6 @@ import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'class_block_primary_model.dart';
@@ -39,23 +38,6 @@ class _ClassBlockPrimaryWidgetState extends State<ClassBlockPrimaryWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ClassBlockPrimaryModel());
-
-    // On component load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      logFirebaseEvent('CLASS_BLOCK_PRIMARY_classBlock_primary_O');
-      logFirebaseEvent('classBlock_primary_custom_action');
-      _model.isAttended = await actions.checkClassAttendance(
-        widget.classRecord!.courseID,
-        widget.classRecord!.classStartTime!,
-        currentUserUid,
-        false,
-        currentUserReference!,
-        widget.classRecord!.classID,
-      );
-      logFirebaseEvent('classBlock_primary_update_component_stat');
-      _model.attendanceMarked = _model.isAttended!;
-      safeSetState(() {});
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -560,6 +542,7 @@ class _ClassBlockPrimaryWidgetState extends State<ClassBlockPrimaryWidget> {
                                 courseID: widget.classRecord?.courseID,
                                 classStartTime:
                                     widget.classRecord?.classStartTime,
+                                snackBarVisible: true,
                               );
                               logFirebaseEvent(
                                   'Checkbox_update_component_state');

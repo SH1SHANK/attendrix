@@ -230,10 +230,11 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                   focusNode: _model.textFieldFocusNode2,
                   onChanged: (_) => EasyDebounce.debounce(
                     '_model.textController2',
-                    Duration(milliseconds: 2000),
+                    Duration(milliseconds: 1000),
                     () => safeSetState(() {}),
                   ),
                   autofocus: false,
+                  textInputAction: TextInputAction.done,
                   obscureText: false,
                   decoration: InputDecoration(
                     isDense: true,
@@ -256,6 +257,16 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                           letterSpacing: 0.0,
                           useGoogleFonts:
                               !FlutterFlowTheme.of(context).labelMediumIsCustom,
+                        ),
+                    counterStyle: FlutterFlowTheme.of(context)
+                        .labelSmall
+                        .override(
+                          fontFamily:
+                              FlutterFlowTheme.of(context).labelSmallFamily,
+                          fontSize: 10.0,
+                          letterSpacing: 0.0,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).labelSmallIsCustom,
                         ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -297,12 +308,11 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                       ),
                   maxLines: 5,
                   minLines: 2,
+                  maxLength: 400,
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   cursorColor: FlutterFlowTheme.of(context).primaryText,
                   validator:
                       _model.textController2Validator.asValidator(context),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]'))
-                  ],
                 ),
               ),
               if (_model.attachmentAdded)
@@ -426,6 +436,10 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                             safeSetState(
                                 () => _model.colorPicked = _colorPickedColor);
                           }
+
+                          logFirebaseEvent('IconButton_update_component_state');
+                          _model.selectedColour = _model.colorPicked!;
+                          safeSetState(() {});
                         },
                       ),
                       Builder(

@@ -116,35 +116,39 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                 backgroundColor:
                     FlutterFlowTheme.of(context).secondaryBackground,
                 floatingActionButton: Visibility(
-                  visible: _model.tabBarCurrentIndex == 0,
-                  child: FloatingActionButton.extended(
-                    onPressed: () async {
-                      logFirebaseEvent(
-                          'STUDY_MATERIALS_FloatingActionButton_aqm');
-                      logFirebaseEvent('FloatingActionButton_navigate_to');
+                  visible: (_model.tabBarCurrentIndex == 0) &&
+                      (valueOrDefault(currentUserDocument?.userRole, '') ==
+                          'admin'),
+                  child: AuthUserStreamWidget(
+                    builder: (context) => FloatingActionButton.extended(
+                      onPressed: () async {
+                        logFirebaseEvent(
+                            'STUDY_MATERIALS_FloatingActionButton_aqm');
+                        logFirebaseEvent('FloatingActionButton_navigate_to');
 
-                      context.pushNamed(
-                          AddResoursesToGlobalRepositoryWidget.routeName);
-                    },
-                    backgroundColor: FlutterFlowTheme.of(context).primary,
-                    icon: Icon(
-                      Icons.add_rounded,
-                      color: FlutterFlowTheme.of(context).info,
-                      size: 24.0,
-                    ),
-                    elevation: 8.0,
-                    label: AutoSizeText(
-                      'Add Resourses',
-                      minFontSize: 10.0,
-                      style: FlutterFlowTheme.of(context).labelSmall.override(
-                            fontFamily:
-                                FlutterFlowTheme.of(context).labelSmallFamily,
-                            color: FlutterFlowTheme.of(context).info,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w600,
-                            useGoogleFonts: !FlutterFlowTheme.of(context)
-                                .labelSmallIsCustom,
-                          ),
+                        context.pushNamed(
+                            AddResoursesToGlobalRepositoryWidget.routeName);
+                      },
+                      backgroundColor: FlutterFlowTheme.of(context).primary,
+                      icon: Icon(
+                        Icons.add_rounded,
+                        color: FlutterFlowTheme.of(context).info,
+                        size: 24.0,
+                      ),
+                      elevation: 8.0,
+                      label: AutoSizeText(
+                        'Add Resourses',
+                        minFontSize: 10.0,
+                        style: FlutterFlowTheme.of(context).labelSmall.override(
+                              fontFamily:
+                                  FlutterFlowTheme.of(context).labelSmallFamily,
+                              color: FlutterFlowTheme.of(context).info,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .labelSmallIsCustom,
+                            ),
+                      ),
                     ),
                   ),
                 ),
@@ -677,8 +681,7 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                                                         queryParameters: {
                                                           'parentPath':
                                                               serializeParam(
-                                                            globalFoldersStudyMaterialsRecord
-                                                                .parentPath,
+                                                            parentPath,
                                                             ParamType.String,
                                                           ),
                                                         }.withoutNulls,
@@ -1013,119 +1016,111 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                                     ),
                                   ),
                                 ),
-                                if (!_model.isFavoritteSelectedPersonalVault)
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          12.0, 4.0, 12.0, 0.0),
-                                      child: FutureBuilder<
-                                          List<UserPersonalVaultRecord>>(
-                                        future:
-                                            queryUserPersonalVaultRecordOnce(
-                                          parent: currentUserReference,
-                                          queryBuilder:
-                                              (userPersonalVaultRecord) =>
-                                                  userPersonalVaultRecord
-                                                      .where(
-                                                        'parentPath',
-                                                        isEqualTo: "root/",
-                                                      )
-                                                      .where(
-                                                        'isDeleted',
-                                                        isEqualTo: false,
-                                                      )
-                                                      .orderBy(
-                                                          'last_opened',
-                                                          descending: true)
-                                                      .orderBy('is_favorite',
-                                                          descending: true)
-                                                      .orderBy('is_favorite',
-                                                          descending: true),
-                                          limit: 9,
-                                        ),
-                                        builder: (context, snapshot) {
-                                          // Customize what your widget looks like when it's loading.
-                                          if (!snapshot.hasData) {
-                                            return Center(
-                                              child: SizedBox(
-                                                width: 25.0,
-                                                height: 25.0,
-                                                child: SpinKitFadingCube(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 25.0,
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        12.0, 4.0, 12.0, 0.0),
+                                    child: StreamBuilder<
+                                        List<UserPersonalVaultRecord>>(
+                                      stream: queryUserPersonalVaultRecord(
+                                        parent: currentUserReference,
+                                        queryBuilder:
+                                            (userPersonalVaultRecord) =>
+                                                userPersonalVaultRecord
+                                                    .where(
+                                                      'parentPath',
+                                                      isEqualTo: "root/",
+                                                    )
+                                                    .where(
+                                                      'isDeleted',
+                                                      isEqualTo: false,
+                                                    )
+                                                    .orderBy('last_opened',
+                                                        descending: true),
+                                        limit: 9,
+                                      ),
+                                      builder: (context, snapshot) {
+                                        // Customize what your widget looks like when it's loading.
+                                        if (!snapshot.hasData) {
+                                          return Center(
+                                            child: SizedBox(
+                                              width: 25.0,
+                                              height: 25.0,
+                                              child: SpinKitFadingCube(
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primary,
+                                                size: 25.0,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                        List<UserPersonalVaultRecord>
+                                            personalFolderUserPersonalVaultRecordList =
+                                            snapshot.data!;
+
+                                        return GridView.builder(
+                                          padding: EdgeInsets.zero,
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3,
+                                            crossAxisSpacing: 5.0,
+                                            mainAxisSpacing: 5.0,
+                                            childAspectRatio: 1.0,
+                                          ),
+                                          primary: false,
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.vertical,
+                                          itemCount:
+                                              personalFolderUserPersonalVaultRecordList
+                                                  .length,
+                                          itemBuilder:
+                                              (context, personalFolderIndex) {
+                                            final personalFolderUserPersonalVaultRecord =
+                                                personalFolderUserPersonalVaultRecordList[
+                                                    personalFolderIndex];
+                                            return wrapWithModel(
+                                              model: _model
+                                                  .folderBlockUserVaultModels
+                                                  .getModel(
+                                                personalFolderUserPersonalVaultRecord
+                                                    .reference.id,
+                                                personalFolderIndex,
+                                              ),
+                                              updateCallback: () =>
+                                                  safeSetState(() {}),
+                                              child: FolderBlockUserVaultWidget(
+                                                key: Key(
+                                                  'Keyy79_${personalFolderUserPersonalVaultRecord.reference.id}',
                                                 ),
+                                                userFolderRecord:
+                                                    personalFolderUserPersonalVaultRecord,
+                                                onTap: (pathPath) async {
+                                                  logFirebaseEvent(
+                                                      'STUDY_MATERIALS_Container_y79ww7xz_CALLB');
+                                                  logFirebaseEvent(
+                                                      'folderBlockUserVault_navigate_to');
+
+                                                  context.pushNamed(
+                                                    FileMangerPersonalvaultWidget
+                                                        .routeName,
+                                                    queryParameters: {
+                                                      'parentPath':
+                                                          serializeParam(
+                                                        pathPath,
+                                                        ParamType.String,
+                                                      ),
+                                                    }.withoutNulls,
+                                                  );
+                                                },
                                               ),
                                             );
-                                          }
-                                          List<UserPersonalVaultRecord>
-                                              personalFolderUserPersonalVaultRecordList =
-                                              snapshot.data!;
-
-                                          return GridView.builder(
-                                            padding: EdgeInsets.zero,
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 3,
-                                              crossAxisSpacing: 5.0,
-                                              mainAxisSpacing: 5.0,
-                                              childAspectRatio: 1.0,
-                                            ),
-                                            primary: false,
-                                            shrinkWrap: true,
-                                            scrollDirection: Axis.vertical,
-                                            itemCount:
-                                                personalFolderUserPersonalVaultRecordList
-                                                    .length,
-                                            itemBuilder:
-                                                (context, personalFolderIndex) {
-                                              final personalFolderUserPersonalVaultRecord =
-                                                  personalFolderUserPersonalVaultRecordList[
-                                                      personalFolderIndex];
-                                              return wrapWithModel(
-                                                model: _model
-                                                    .folderBlockUserVaultModels
-                                                    .getModel(
-                                                  personalFolderUserPersonalVaultRecord
-                                                      .reference.id,
-                                                  personalFolderIndex,
-                                                ),
-                                                updateCallback: () =>
-                                                    safeSetState(() {}),
-                                                child:
-                                                    FolderBlockUserVaultWidget(
-                                                  key: Key(
-                                                    'Keyy79_${personalFolderUserPersonalVaultRecord.reference.id}',
-                                                  ),
-                                                  userFolderRecord:
-                                                      personalFolderUserPersonalVaultRecord,
-                                                  onTap: (pathPath) async {
-                                                    logFirebaseEvent(
-                                                        'STUDY_MATERIALS_Container_y79ww7xz_CALLB');
-                                                    logFirebaseEvent(
-                                                        'folderBlockUserVault_navigate_to');
-
-                                                    context.pushNamed(
-                                                      FileMangerPersonalvaultWidget
-                                                          .routeName,
-                                                      queryParameters: {
-                                                        'parentPath':
-                                                            serializeParam(
-                                                          pathPath,
-                                                          ParamType.String,
-                                                        ),
-                                                      }.withoutNulls,
-                                                    );
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
+                                          },
+                                        );
+                                      },
                                     ),
                                   ),
+                                ),
                               ],
                             ),
                           ],

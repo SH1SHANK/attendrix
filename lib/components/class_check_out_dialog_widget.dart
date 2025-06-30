@@ -59,6 +59,8 @@ class _ClassCheckOutDialogWidgetState extends State<ClassCheckOutDialogWidget> {
     return Padding(
       padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
       child: Container(
+        width: 280.0,
+        height: 290.0,
         decoration: BoxDecoration(
           color: FlutterFlowTheme.of(context).primaryBackground,
           borderRadius: BorderRadius.circular(12.0),

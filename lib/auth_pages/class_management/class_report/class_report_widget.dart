@@ -51,8 +51,8 @@ class _ClassReportWidgetState extends State<ClassReportWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250.0,
-      height: 180.0,
+      width: 280.0,
+      height: 200.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
         boxShadow: [
@@ -83,7 +83,7 @@ class _ClassReportWidgetState extends State<ClassReportWidget> {
                 style: FlutterFlowTheme.of(context).headlineSmall.override(
                       fontFamily:
                           FlutterFlowTheme.of(context).headlineSmallFamily,
-                      fontSize: 16.0,
+                      fontSize: 18.0,
                       letterSpacing: 0.0,
                       useGoogleFonts:
                           !FlutterFlowTheme.of(context).headlineSmallIsCustom,
@@ -101,7 +101,7 @@ class _ClassReportWidgetState extends State<ClassReportWidget> {
                         fontStyle:
                             FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                       ),
-                      fontSize: 12.0,
+                      fontSize: 14.0,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.w500,
                       fontStyle:
@@ -158,7 +158,7 @@ class _ClassReportWidgetState extends State<ClassReportWidget> {
                             FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                       ),
                       color: FlutterFlowTheme.of(context).info,
-                      fontSize: 12.0,
+                      fontSize: 14.0,
                       letterSpacing: 0.0,
                       fontWeight:
                           FlutterFlowTheme.of(context).bodyMedium.fontWeight,
@@ -198,7 +198,7 @@ class _ClassReportWidgetState extends State<ClassReportWidget> {
                               FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         ),
                         color: FlutterFlowTheme.of(context).primaryText,
-                        fontSize: 12.0,
+                        fontSize: 14.0,
                         letterSpacing: 0.0,
                         fontWeight:
                             FlutterFlowTheme.of(context).bodyMedium.fontWeight,

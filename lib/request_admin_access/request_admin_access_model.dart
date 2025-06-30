@@ -1,4 +1,4 @@
-import '/backend/schema/structs/index.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
@@ -22,8 +22,8 @@ class RequestAdminAccessModel
   FocusNode? textFieldFocusNode;
   TextEditingController? textController;
   String? Function(BuildContext, String?)? textControllerValidator;
-  // Stores action output result for [Custom Action - requestAdminAccess] action in Button widget.
-  FeedbackStruct? serverRes;
+  // Stores action output result for [Backend Call - API (Supabase Admin Verification)] action in Button widget.
+  ApiCallResponse? aPIResponse;
 
   @override
   void initState(BuildContext context) {}

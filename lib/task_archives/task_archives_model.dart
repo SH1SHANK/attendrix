@@ -1,6 +1,6 @@
+import '/backend/supabase/supabase.dart';
 import '/components/task_archive_block_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
 import 'task_archives_widget.dart' show TaskArchivesWidget;
 import 'package:flutter/material.dart';
 
@@ -11,9 +11,7 @@ class TaskArchivesModel extends FlutterFlowModel<TaskArchivesWidget> {
 
   ///  State fields for stateful widgets in this page.
 
-  // State field(s) for DropDown widget.
-  String? dropDownValue;
-  FormFieldController<String>? dropDownValueController;
+  Stream<List<TaskRecordsRow>>? listViewSupabaseStream;
   // Models for taskArchiveBlock dynamic component.
   late FlutterFlowDynamicModels<TaskArchiveBlockModel> taskArchiveBlockModels;
 

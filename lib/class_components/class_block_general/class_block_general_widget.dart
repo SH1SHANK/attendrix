@@ -64,6 +64,7 @@ class _ClassBlockGeneralWidgetState extends State<ClassBlockGeneralWidget> {
         false,
         currentUserReference!,
         widget.classID!,
+        false,
       );
       if (widget.isCustomClass) {
         logFirebaseEvent('classBlock_general_custom_action');
@@ -150,6 +151,23 @@ class _ClassBlockGeneralWidgetState extends State<ClassBlockGeneralWidget> {
               },
             );
           }
+
+          logFirebaseEvent('Container_custom_action');
+          _model.isAttendedForced = await actions.checkClassAttendance(
+            widget.courseID!,
+            widget.classStartTime!,
+            currentUserUid,
+            widget.isCustomClass,
+            currentUserReference!,
+            widget.classID!,
+            true,
+          );
+          logFirebaseEvent('Container_update_component_state');
+          _model.hasChanges = !_model.hasChanges;
+          _model.isAttended = _model.isAttendedForced!;
+          safeSetState(() {});
+
+          safeSetState(() {});
         },
         child: Container(
           width: double.infinity,

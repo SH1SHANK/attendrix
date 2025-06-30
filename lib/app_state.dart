@@ -81,7 +81,7 @@ class FFAppState extends ChangeNotifier {
     _isDownloading = value;
   }
 
-  String _GOOGLEDRIVEAPIKEY = '';
+  String _GOOGLEDRIVEAPIKEY = 'AIzaSyC_5H7NooWPBIZOe8XOwkwxieUF6yXNOT0';
   String get GOOGLEDRIVEAPIKEY => _GOOGLEDRIVEAPIKEY;
   set GOOGLEDRIVEAPIKEY(String value) {
     _GOOGLEDRIVEAPIKEY = value;
@@ -198,11 +198,11 @@ class FFAppState extends ChangeNotifier {
   void clearUserPersonalFilesCacheKey(String? uniqueKey) =>
       _userPersonalFilesManager.clearRequest(uniqueKey);
 
-  final _tasksQueryManager = FutureRequestManager<List<TaskRecordsRow>>();
-  Future<List<TaskRecordsRow>> tasksQuery({
+  final _tasksQueryManager = StreamRequestManager<List<TaskRecordsRow>>();
+  Stream<List<TaskRecordsRow>> tasksQuery({
     String? uniqueQueryKey,
     bool? overrideCache,
-    required Future<List<TaskRecordsRow>> Function() requestFn,
+    required Stream<List<TaskRecordsRow>> Function() requestFn,
   }) =>
       _tasksQueryManager.performRequest(
         uniqueQueryKey: uniqueQueryKey,

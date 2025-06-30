@@ -2,10 +2,9 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/schema/enums/enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/task_archive_block_widget.dart';
-import '/flutter_flow/flutter_flow_drop_down.dart';
+import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'task_archives_model.dart';
@@ -105,116 +104,27 @@ class _TaskArchivesWidgetState extends State<TaskArchivesWidget> {
                     ),
                   ),
                   Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(12.0, 16.0, 12.0, 0.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        AuthUserStreamWidget(
-                          builder: (context) => FlutterFlowDropDown<String>(
-                            controller: _model.dropDownValueController ??=
-                                FormFieldController<String>(
-                              _model.dropDownValue ??= '',
-                            ),
-                            options: List<String>.from((currentUserDocument
-                                        ?.coursesEnrolled
-                                        .toList() ??
-                                    [])
-                                .map((e) => e.courseID)
-                                .toList()),
-                            optionLabels: (currentUserDocument?.coursesEnrolled
-                                        .toList() ??
-                                    [])
-                                .map((e) => e.courseName)
-                                .toList(),
-                            onChanged: (val) async {
-                              safeSetState(() => _model.dropDownValue = val);
-                              logFirebaseEvent(
-                                  'TASK_ARCHIVES_DropDown_ehsa9cr8_ON_FORM_');
-                              logFirebaseEvent('DropDown_update_page_state');
-                              _model.filter = _model.dropDownValue;
-                              safeSetState(() {});
-                            },
-                            width: 200.0,
-                            height: 28.0,
-                            textStyle: FlutterFlowTheme.of(context)
-                                .labelSmall
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelSmallFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelSmallIsCustom,
-                                ),
-                            hintText: 'Filter by course',
-                            icon: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: FlutterFlowTheme.of(context).secondaryText,
-                              size: 24.0,
-                            ),
-                            fillColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                            elevation: 2.0,
-                            borderColor: Colors.transparent,
-                            borderWidth: 0.0,
-                            borderRadius: 8.0,
-                            margin: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 12.0, 0.0),
-                            hidesUnderline: true,
-                            isOverButton: false,
-                            isSearchable: false,
-                            isMultiSelect: false,
-                          ),
-                        ),
-                        if (_model.filter != null && _model.filter != '')
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 0.0, 0.0),
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                logFirebaseEvent(
-                                    'TASK_ARCHIVES_PAGE_Icon_tfej81x7_ON_TAP');
-                                logFirebaseEvent('Icon_update_page_state');
-                                _model.filter = null;
-                                safeSetState(() {});
-                              },
-                              child: Icon(
-                                Icons.close_outlined,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 24.0,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
                     child: AuthUserStreamWidget(
-                      builder: (context) => FutureBuilder<List<TaskRecordsRow>>(
-                        future: FFAppState().tasksQuery(
-                          requestFn: () => TaskRecordsTable().queryRows(
-                            queryFn: (q) => q
-                                .inFilterOrNull(
-                                  'courseID',
-                                  (currentUserDocument?.coursesEnrolled
-                                              .toList() ??
-                                          [])
-                                      .map((e) => e.courseID)
-                                      .toList(),
-                                )
-                                .eqOrNull(
-                                  'courseID',
-                                  _model.dropDownValue,
-                                )
-                                .order('taskStartTime'),
-                            limit: 24,
-                          ),
+                      builder: (context) => StreamBuilder<List<TaskRecordsRow>>(
+                        stream: FFAppState().tasksQuery(
+                          requestFn: () => _model.listViewSupabaseStream ??=
+                              SupaFlow.client
+                                  .from("taskRecords")
+                                  .stream(primaryKey: ['id'])
+                                  .inFilterOrNull(
+                                    'courseID',
+                                    (currentUserDocument?.coursesEnrolled
+                                                .toList() ??
+                                            [])
+                                        .map((e) => e.courseID)
+                                        .toList(),
+                                  )
+                                  .order('taskStartTime')
+                                  .limit(24)
+                                  .map((list) => list
+                                      .map((item) => TaskRecordsRow(item))
+                                      .toList()),
                         ),
                         builder: (context, snapshot) {
                           // Customize what your widget looks like when it's loading.
@@ -233,11 +143,24 @@ class _TaskArchivesWidgetState extends State<TaskArchivesWidget> {
                           List<TaskRecordsRow> listViewTaskRecordsRowList =
                               snapshot.data!;
 
-                          return ListView.builder(
+                          if (listViewTaskRecordsRowList.isEmpty) {
+                            return Center(
+                              child: EmptyClassWidget(
+                                imageUrl: '',
+                                title: 'No Tasks Yet!',
+                                description:
+                                    'Looks Like You Don\'t Have Any Tasks Yet! Check Back Later.',
+                              ),
+                            );
+                          }
+
+                          return ListView.separated(
                             padding: EdgeInsets.zero,
+                            primary: false,
                             shrinkWrap: true,
                             scrollDirection: Axis.vertical,
                             itemCount: listViewTaskRecordsRowList.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 4.0),
                             itemBuilder: (context, listViewIndex) {
                               final listViewTaskRecordsRow =
                                   listViewTaskRecordsRowList[listViewIndex];

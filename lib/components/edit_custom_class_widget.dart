@@ -65,13 +65,20 @@ class _EditCustomClassWidgetState extends State<EditCustomClassWidget> {
         logFirebaseEvent('editCustomClass_dismiss_dialog');
         Navigator.pop(context);
       }
+
+      logFirebaseEvent('editCustomClass_update_component_state');
+      _model.classSlots = widget.customClassRefDoc!.slotData.slotMetadata
+          .toList()
+          .cast<SlotMetadataStruct>();
+      safeSetState(() {});
     });
 
     _model.textController1 ??=
         TextEditingController(text: widget.customClassRefDoc?.courseName);
     _model.textFieldFocusNode1 ??= FocusNode();
 
-    _model.textController2 ??= TextEditingController();
+    _model.textController2 ??= TextEditingController(
+        text: widget.customClassRefDoc?.slotData.slotName);
     _model.textFieldFocusNode2 ??= FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -222,7 +229,7 @@ class _EditCustomClassWidgetState extends State<EditCustomClassWidget> {
               ),
               Builder(
                 builder: (context) {
-                  if (_model.createCustomClass) {
+                  if (widget.customClassRefDoc?.isCustomSlot ?? false) {
                     return Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,

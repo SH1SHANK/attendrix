@@ -1,23 +1,20 @@
-import '/backend/backend.dart';
 import '/backend/schema/enums/enums.dart';
 import '/class_components/class_block_bottom_sheet/class_block_bottom_sheet_widget.dart';
 import '/components/add_marks_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'task_dropdown_model.dart';
 export 'task_dropdown_model.dart';
 
 class TaskDropdownWidget extends StatefulWidget {
   const TaskDropdownWidget({
     super.key,
-    required this.taskID,
-    required this.courseID,
-    required this.taskStartTime,
-    required this.taskName,
-    required this.taskType,
-    this.personalRecord,
+    this.taskID,
+    this.courseID,
+    this.taskStartTime,
+    this.taskName,
+    this.taskType,
   });
 
   final String? taskID;
@@ -25,7 +22,6 @@ class TaskDropdownWidget extends StatefulWidget {
   final DateTime? taskStartTime;
   final String? taskName;
   final RecordType? taskType;
-  final PersonalRecordsRecord? personalRecord;
 
   @override
   State<TaskDropdownWidget> createState() => _TaskDropdownWidgetState();
@@ -44,20 +40,6 @@ class _TaskDropdownWidgetState extends State<TaskDropdownWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TaskDropdownModel());
-
-    // On component load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      logFirebaseEvent('TASK_DROPDOWN_task_dropdown_ON_INIT_STAT');
-      if (widget.personalRecord?.recordId == widget.taskID) {
-        logFirebaseEvent('task_dropdown_update_component_state');
-        _model.remainderSet = true;
-        safeSetState(() {});
-      } else {
-        logFirebaseEvent('task_dropdown_update_component_state');
-        _model.remainderSet = false;
-        safeSetState(() {});
-      }
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -206,7 +188,6 @@ class _TaskDropdownWidgetState extends State<TaskDropdownWidget> {
                         recordType: widget.taskType!,
                         className: widget.taskName,
                         classDate: widget.taskStartTime,
-                        existingRecord: widget.personalRecord,
                       ),
                     );
                   },
@@ -234,10 +215,7 @@ class _TaskDropdownWidgetState extends State<TaskDropdownWidget> {
                           padding: EdgeInsetsDirectional.fromSTEB(
                               12.0, 0.0, 0.0, 0.0),
                           child: Text(
-                            valueOrDefault<String>(
-                              _model.remainderSet ? 'Edit Marks' : 'Add Marks',
-                              'Add Marks',
-                            ),
+                            'Add Marks',
                             style: FlutterFlowTheme.of(context)
                                 .labelLarge
                                 .override(

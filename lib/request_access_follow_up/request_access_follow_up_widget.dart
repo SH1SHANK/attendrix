@@ -1,5 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -227,13 +228,26 @@ class _RequestAccessFollowUpWidgetState
                                   logFirebaseEvent(
                                       'REQUEST_ACCESS_FOLLOW_UP_VERIFY_CODE_BTN');
                                   if (_model.pinCodeController!.text != '') {
-                                    logFirebaseEvent('Button_custom_action');
+                                    logFirebaseEvent('Button_backend_call');
                                     _model.verificationResult =
-                                        await actions.verifyAdminCode(
-                                      currentUserUid,
-                                      _model.pinCodeController!.text,
+                                        await AdminusersTable().queryRows(
+                                      queryFn: (q) => q
+                                          .eqOrNull(
+                                            'userid',
+                                            currentUserUid,
+                                          )
+                                          .eqOrNull(
+                                            'email',
+                                            widget.email,
+                                          )
+                                          .eqOrNull(
+                                            'admincode',
+                                            _model.pinCodeController!.text,
+                                          ),
                                     );
-                                    if (_model.verificationResult!) {
+                                    if (_model.verificationResult != null &&
+                                        (_model.verificationResult)!
+                                            .isNotEmpty) {
                                       logFirebaseEvent(
                                           'Button_update_page_state');
                                       _model.invalidPin = false;

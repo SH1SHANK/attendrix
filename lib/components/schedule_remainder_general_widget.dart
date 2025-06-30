@@ -191,7 +191,7 @@ class _ScheduleRemainderGeneralWidgetState
                         'SCHEDULE_REMAINDER_GENERAL_Icon_54nqbjwo');
                     if (_model.minutes < 120) {
                       logFirebaseEvent('Icon_update_component_state');
-                      _model.minutes = 5;
+                      _model.minutes = _model.minutes + 5;
                       safeSetState(() {});
                     }
                   },

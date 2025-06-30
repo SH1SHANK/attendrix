@@ -662,6 +662,98 @@ class _DashboardWidgetState extends State<DashboardWidget>
                             ),
                           ),
                         ),
+                        InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            logFirebaseEvent(
+                                'DASHBOARD_PAGE_convertComponent_ON_TAP');
+                            await Future.wait([
+                              Future(() async {
+                                logFirebaseEvent('convertComponent_drawer');
+                                if (scaffoldKey.currentState!.isDrawerOpen ||
+                                    scaffoldKey.currentState!.isEndDrawerOpen) {
+                                  Navigator.pop(context);
+                                }
+                              }),
+                              Future(() async {
+                                logFirebaseEvent(
+                                    'convertComponent_navigate_to');
+
+                                context.goNamed(
+                                  CustomClassesWidget.routeName,
+                                  extra: <String, dynamic>{
+                                    kTransitionInfoKey: TransitionInfo(
+                                      hasTransition: true,
+                                      transitionType:
+                                          PageTransitionType.rightToLeft,
+                                    ),
+                                  },
+                                );
+                              }),
+                            ]);
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(),
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 8.0, 0.0, 8.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        12.0, 0.0, 0.0, 0.0),
+                                    child: Icon(
+                                      FFIcons.kghostBold,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      size: 25.0,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          6.0, 0.0, 0.0, 0.0),
+                                      child: AutoSizeText(
+                                        'Custom Classes',
+                                        maxLines: 1,
+                                        minFontSize: 14.0,
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              font: GoogleFonts.outfit(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                              fontSize: 20.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .fontStyle,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                         if (valueOrDefault<bool>(
                           valueOrDefault(currentUserDocument?.userRole, '') !=
                               'admin',
@@ -1221,13 +1313,28 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                   ),
                                   Align(
                                     alignment: AlignmentDirectional(-0.09, 0.0),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: SvgPicture.asset(
-                                        'assets/images/Task_Square_Icon.svg',
-                                        width: 30.0,
-                                        height: 30.0,
-                                        fit: BoxFit.cover,
+                                    child: InkWell(
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () async {
+                                        logFirebaseEvent(
+                                            'DASHBOARD_PAGE_Image_sitr0amm_ON_TAP');
+                                        logFirebaseEvent('Image_navigate_to');
+
+                                        context.pushNamed(
+                                            ChallengesWidget.routeName);
+                                      },
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        child: SvgPicture.asset(
+                                          'assets/images/Task_Square_Icon.svg',
+                                          width: 30.0,
+                                          height: 30.0,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -1237,7 +1344,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 10.0, 0.0, 20.0),
+                                0.0, 10.0, 0.0, 18.0),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -1264,7 +1371,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                   FlutterFlowTheme.of(context)
                                                       .headlineSmallFamily,
                                               color: Colors.black,
-                                              fontSize: 16.0,
+                                              fontSize: 15.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.bold,
                                               useGoogleFonts:
@@ -1298,7 +1405,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                 ),
                                 Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 5.0, 0.0, 0.0),
+                                      20.0, 5.0, 0.0, 0.0),
                                   child: InkWell(
                                     splashColor: Colors.transparent,
                                     focusColor: Colors.transparent,

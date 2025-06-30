@@ -34,7 +34,7 @@ class AddFilesAlertDialogModel
   FocusNode? textFieldFocusNode2;
   TextEditingController? textController2;
   String? Function(BuildContext, String?)? textController2Validator;
-  // Stores action output result for [Custom Action - fetchFileInfo] action in TextField widget.
+  // Stores action output result for [Custom Action - fetchFileInfo] action in Button widget.
   FileInfoStruct? fileMetadataCopy;
   // State field(s) for DropDown widget.
   String? dropDownValue;

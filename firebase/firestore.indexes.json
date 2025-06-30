@@ -51,10 +51,6 @@
         {
           "fieldPath": "last_opened",
           "order": "DESCENDING"
-        },
-        {
-          "fieldPath": "is_favorite",
-          "order": "DESCENDING"
         }
       ]
     },
@@ -100,10 +96,6 @@
       "fields": [
         {
           "fieldPath": "entity_type",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "courseID",
           "order": "ASCENDING"
         },
         {

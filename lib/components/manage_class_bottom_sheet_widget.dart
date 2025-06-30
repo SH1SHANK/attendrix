@@ -1,3 +1,5 @@
+import '/backend/supabase/supabase.dart';
+import '/components/edit_existing_class_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -10,9 +12,11 @@ class ManageClassBottomSheetWidget extends StatefulWidget {
   const ManageClassBottomSheetWidget({
     super.key,
     required this.classID,
+    required this.classRef,
   });
 
   final String? classID;
+  final TimetableRecordsRow? classRef;
 
   @override
   State<ManageClassBottomSheetWidget> createState() =>
@@ -73,51 +77,54 @@ class _ManageClassBottomSheetWidgetState
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            FFButtonWidget(
-              onPressed: () async {
-                logFirebaseEvent('MANAGE_CLASS_BOTTOM_SHEET_RESCHEDULE_CLA');
-                logFirebaseEvent('Button_bottom_sheet');
-                Navigator.pop(context);
-                logFirebaseEvent('Button_show_snack_bar');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Feature Unavailable!',
-                      style: GoogleFonts.outfit(
-                        color: FlutterFlowTheme.of(context).info,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 14.0,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    duration: Duration(milliseconds: 4000),
-                    backgroundColor: FlutterFlowTheme.of(context).error,
-                  ),
-                );
-              },
-              text: 'Reschedule Class',
-              options: FFButtonOptions(
-                width: double.infinity,
-                height: 60.0,
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                color: FlutterFlowTheme.of(context).accent3,
-                textStyle: FlutterFlowTheme.of(context).bodyLarge.override(
-                      font: GoogleFonts.outfit(
+            Builder(
+              builder: (context) => FFButtonWidget(
+                onPressed: () async {
+                  logFirebaseEvent('MANAGE_CLASS_BOTTOM_SHEET_RESCHEDULE_CLA');
+                  logFirebaseEvent('Button_bottom_sheet');
+                  Navigator.pop(context);
+                  logFirebaseEvent('Button_alert_dialog');
+                  await showDialog(
+                    context: context,
+                    builder: (dialogContext) {
+                      return Dialog(
+                        elevation: 0,
+                        insetPadding: EdgeInsets.zero,
+                        backgroundColor: Colors.transparent,
+                        alignment: AlignmentDirectional(0.0, 0.0)
+                            .resolve(Directionality.of(context)),
+                        child: EditExistingClassWidget(
+                          classRef: widget.classRef!,
+                        ),
+                      );
+                    },
+                  );
+                },
+                text: 'Reschedule Class',
+                options: FFButtonOptions(
+                  width: double.infinity,
+                  height: 60.0,
+                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  iconPadding:
+                      EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  color: FlutterFlowTheme.of(context).accent3,
+                  textStyle: FlutterFlowTheme.of(context).bodyLarge.override(
+                        font: GoogleFonts.outfit(
+                          fontWeight: FontWeight.w500,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).bodyLarge.fontStyle,
+                        ),
+                        fontSize: 18.0,
+                        letterSpacing: 0.0,
                         fontWeight: FontWeight.w500,
                         fontStyle:
                             FlutterFlowTheme.of(context).bodyLarge.fontStyle,
                       ),
-                      fontSize: 18.0,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.w500,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).bodyLarge.fontStyle,
-                    ),
-                elevation: 2.0,
-                borderSide: BorderSide(
-                  color: Colors.transparent,
-                  width: 1.0,
+                  elevation: 2.0,
+                  borderSide: BorderSide(
+                    color: Colors.transparent,
+                    width: 1.0,
+                  ),
                 ),
               ),
             ),

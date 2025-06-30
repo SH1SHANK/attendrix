@@ -1,5 +1,6 @@
 import '/backend/backend.dart';
 import '/backend/schema/structs/index.dart';
+import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'request_access_follow_up_widget.dart' show RequestAccessFollowUpWidget;
@@ -35,8 +36,8 @@ class RequestAccessFollowUpModel
   TextEditingController? pinCodeController;
   FocusNode? pinCodeFocusNode;
   String? Function(BuildContext, String?)? pinCodeControllerValidator;
-  // Stores action output result for [Custom Action - verifyAdminCode] action in Button widget.
-  bool? verificationResult;
+  // Stores action output result for [Backend Call - Query Rows] action in Button widget.
+  List<AdminusersRow>? verificationResult;
   // Stores action output result for [Custom Action - markAllCoursesEditable] action in Button widget.
   List<CoursesEnrolledStruct>? editablecourses;
 

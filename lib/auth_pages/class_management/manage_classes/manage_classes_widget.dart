@@ -724,79 +724,148 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                       ),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    16.0, 0.0, 16.0, 0.0),
-                                child: AuthUserStreamWidget(
-                                  builder: (context) =>
-                                      FlutterFlowDropDown<String>(
-                                    controller:
-                                        _model.courseNameValueController ??=
-                                            FormFieldController<String>(
-                                      _model.courseNameValue ??= '',
-                                    ),
-                                    options: List<String>.from(
-                                        (currentUserDocument?.coursesEnrolled
-                                                    .toList() ??
-                                                [])
-                                            .where((e) => e.isEditable == true)
-                                            .toList()
-                                            .map((e) => e.courseID)
-                                            .toList()),
-                                    optionLabels: (currentUserDocument
-                                                ?.coursesEnrolled
+                              Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  if (valueOrDefault<bool>(
+                                    (currentUserDocument?.coursesEnrolled
                                                 .toList() ??
                                             [])
                                         .where((e) => e.isEditable == true)
                                         .toList()
-                                        .map((e) => e.courseName)
-                                        .toList(),
-                                    onChanged: (val) => safeSetState(
-                                        () => _model.courseNameValue = val),
-                                    width: double.infinity,
-                                    height: 48.0,
-                                    textStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          font: GoogleFonts.outfit(
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
+                                        .isNotEmpty,
+                                    true,
+                                  ))
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16.0, 0.0, 16.0, 0.0),
+                                      child: AuthUserStreamWidget(
+                                        builder: (context) =>
+                                            FlutterFlowDropDown<String>(
+                                          controller: _model
+                                                  .courseNameValueController ??=
+                                              FormFieldController<String>(
+                                            _model.courseNameValue ??= '',
                                           ),
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryText,
-                                          fontSize: 16.0,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle:
+                                          options: List<String>.from(
+                                              (currentUserDocument
+                                                          ?.coursesEnrolled
+                                                          .toList() ??
+                                                      [])
+                                                  .where((e) =>
+                                                      e.isEditable == true)
+                                                  .toList()
+                                                  .map((e) => e.courseID)
+                                                  .toList()),
+                                          optionLabels: (currentUserDocument
+                                                      ?.coursesEnrolled
+                                                      .toList() ??
+                                                  [])
+                                              .where(
+                                                  (e) => e.isEditable == true)
+                                              .toList()
+                                              .map((e) => e.courseName)
+                                              .toList(),
+                                          onChanged: (val) => safeSetState(() =>
+                                              _model.courseNameValue = val),
+                                          width: double.infinity,
+                                          height: 48.0,
+                                          textStyle: FlutterFlowTheme.of(
+                                                  context)
+                                              .bodyMedium
+                                              .override(
+                                                font: GoogleFonts.outfit(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
+                                                fontSize: 16.0,
+                                                letterSpacing: 0.0,
+                                                fontWeight: FontWeight.w600,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .fontStyle,
+                                              ),
+                                          hintText: 'Select Course Name',
+                                          icon: Icon(
+                                            Icons.keyboard_arrow_down_sharp,
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryText,
+                                            size: 24.0,
+                                          ),
+                                          fillColor:
                                               FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
+                                                  .secondaryBackground,
+                                          elevation: 2.0,
+                                          borderColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .alternate,
+                                          borderWidth: 2.0,
+                                          borderRadius: 8.0,
+                                          margin:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  12.0, 0.0, 12.0, 0.0),
+                                          hidesUnderline: true,
+                                          isOverButton: false,
+                                          isSearchable: false,
+                                          isMultiSelect: false,
                                         ),
-                                    hintText: 'Select Course Name',
-                                    icon: Icon(
-                                      Icons.keyboard_arrow_down_sharp,
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
-                                      size: 24.0,
+                                      ),
                                     ),
-                                    fillColor: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    elevation: 2.0,
-                                    borderColor:
-                                        FlutterFlowTheme.of(context).alternate,
-                                    borderWidth: 2.0,
-                                    borderRadius: 8.0,
-                                    margin: EdgeInsetsDirectional.fromSTEB(
-                                        12.0, 0.0, 12.0, 0.0),
-                                    hidesUnderline: true,
-                                    isOverButton: false,
-                                    isSearchable: false,
-                                    isMultiSelect: false,
-                                  ),
-                                ),
+                                  if (!valueOrDefault<bool>(
+                                    (currentUserDocument?.coursesEnrolled
+                                                .toList() ??
+                                            [])
+                                        .where((e) => e.isEditable == true)
+                                        .toList()
+                                        .isNotEmpty,
+                                    false,
+                                  ))
+                                    Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16.0, 0.0, 16.0, 0.0),
+                                      child: AuthUserStreamWidget(
+                                        builder: (context) => Container(
+                                          width: double.infinity,
+                                          height: 40.0,
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .alternate,
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                          ),
+                                          child: Align(
+                                            alignment:
+                                                AlignmentDirectional(0.0, 0.0),
+                                            child: Text(
+                                              'No Available Courses! Requires Admin Access',
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMediumFamily,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMediumIsCustom,
+                                                      ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
@@ -1962,7 +2031,6 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                                     isScrollControlled: true,
                                                     backgroundColor:
                                                         Colors.transparent,
-                                                    enableDrag: false,
                                                     context: context,
                                                     builder: (context) {
                                                       return GestureDetector(
@@ -1982,6 +2050,8 @@ class _ManageClassesWidgetState extends State<ManageClassesWidget> {
                                                             classID:
                                                                 listViewTimetableRecordsRow
                                                                     .classID,
+                                                            classRef:
+                                                                listViewTimetableRecordsRow,
                                                           ),
                                                         ),
                                                       );

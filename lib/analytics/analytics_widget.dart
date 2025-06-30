@@ -108,9 +108,8 @@ class _AnalyticsWidgetState extends State<AnalyticsWidget> {
                           EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 12.0, 0.0),
                       child: AuthUserStreamWidget(
                         builder: (context) => FlutterFlowDropDown<String>(
-                          multiSelectController:
-                              _model.dropDownValueController1 ??=
-                                  FormListFieldController<String>(null),
+                          controller: _model.dropDownValueController1 ??=
+                              FormFieldController<String>(null),
                           options: List<String>.from(
                               (currentUserDocument?.coursesEnrolled.toList() ??
                                       [])
@@ -121,6 +120,17 @@ class _AnalyticsWidgetState extends State<AnalyticsWidget> {
                                       [])
                                   .map((e) => e.courseName)
                                   .toList(),
+                          onChanged: (val) async {
+                            safeSetState(() => _model.dropDownValue1 = val);
+                            logFirebaseEvent(
+                                'ANALYTICS_DropDown_kmlt7bwb_ON_FORM_WIDG');
+                            logFirebaseEvent('DropDown_update_page_state');
+                            _model.courseID = valueOrDefault<String>(
+                              _model.dropDownValue1,
+                              'ME1001EA1',
+                            );
+                            safeSetState(() {});
+                          },
                           width: double.infinity,
                           height: 45.0,
                           textStyle: FlutterFlowTheme.of(context)
@@ -149,22 +159,13 @@ class _AnalyticsWidgetState extends State<AnalyticsWidget> {
                           hidesUnderline: true,
                           isOverButton: false,
                           isSearchable: false,
-                          isMultiSelect: true,
-                          onMultiSelectChanged: (val) async {
-                            safeSetState(() => _model.dropDownValue1 = val);
-                            logFirebaseEvent(
-                                'ANALYTICS_DropDown_kmlt7bwb_ON_FORM_WIDG');
-                            logFirebaseEvent('DropDown_update_page_state');
-                            _model.courseIDs =
-                                _model.dropDownValue1!.toList().cast<String>();
-                            safeSetState(() {});
-                          },
+                          isMultiSelect: false,
                         ),
                       ),
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(12.0, 5.0, 12.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(12.0, 5.0, 12.0, 10.0),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -294,19 +295,19 @@ class _AnalyticsWidgetState extends State<AnalyticsWidget> {
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(8.0, 12.0, 8.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(8.0, 16.0, 8.0, 0.0),
                       child: Container(
                         width: double.infinity,
-                        height: 800.0,
+                        height: 500.0,
                         child: custom_widgets.AttendanceGraphWidget(
                           width: double.infinity,
-                          height: 800.0,
+                          height: 500.0,
                           userID: currentUserUid,
-                          availableCourseIds: _model.courseIDs,
                           period: valueOrDefault<String>(
                             _model.period,
                             '7d',
                           ),
+                          selectedCourseId: _model.courseID,
                         ),
                       ),
                     ),

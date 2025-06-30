@@ -72,7 +72,7 @@ class _CustomClassWidgetState extends State<CustomClassWidget> {
     _model.textController4 ??= TextEditingController();
     _model.textFieldFocusNode4 ??= FocusNode();
 
-    _model.switchValue = true;
+    _model.switchValue = false;
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -734,11 +734,10 @@ class _CustomClassWidgetState extends State<CustomClassWidget> {
                     onChanged: (newValue) async {
                       safeSetState(() => _model.switchValue = newValue);
                     },
-                    activeColor: FlutterFlowTheme.of(context).primary,
-                    activeTrackColor: FlutterFlowTheme.of(context).primary,
+                    activeColor: FlutterFlowTheme.of(context).info,
+                    activeTrackColor: FlutterFlowTheme.of(context).tertiary,
                     inactiveTrackColor: FlutterFlowTheme.of(context).alternate,
-                    inactiveThumbColor:
-                        FlutterFlowTheme.of(context).secondaryBackground,
+                    inactiveThumbColor: FlutterFlowTheme.of(context).info,
                   ),
                 ],
               ),

@@ -255,6 +255,34 @@ class _ChallengeBlockWidgetState extends State<ChallengeBlockWidget> {
                                   },
                                 ),
                               });
+                              logFirebaseEvent('Button_show_snack_bar');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Challenge claimed! You gained +${_model.amplixReward?.toString()} Amplix! ⚡',
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelSmall
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelSmallFamily,
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelSmallIsCustom,
+                                        ),
+                                  ),
+                                  duration: Duration(milliseconds: 4000),
+                                  backgroundColor:
+                                      FlutterFlowTheme.of(context).primary,
+                                ),
+                              );
+                              logFirebaseEvent('Button_update_component_state');
+                              _model.rebuildComponent =
+                                  !_model.rebuildComponent;
+                              safeSetState(() {});
                             } else {
                               logFirebaseEvent('Button_action_block');
                               await action_blocks.universalErrorSnackbar(

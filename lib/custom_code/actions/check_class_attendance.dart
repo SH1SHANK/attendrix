@@ -12,143 +12,112 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/custom_code/actions/index.dart';
-import '/flutter_flow/custom_functions.dart';
-
-import 'package:hive_ce/hive.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart';
 import '/custom_code/actions/initialize_hive_system.dart';
+import 'package:hive_ce/hive.dart';
 
 Future<bool> checkClassAttendance(
-  String courseID,
-  DateTime classStartTime,
-  String userID,
-  bool isCustomClass,
-  DocumentReference usersRef,
-  String classID,
-) async {
+    String courseID,
+    DateTime classStartTime,
+    String userID,
+    bool isCustomClass,
+    DocumentReference usersRef,
+    String classID,
+    bool forceRefresh) async {
+  if (courseID.isEmpty || userID.isEmpty || classID.isEmpty) return false;
+
+  // Initialize Hive
   try {
-    // Validate input parameters first
-    if (courseID.isEmpty || userID.isEmpty || classID.isEmpty) {
-      debugPrint('FlutterFlow: Invalid input parameters');
-      return false;
-    }
-
-    // Initialize Hive system using the separate action
     await initializeHiveSystem();
+  } catch (e) {
+    debugPrint('Hive init error: $e');
+  }
 
-    // Create optimized cache key
-    final String cacheKey = isCustomClass
-        ? "custom_${courseID}_${classStartTime.millisecondsSinceEpoch}"
-        : "regular_${userID}_${classID}";
+  // Create cache key
+  final cacheKey = isCustomClass
+      ? "c_${courseID}_${classStartTime.millisecondsSinceEpoch ~/ 60000}"
+      : "r_${userID}_$classID";
 
-    // Use dynamic type for the box instead of Map<String, dynamic>
-    Box? attendanceBox;
-
+  // Check cache first (skip if forceRefresh is true)
+  if (!forceRefresh) {
     try {
-      attendanceBox = Hive.isBoxOpen('attendance_cache')
+      final box = Hive.isBoxOpen('attendance_cache')
           ? Hive.box('attendance_cache')
           : await Hive.openBox('attendance_cache');
-    } catch (hiveError) {
-      debugPrint('FlutterFlow: Hive box error: $hiveError');
-      // Continue without cache if Hive fails
-    }
 
-    // Check cache with timestamp validation (24 hours)
-    if (attendanceBox != null) {
-      try {
-        final cachedData = attendanceBox.get(cacheKey);
-        if (cachedData != null && cachedData is Map) {
-          // Safer casting with null checks
-          final Map<String, dynamic> cacheMap =
-              Map<String, dynamic>.from(cachedData);
-          final timestamp = cacheMap['timestamp'] as int?;
-          final isAttended = cacheMap['attended'] as bool? ?? false;
-
-          if (timestamp != null &&
-              DateTime.now().millisecondsSinceEpoch - timestamp < 86400000) {
-            debugPrint('FlutterFlow: Returning cached result: $isAttended');
-            return isAttended;
-          }
+      final cached = box.get(cacheKey);
+      if (cached is Map) {
+        final data = Map<String, dynamic>.from(cached);
+        final age =
+            DateTime.now().millisecondsSinceEpoch - (data['time'] as int);
+        if (age < 900000) {
+          // 30 minutes
+          return data['attended'] as bool;
         }
-      } catch (cacheError) {
-        debugPrint('FlutterFlow: Cache read error: $cacheError');
-        // Continue to database query if cache fails
+        box.delete(cacheKey); // Remove expired
       }
+    } catch (e) {
+      debugPrint('Cache check error: $e');
     }
+  }
 
-    bool isAttended = false;
+  bool attended = false;
 
+  try {
     if (isCustomClass) {
-      try {
-        // Firestore query for custom classes with null checks
-        final querySnapshot = await usersRef
-            .collection('customClasses')
-            .where('courseID', isEqualTo: courseID)
-            .limit(1)
-            .get();
+      // Check custom class attendance
+      final query = await usersRef
+          .collection('customClasses')
+          .where('courseID', isEqualTo: courseID)
+          .limit(1)
+          .get()
+          .timeout(Duration(seconds: 5));
 
-        if (querySnapshot.docs.isNotEmpty) {
-          final docData = querySnapshot.docs.first.data();
-          if (docData != null) {
-            final attendedClasses =
-                docData['attendedClasses'] as List<dynamic>?;
-
-            if (attendedClasses != null && attendedClasses.isNotEmpty) {
-              final targetTime = classStartTime.millisecondsSinceEpoch;
-              isAttended = attendedClasses.any((timestamp) {
-                if (timestamp is Timestamp) {
-                  return (timestamp.toDate().millisecondsSinceEpoch -
-                              targetTime)
-                          .abs() <
-                      60000; // 1 minute tolerance
-                }
-                return false;
-              });
-            }
+      if (query.docs.isNotEmpty) {
+        final data = query.docs.first.data();
+        if (data != null) {
+          final attendedList = data['attendedClasses'] as List<dynamic>?;
+          if (attendedList != null && attendedList.isNotEmpty) {
+            final targetTime = classStartTime.millisecondsSinceEpoch;
+            attended = attendedList.any((ts) {
+              if (ts is Timestamp) {
+                return (ts.toDate().millisecondsSinceEpoch - targetTime).abs() <
+                    60000;
+              }
+              return false;
+            });
           }
         }
-      } catch (firestoreError) {
-        debugPrint('FlutterFlow: Firestore query error: $firestoreError');
-        // Return false if Firestore query fails
       }
     } else {
-      try {
-        // Corrected Supabase query with better error handling
-        final response = await SupaFlow.client
-            .from('attendanceRecords')
-            .select()
-            .eq('userID', userID)
-            .eq('classID', classID)
-            .limit(1)
-            .maybeSingle();
+      // Check regular class attendance
+      final result = await SupaFlow.client
+          .from('attendanceRecords')
+          .select('id')
+          .eq('userID', userID)
+          .eq('classID', classID)
+          .limit(1)
+          .maybeSingle()
+          .timeout(Duration(seconds: 5));
 
-        isAttended = response != null;
-      } catch (supabaseError) {
-        debugPrint('FlutterFlow: Supabase query error: $supabaseError');
-        // Return false if Supabase query fails
-      }
+      attended = result != null;
     }
 
-    // Cache result with timestamp (only if box is available)
-    if (attendanceBox != null) {
-      try {
-        await attendanceBox.put(cacheKey, {
-          'attended': isAttended,
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-        });
-      } catch (cacheWriteError) {
-        debugPrint('FlutterFlow: Cache write error: $cacheWriteError');
-        // Continue even if caching fails
-      }
-    }
+    // Cache the result (always update cache after fresh query)
+    try {
+      final box = Hive.isBoxOpen('attendance_cache')
+          ? Hive.box('attendance_cache')
+          : await Hive.openBox('attendance_cache');
 
-    debugPrint('FlutterFlow: Attendance check result: $isAttended');
-    return isAttended;
+      await box.put(cacheKey, {
+        'attended': attended,
+        'time': DateTime.now().millisecondsSinceEpoch
+      });
+    } catch (e) {
+      debugPrint('Cache save error: $e');
+    }
   } catch (e) {
-    debugPrint('FlutterFlow: Error checking attendance: $e');
-    return false;
+    debugPrint('Check attendance error: $e');
   }
+
+  return attended;
 }

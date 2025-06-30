@@ -26,14 +26,12 @@ class AddMarksWidget extends StatefulWidget {
     required this.recordType,
     this.className,
     this.classDate,
-    this.existingRecord,
   });
 
   final String? id;
   final RecordType? recordType;
   final String? className;
   final DateTime? classDate;
-  final PersonalRecordsRecord? existingRecord;
 
   @override
   State<AddMarksWidget> createState() => _AddMarksWidgetState();
@@ -54,26 +52,22 @@ class _AddMarksWidgetState extends State<AddMarksWidget> {
     _model = createModel(context, () => AddMarksModel());
 
     _model.textController1 ??= TextEditingController(
-        text: widget.existingRecord!.hasNoteBody()
-            ? widget.existingRecord?.noteBody
-            : '');
+        text: valueOrDefault<String>(
+      'Note For ${widget.className} ${widget.recordType?.name}',
+      'Note For Task',
+    ));
     _model.textFieldFocusNode ??= FocusNode();
 
-    _model.obtainedTextController ??= TextEditingController(
-        text: valueOrDefault<String>(
-      widget.existingRecord?.marksObtained.toString(),
-      '0',
-    ));
+    _model.obtainedTextController ??= TextEditingController();
     _model.obtainedFocusNode ??= FocusNode();
 
-    _model.totalTextController ??= TextEditingController(
-        text: valueOrDefault<String>(
-      widget.existingRecord?.totalMarks.toString(),
-      '0',
-    ));
+    _model.totalTextController ??= TextEditingController();
     _model.totalFocusNode ??= FocusNode();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {
+          _model.obtainedTextController?.text = '0';
+          _model.totalTextController?.text = '0';
+        }));
   }
 
   @override
@@ -86,7 +80,6 @@ class _AddMarksWidgetState extends State<AddMarksWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
         boxShadow: [
@@ -108,7 +101,7 @@ class _AddMarksWidgetState extends State<AddMarksWidget> {
         ),
       ),
       child: Padding(
-        padding: EdgeInsetsDirectional.fromSTEB(8.0, 8.0, 8.0, 8.0),
+        padding: EdgeInsetsDirectional.fromSTEB(6.0, 8.0, 6.0, 8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,6 +115,7 @@ class _AddMarksWidgetState extends State<AddMarksWidget> {
                   style: FlutterFlowTheme.of(context).headlineSmall.override(
                         fontFamily:
                             FlutterFlowTheme.of(context).headlineSmallFamily,
+                        fontSize: 18.0,
                         letterSpacing: 0.0,
                         useGoogleFonts:
                             !FlutterFlowTheme.of(context).headlineSmallIsCustom,
@@ -231,109 +225,113 @@ class _AddMarksWidgetState extends State<AddMarksWidget> {
                 ],
               ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                  child: FlutterFlowDropDown<String>(
-                    controller: _model.dropDownValueController ??=
-                        FormFieldController<String>(null),
-                    options: ['Tutorial', 'Quiz', 'Mid Sem', 'End Sem'],
-                    onChanged: (val) =>
-                        safeSetState(() => _model.dropDownValue = val),
-                    width: 200.0,
-                    height: 38.0,
-                    textStyle: FlutterFlowTheme.of(context)
-                        .labelMedium
-                        .override(
-                          fontFamily:
-                              FlutterFlowTheme.of(context).labelMediumFamily,
-                          letterSpacing: 0.0,
-                          useGoogleFonts:
-                              !FlutterFlowTheme.of(context).labelMediumIsCustom,
-                        ),
-                    hintText: 'Exam Type',
-                    icon: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: FlutterFlowTheme.of(context).secondaryText,
-                      size: 24.0,
-                    ),
-                    fillColor: FlutterFlowTheme.of(context).primaryBackground,
-                    elevation: 2.0,
-                    borderColor: Colors.transparent,
-                    borderWidth: 0.0,
-                    borderRadius: 12.0,
-                    margin:
-                        EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
-                    hidesUnderline: true,
-                    isOverButton: false,
-                    isSearchable: false,
-                    isMultiSelect: false,
-                  ),
-                ),
-                if ((_model.dropDownValue != 'Mid Sem') &&
-                    (_model.dropDownValue != 'End Sem'))
+            if (widget.recordType == RecordType.exam)
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
                   Flexible(
-                    child: Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                      child: FlutterFlowChoiceChips(
-                        options: [
-                          ChipData('I'),
-                          ChipData('II'),
-                          ChipData('III'),
-                          ChipData('IV')
-                        ],
-                        onChanged: (val) => safeSetState(
-                            () => _model.choiceChipsValue = val?.firstOrNull),
-                        selectedChipStyle: ChipStyle(
-                          backgroundColor: FlutterFlowTheme.of(context).primary,
-                          textStyle: FlutterFlowTheme.of(context)
-                              .labelSmall
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelSmallFamily,
-                                color: FlutterFlowTheme.of(context).info,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelSmallIsCustom,
-                              ),
-                          iconColor: FlutterFlowTheme.of(context).info,
-                          iconSize: 12.0,
-                          elevation: 2.0,
-                          borderRadius: BorderRadius.circular(16.0),
+                    child: FlutterFlowDropDown<String>(
+                      controller: _model.dropDownValueController ??=
+                          FormFieldController<String>(null),
+                      options: ['Tutorial', 'Quiz', 'Mid Sem', 'End Sem'],
+                      onChanged: (val) =>
+                          safeSetState(() => _model.dropDownValue = val),
+                      width: 200.0,
+                      height: 38.0,
+                      textStyle: FlutterFlowTheme.of(context)
+                          .labelMedium
+                          .override(
+                            fontFamily:
+                                FlutterFlowTheme.of(context).labelMediumFamily,
+                            letterSpacing: 0.0,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .labelMediumIsCustom,
+                          ),
+                      hintText: 'Exam Type',
+                      icon: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: FlutterFlowTheme.of(context).secondaryText,
+                        size: 24.0,
+                      ),
+                      fillColor: FlutterFlowTheme.of(context).primaryBackground,
+                      elevation: 2.0,
+                      borderColor: Colors.transparent,
+                      borderWidth: 0.0,
+                      borderRadius: 12.0,
+                      margin:
+                          EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
+                      hidesUnderline: true,
+                      isOverButton: false,
+                      isSearchable: false,
+                      isMultiSelect: false,
+                    ),
+                  ),
+                  if ((_model.dropDownValue != 'Mid Sem') &&
+                      (_model.dropDownValue != 'End Sem'))
+                    Flexible(
+                      child: Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
+                        child: FlutterFlowChoiceChips(
+                          options: [
+                            ChipData('I'),
+                            ChipData('II'),
+                            ChipData('III'),
+                            ChipData('IV')
+                          ],
+                          onChanged: (val) => safeSetState(
+                              () => _model.choiceChipsValue = val?.firstOrNull),
+                          selectedChipStyle: ChipStyle(
+                            backgroundColor:
+                                FlutterFlowTheme.of(context).primary,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .labelSmall
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .labelSmallFamily,
+                                  color: FlutterFlowTheme.of(context).info,
+                                  letterSpacing: 0.0,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .labelSmallIsCustom,
+                                ),
+                            iconColor: FlutterFlowTheme.of(context).info,
+                            iconSize: 12.0,
+                            elevation: 2.0,
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          unselectedChipStyle: ChipStyle(
+                            backgroundColor: FlutterFlowTheme.of(context)
+                                .secondaryBackground,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .labelSmall
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .labelSmallFamily,
+                                  letterSpacing: 0.0,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .labelSmallIsCustom,
+                                ),
+                            iconColor:
+                                FlutterFlowTheme.of(context).secondaryText,
+                            iconSize: 11.0,
+                            elevation: 0.0,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          chipSpacing: 8.0,
+                          rowSpacing: 8.0,
+                          multiselect: false,
+                          initialized: _model.choiceChipsValue != null,
+                          alignment: WrapAlignment.start,
+                          controller: _model.choiceChipsValueController ??=
+                              FormFieldController<List<String>>(
+                            ['I'],
+                          ),
+                          wrapped: false,
                         ),
-                        unselectedChipStyle: ChipStyle(
-                          backgroundColor:
-                              FlutterFlowTheme.of(context).secondaryBackground,
-                          textStyle: FlutterFlowTheme.of(context)
-                              .labelSmall
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelSmallFamily,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelSmallIsCustom,
-                              ),
-                          iconColor: FlutterFlowTheme.of(context).secondaryText,
-                          iconSize: 11.0,
-                          elevation: 0.0,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        chipSpacing: 8.0,
-                        rowSpacing: 8.0,
-                        multiselect: false,
-                        alignment: WrapAlignment.start,
-                        controller: _model.choiceChipsValueController ??=
-                            FormFieldController<List<String>>(
-                          [],
-                        ),
-                        wrapped: false,
                       ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              ),
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
               child: Row(

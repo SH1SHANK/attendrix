@@ -93,7 +93,7 @@ class _TaskArchiveBlockWidgetState extends State<TaskArchiveBlockWidget> {
         return Container(
           height: 80.0,
           decoration: BoxDecoration(
-            color: FlutterFlowTheme.of(context).secondaryBackground,
+            color: FlutterFlowTheme.of(context).primaryBackground,
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Padding(
@@ -275,52 +275,51 @@ class _TaskArchiveBlockWidgetState extends State<TaskArchiveBlockWidget> {
                                 ),
                       ),
                     ),
-                    Builder(
-                      builder: (context) => Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 8.0),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            logFirebaseEvent(
-                                'TASK_ARCHIVE_BLOCK_Icon_1r810dp8_ON_TAP');
-                            logFirebaseEvent('Icon_alert_dialog');
-                            await showAlignedDialog(
-                              context: context,
-                              isGlobal: false,
-                              avoidOverflow: true,
-                              targetAnchor: AlignmentDirectional(-1.0, 1.0)
-                                  .resolve(Directionality.of(context)),
-                              followerAnchor: AlignmentDirectional(0.0, 0.0)
-                                  .resolve(Directionality.of(context)),
-                              builder: (dialogContext) {
-                                return Material(
-                                  color: Colors.transparent,
-                                  child: TaskDropdownWidget(
-                                    taskID: widget.taskID!,
-                                    courseID: widget.taskRecord!.courseID,
-                                    taskStartTime:
-                                        widget.taskRecord!.taskStartTime!,
-                                    taskName: widget.taskRecord!.taskName!,
-                                    taskType: widget.taskType!,
-                                    personalRecord:
-                                        containerPersonalRecordsRecord,
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          child: Icon(
-                            FFIcons.ksetting,
-                            color: FlutterFlowTheme.of(context).primaryText,
-                            size: 24.0,
+                    if ((containerPersonalRecordsRecord != null) == false)
+                      Builder(
+                        builder: (context) => Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 8.0, 8.0),
+                          child: InkWell(
+                            splashColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            onTap: () async {
+                              logFirebaseEvent(
+                                  'TASK_ARCHIVE_BLOCK_Icon_1r810dp8_ON_TAP');
+                              logFirebaseEvent('Icon_alert_dialog');
+                              await showAlignedDialog(
+                                context: context,
+                                isGlobal: false,
+                                avoidOverflow: true,
+                                targetAnchor: AlignmentDirectional(-1.0, 1.0)
+                                    .resolve(Directionality.of(context)),
+                                followerAnchor: AlignmentDirectional(0.0, 0.0)
+                                    .resolve(Directionality.of(context)),
+                                builder: (dialogContext) {
+                                  return Material(
+                                    color: Colors.transparent,
+                                    child: TaskDropdownWidget(
+                                      taskID: widget.taskID,
+                                      courseID: widget.taskRecord?.courseID,
+                                      taskStartTime:
+                                          widget.taskRecord?.taskStartTime,
+                                      taskName: widget.taskRecord?.taskName,
+                                      taskType: widget.taskType,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Icon(
+                              FFIcons.keditPencil01,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              size: 24.0,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],

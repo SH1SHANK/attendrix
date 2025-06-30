@@ -5,7 +5,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'class_block_secondary_model.dart';
@@ -48,23 +47,6 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
     super.initState();
     _model = createModel(context, () => ClassBlockSecondaryModel());
 
-    // On component load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      logFirebaseEvent('CLASS_BLOCK_SECONDARY_classBlock_seconda');
-      logFirebaseEvent('classBlock_secondary_custom_action');
-      _model.isAttended = await actions.checkClassAttendance(
-        widget.courseID!,
-        currentUserDocument!.createdTime!,
-        currentUserUid,
-        true,
-        currentUserReference!,
-        widget.classID!,
-      );
-      logFirebaseEvent('classBlock_secondary_update_component_st');
-      _model.attendanceMarked = _model.isAttended!;
-      safeSetState(() {});
-    });
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -77,8 +59,8 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<CustomClassesRecord>>(
-      future: queryCustomClassesRecordOnce(
+    return StreamBuilder<List<CustomClassesRecord>>(
+      stream: queryCustomClassesRecord(
         parent: currentUserReference,
         queryBuilder: (customClassesRecord) => customClassesRecord.where(
           'courseID',

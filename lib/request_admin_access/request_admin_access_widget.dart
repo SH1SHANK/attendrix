@@ -1,9 +1,9 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
-import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -398,23 +398,22 @@ class _RequestAdminAccessWidgetState extends State<RequestAdminAccessWidget> {
                             onPressed: () async {
                               logFirebaseEvent(
                                   'REQUEST_ADMIN_ACCESS_REQUEST_ACCESS_BTN_');
-                              logFirebaseEvent('Button_custom_action');
-                              _model.serverRes =
-                                  await actions.requestAdminAccess(
-                                currentUserUid,
-                                _model.textController.text,
-                                (currentUserDocument?.coursesEnrolled
-                                            .toList() ??
-                                        [])
-                                    .map((e) => e.courseID)
-                                    .toList(),
+                              logFirebaseEvent('Button_backend_call');
+                              _model.aPIResponse =
+                                  await SupabaseAdminVerificationCall.call(
+                                userID: currentUserUid,
+                                email: _model.textController.text,
                               );
-                              if (_model.serverRes?.status == '400') {
+
+                              if ((_model.aPIResponse?.statusCode ?? 200) ==
+                                  400) {
                                 logFirebaseEvent('Button_update_page_state');
                                 _model.errorMessage = 'Invalid email format';
                                 _model.invalidEmail = true;
                                 safeSetState(() {});
-                              } else if (_model.serverRes?.status == '403') {
+                              } else if ((_model.aPIResponse?.statusCode ??
+                                      200) ==
+                                  403) {
                                 logFirebaseEvent('Button_update_page_state');
                                 _model.errorMessage =
                                     'Only NITC institute email addresses (ending with nitc.ac.in) are allowed for non-preapproved requests';
@@ -427,15 +426,28 @@ class _RequestAdminAccessWidgetState extends State<RequestAdminAccessWidget> {
                                   RequestAccessFollowUpWidget.routeName,
                                   queryParameters: {
                                     'status': serializeParam(
-                                      _model.serverRes?.status,
+                                      (_model.aPIResponse?.statusCode ?? 200)
+                                          .toString(),
                                       ParamType.String,
                                     ),
                                     'message': serializeParam(
-                                      _model.serverRes?.message,
+                                      SupabaseAdminVerificationCall.message(
+                                        (_model.aPIResponse?.jsonBody ?? ''),
+                                      ),
                                       ParamType.String,
                                     ),
                                     'email': serializeParam(
                                       _model.textController.text,
+                                      ParamType.String,
+                                    ),
+                                    'details': serializeParam(
+                                      (_model.aPIResponse?.exceptionMessage ??
+                                          ''),
+                                      ParamType.String,
+                                    ),
+                                    'error': serializeParam(
+                                      (_model.aPIResponse?.statusCode ?? 200)
+                                          .toString(),
                                       ParamType.String,
                                     ),
                                   }.withoutNulls,

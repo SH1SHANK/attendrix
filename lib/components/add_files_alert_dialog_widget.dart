@@ -742,75 +742,6 @@ class _AddFilesAlertDialogWidgetState extends State<AddFilesAlertDialogWidget>
                                             Duration(milliseconds: 2000),
                                             () => safeSetState(() {}),
                                           ),
-                                          onFieldSubmitted: (_) async {
-                                            logFirebaseEvent(
-                                                'ADD_FILES_ALERT_DIALOG_TextField_mzoj5fl');
-                                            logFirebaseEvent(
-                                                'TextField_custom_action');
-                                            _model.fileMetadataCopy =
-                                                await actions.fetchFileInfo(
-                                              _model.textController2.text,
-                                            );
-                                            if (_model
-                                                    .fileMetadataCopy?.status ==
-                                                'success') {
-                                              logFirebaseEvent(
-                                                  'TextField_show_snack_bar');
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    _model.fileMetadataCopy!
-                                                        .message,
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .labelMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMediumFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .info,
-                                                          letterSpacing: 0.0,
-                                                          useGoogleFonts:
-                                                              !FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .labelMediumIsCustom,
-                                                        ),
-                                                  ),
-                                                  duration: Duration(
-                                                      milliseconds: 4000),
-                                                  backgroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primary,
-                                                ),
-                                              );
-                                              logFirebaseEvent(
-                                                  'TextField_update_component_state');
-                                              _model.fileUploaded = true;
-                                              _model.uploadedFile =
-                                                  _model.fileMetadataCopy;
-                                              safeSetState(() {});
-                                            } else {
-                                              logFirebaseEvent(
-                                                  'TextField_action_block');
-                                              await action_blocks
-                                                  .universalErrorSnackbar(
-                                                context,
-                                                errorMessage: _model
-                                                    .fileMetadataCopy?.message,
-                                              );
-                                              logFirebaseEvent(
-                                                  'TextField_update_component_state');
-                                              _model.fileUploaded = false;
-                                              safeSetState(() {});
-                                            }
-
-                                            safeSetState(() {});
-                                          },
                                           autofocus: false,
                                           readOnly: _model.fileUploaded,
                                           obscureText: false,
@@ -904,6 +835,118 @@ class _AddFilesAlertDialogWidgetState extends State<AddFilesAlertDialogWidget>
                                           validator: _model
                                               .textController2Validator
                                               .asValidator(context),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment:
+                                            AlignmentDirectional(1.0, 0.0),
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 10.0, 0.0, 0.0),
+                                          child: FFButtonWidget(
+                                            onPressed: () async {
+                                              logFirebaseEvent(
+                                                  'ADD_FILES_ALERT_DIALOG_ADD_FILE_BTN_ON_T');
+                                              logFirebaseEvent(
+                                                  'Button_custom_action');
+                                              _model.fileMetadataCopy =
+                                                  await actions.fetchFileInfo(
+                                                _model.textController2.text,
+                                              );
+                                              if (_model.fileMetadataCopy
+                                                      ?.status ==
+                                                  'success') {
+                                                logFirebaseEvent(
+                                                    'Button_show_snack_bar');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      _model.fileMetadataCopy!
+                                                          .message,
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .labelMedium
+                                                              .override(
+                                                                fontFamily: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelMediumFamily,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .info,
+                                                                letterSpacing:
+                                                                    0.0,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelMediumIsCustom,
+                                                              ),
+                                                    ),
+                                                    duration: Duration(
+                                                        milliseconds: 4000),
+                                                    backgroundColor:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .primary,
+                                                  ),
+                                                );
+                                                logFirebaseEvent(
+                                                    'Button_update_component_state');
+                                                _model.fileUploaded = true;
+                                                _model.uploadedFile =
+                                                    _model.fileMetadataCopy;
+                                                safeSetState(() {});
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Button_action_block');
+                                                await action_blocks
+                                                    .universalErrorSnackbar(
+                                                  context,
+                                                  errorMessage: _model
+                                                      .fileMetadataCopy
+                                                      ?.message,
+                                                );
+                                                logFirebaseEvent(
+                                                    'Button_update_component_state');
+                                                _model.fileUploaded = false;
+                                                safeSetState(() {});
+                                              }
+
+                                              safeSetState(() {});
+                                            },
+                                            text: 'Add File',
+                                            options: FFButtonOptions(
+                                              height: 40.0,
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                      16.0, 0.0, 16.0, 0.0),
+                                              iconPadding: EdgeInsetsDirectional
+                                                  .fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              textStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .titleSmallFamily,
+                                                        color: Colors.white,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .titleSmallIsCustom,
+                                                      ),
+                                              elevation: 0.0,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1005,136 +1048,153 @@ class _AddFilesAlertDialogWidgetState extends State<AddFilesAlertDialogWidget>
                         padding: EdgeInsetsDirectional.fromSTEB(
                             0.0, 10.0, 0.0, 10.0),
                         child: FFButtonWidget(
-                          onPressed: () async {
-                            logFirebaseEvent(
-                                'ADD_FILES_ALERT_DIALOG_ADD_FILE_BTN_ON_T');
-                            if ((_model.uploadedFile?.status == 'success') ||
-                                (_model.fileUploaded == true)) {
-                              logFirebaseEvent('Button_backend_call');
+                          onPressed: _model.fileUploaded
+                              ? null
+                              : () async {
+                                  logFirebaseEvent(
+                                      'ADD_FILES_ALERT_DIALOG_ADD_FILE_BTN_ON_T');
+                                  if ((_model.uploadedFile?.status ==
+                                          'success') ||
+                                      (_model.fileUploaded == true)) {
+                                    logFirebaseEvent('Button_backend_call');
 
-                              var userPersonalVaultRecordReference =
-                                  UserPersonalVaultRecord.createDoc(
-                                      currentUserReference!);
-                              await userPersonalVaultRecordReference
-                                  .set(createUserPersonalVaultRecordData(
-                                type: StudyMaterialType.file,
-                                name: _model.textController1.text,
-                                parentPath: containerUserPersonalVaultRecordList
-                                        .where((e) =>
-                                            e.reference.id ==
-                                            _model.dropDownValue)
-                                        .toList()
-                                        .isNotEmpty
-                                    ? valueOrDefault<String>(
-                                        '${valueOrDefault<String>(
+                                    var userPersonalVaultRecordReference =
+                                        UserPersonalVaultRecord.createDoc(
+                                            currentUserReference!);
+                                    await userPersonalVaultRecordReference
+                                        .set(createUserPersonalVaultRecordData(
+                                      type: StudyMaterialType.file,
+                                      name: _model.textController1.text,
+                                      parentPath:
                                           containerUserPersonalVaultRecordList
-                                              .where((e) =>
-                                                  e.reference.id ==
-                                                  _model.dropDownValue)
-                                              .toList()
-                                              .firstOrNull
-                                              ?.parentPath,
-                                          'root/',
-                                        )}${containerUserPersonalVaultRecordList.where((e) => e.reference.id == _model.dropDownValue).toList().firstOrNull?.name}/',
-                                        'root/',
-                                      )
-                                    : 'root/',
-                                filePath: _model.uploadedFile?.filePath,
-                                mimeType: _model.uploadedFile?.mimeType,
-                                isDeleted: false,
-                                sizeBytes: _model.uploadedFile?.sizeBytes,
-                                createdAt: getCurrentTimestamp,
-                                openCount: 0,
-                                isFavorite: false,
-                                isLocalOnly: false,
-                                hasTags: false,
-                              ));
-                              _model.userNewFile =
-                                  UserPersonalVaultRecord.getDocumentFromData(
-                                      createUserPersonalVaultRecordData(
-                                        type: StudyMaterialType.file,
-                                        name: _model.textController1.text,
-                                        parentPath:
-                                            containerUserPersonalVaultRecordList
-                                                    .where((e) =>
-                                                        e.reference.id ==
-                                                        _model.dropDownValue)
-                                                    .toList()
-                                                    .isNotEmpty
-                                                ? valueOrDefault<String>(
-                                                    '${valueOrDefault<String>(
-                                                      containerUserPersonalVaultRecordList
+                                                  .where((e) =>
+                                                      e.reference.id ==
+                                                      _model.dropDownValue)
+                                                  .toList()
+                                                  .isNotEmpty
+                                              ? valueOrDefault<String>(
+                                                  '${valueOrDefault<String>(
+                                                    containerUserPersonalVaultRecordList
+                                                        .where((e) =>
+                                                            e.reference.id ==
+                                                            _model
+                                                                .dropDownValue)
+                                                        .toList()
+                                                        .firstOrNull
+                                                        ?.parentPath,
+                                                    'root/',
+                                                  )}${containerUserPersonalVaultRecordList.where((e) => e.reference.id == _model.dropDownValue).toList().firstOrNull?.name}/',
+                                                  'root/',
+                                                )
+                                              : 'root/',
+                                      filePath: _model.uploadedFile?.filePath,
+                                      mimeType: _model.uploadedFile?.mimeType,
+                                      isDeleted: false,
+                                      sizeBytes: _model.uploadedFile?.sizeBytes,
+                                      createdAt: getCurrentTimestamp,
+                                      openCount: 0,
+                                      isFavorite: false,
+                                      isLocalOnly: false,
+                                      hasTags: false,
+                                    ));
+                                    _model.userNewFile = UserPersonalVaultRecord
+                                        .getDocumentFromData(
+                                            createUserPersonalVaultRecordData(
+                                              type: StudyMaterialType.file,
+                                              name: _model.textController1.text,
+                                              parentPath:
+                                                  containerUserPersonalVaultRecordList
                                                           .where((e) =>
                                                               e.reference.id ==
                                                               _model
                                                                   .dropDownValue)
                                                           .toList()
-                                                          .firstOrNull
-                                                          ?.parentPath,
-                                                      'root/',
-                                                    )}${containerUserPersonalVaultRecordList.where((e) => e.reference.id == _model.dropDownValue).toList().firstOrNull?.name}/',
-                                                    'root/',
-                                                  )
-                                                : 'root/',
-                                        filePath: _model.uploadedFile?.filePath,
-                                        mimeType: _model.uploadedFile?.mimeType,
-                                        isDeleted: false,
-                                        sizeBytes:
-                                            _model.uploadedFile?.sizeBytes,
-                                        createdAt: getCurrentTimestamp,
-                                        openCount: 0,
-                                        isFavorite: false,
-                                        isLocalOnly: false,
-                                        hasTags: false,
-                                      ),
-                                      userPersonalVaultRecordReference);
-                              if (_model.userNewFile?.reference != null) {
-                                logFirebaseEvent('Button_show_snack_bar');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'File added Successfully!',
-                                      style: GoogleFonts.outfit(
-                                        color:
-                                            FlutterFlowTheme.of(context).info,
-                                        fontSize: 14.0,
-                                      ),
-                                    ),
-                                    duration: Duration(milliseconds: 4000),
-                                    backgroundColor: Color(0xFF37B737),
-                                  ),
-                                );
-                              } else {
-                                logFirebaseEvent('Button_show_snack_bar');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Couldn\'t Add The File!',
-                                      style: GoogleFonts.outfit(
-                                        color:
-                                            FlutterFlowTheme.of(context).info,
-                                        fontSize: 14.0,
-                                      ),
-                                    ),
-                                    duration: Duration(milliseconds: 4000),
-                                    backgroundColor:
-                                        FlutterFlowTheme.of(context).error,
-                                  ),
-                                );
-                              }
+                                                          .isNotEmpty
+                                                      ? valueOrDefault<String>(
+                                                          '${valueOrDefault<String>(
+                                                            containerUserPersonalVaultRecordList
+                                                                .where((e) =>
+                                                                    e.reference
+                                                                        .id ==
+                                                                    _model
+                                                                        .dropDownValue)
+                                                                .toList()
+                                                                .firstOrNull
+                                                                ?.parentPath,
+                                                            'root/',
+                                                          )}${containerUserPersonalVaultRecordList.where((e) => e.reference.id == _model.dropDownValue).toList().firstOrNull?.name}/',
+                                                          'root/',
+                                                        )
+                                                      : 'root/',
+                                              filePath:
+                                                  _model.uploadedFile?.filePath,
+                                              mimeType:
+                                                  _model.uploadedFile?.mimeType,
+                                              isDeleted: false,
+                                              sizeBytes: _model
+                                                  .uploadedFile?.sizeBytes,
+                                              createdAt: getCurrentTimestamp,
+                                              openCount: 0,
+                                              isFavorite: false,
+                                              isLocalOnly: false,
+                                              hasTags: false,
+                                            ),
+                                            userPersonalVaultRecordReference);
+                                    if (_model.userNewFile?.reference != null) {
+                                      logFirebaseEvent('Button_show_snack_bar');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'File added Successfully!',
+                                            style: GoogleFonts.outfit(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .info,
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                          duration:
+                                              Duration(milliseconds: 4000),
+                                          backgroundColor: Color(0xFF37B737),
+                                        ),
+                                      );
+                                    } else {
+                                      logFirebaseEvent('Button_show_snack_bar');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Couldn\'t Add The File!',
+                                            style: GoogleFonts.outfit(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .info,
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                          duration:
+                                              Duration(milliseconds: 4000),
+                                          backgroundColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .error,
+                                        ),
+                                      );
+                                    }
 
-                              logFirebaseEvent('Button_dismiss_dialog');
-                              Navigator.pop(context);
-                            } else {
-                              logFirebaseEvent('Button_action_block');
-                              await action_blocks.universalErrorSnackbar(
-                                context,
-                                errorMessage: 'Select a Valid File To Continue',
-                              );
-                            }
+                                    logFirebaseEvent('Button_dismiss_dialog');
+                                    Navigator.pop(context);
+                                  } else {
+                                    logFirebaseEvent('Button_action_block');
+                                    await action_blocks.universalErrorSnackbar(
+                                      context,
+                                      errorMessage:
+                                          'Select a Valid File To Continue',
+                                    );
+                                  }
 
-                            safeSetState(() {});
-                          },
+                                  safeSetState(() {});
+                                },
                           text: 'Add File',
                           options: FFButtonOptions(
                             width: double.infinity,
@@ -1157,6 +1217,9 @@ class _AddFilesAlertDialogWidgetState extends State<AddFilesAlertDialogWidget>
                                 ),
                             elevation: 2.0,
                             borderRadius: BorderRadius.circular(12.0),
+                            disabledColor:
+                                FlutterFlowTheme.of(context).secondaryText,
+                            disabledTextColor: Colors.black,
                           ),
                         ),
                       ),

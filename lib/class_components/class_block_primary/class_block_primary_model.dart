@@ -12,12 +12,10 @@ class ClassBlockPrimaryModel extends FlutterFlowModel<ClassBlockPrimaryWidget> {
 
   ///  State fields for stateful widgets in this component.
 
-  // Stores action output result for [Custom Action - checkClassAttendance] action in classBlock_primary widget.
-  bool? isAttended;
   // State field(s) for Checkbox widget.
   bool? checkboxValue;
   // Stores action output result for [Action Block - CheckInAttendanceProtocal] action in Checkbox widget.
-  UserFeedbackStruct? attendanceFeedback;
+  bool? attendanceFeedback;
   // Stores action output result for [Custom Action - markClassAsAbsent] action in Checkbox widget.
   UserFeedbackStruct? absentFeedback;
 

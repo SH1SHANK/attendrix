@@ -16,6 +16,7 @@ export 'courses_enrolled_struct.dart';
 export 'feedback_struct.dart';
 export 'file_info_struct.dart';
 export 'file_metadata_struct.dart';
+export 'missed_class_details_struct.dart';
 export 'nptel_course_struct.dart';
 export 'reported_users_struct.dart';
 export 'slot_info_struct.dart';

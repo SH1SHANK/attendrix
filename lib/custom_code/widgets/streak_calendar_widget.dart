@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import '/custom_code/widgets/index.dart';
 import '/custom_code/actions/index.dart';
 import '/flutter_flow/custom_functions.dart';
-
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
@@ -44,9 +43,17 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
   DateTime _visibleMonth = DateTime.now();
   List<DateTime> _calendarDays = [];
   bool _isAnimating = false;
+  bool _isInitialLoad = true;
+
+  // Animation controllers
   late AnimationController _slideController;
+  late AnimationController _staggerController;
   late List<AnimationController> _tileControllers;
+
+  // Animations
   late Animation<Offset> _slideAnimation;
+  late List<Animation<double>> _tileAnimations;
+  late List<Animation<Offset>> _tileSlideAnimations;
 
   @override
   void initState() {
@@ -59,6 +66,7 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
   @override
   void dispose() {
     _slideController.dispose();
+    _staggerController.dispose();
     for (final controller in _tileControllers) {
       controller.dispose();
     }
@@ -66,8 +74,15 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
   }
 
   void _initializeAnimations() {
+    // Main slide controller for month transitions
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    // Stagger controller for tile animations
+    _staggerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
@@ -76,24 +91,83 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
       end: const Offset(-1.0, 0.0),
     ).animate(CurvedAnimation(
       parent: _slideController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeInOutCubic,
     ));
 
+    // Individual tile controllers for fluid animations
     _tileControllers = List.generate(
-      42, // Maximum calendar cells
+      42,
       (index) => AnimationController(
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300 + (index * 15)),
         vsync: this,
       ),
     );
+
+    _createTileAnimations();
+  }
+
+  void _createTileAnimations() {
+    _tileAnimations = _tileControllers.map((controller) {
+      return CurvedAnimation(
+        parent: controller,
+        curve: const Cubic(0.175, 0.885, 0.32, 1.275), // Fluid spring curve
+      );
+    }).toList();
+
+    _tileSlideAnimations = _tileControllers.asMap().entries.map((entry) {
+      final index = entry.key;
+      final controller = entry.value;
+      final row = index ~/ 7;
+
+      return Tween<Offset>(
+        begin: Offset(0.0, 0.3 + (row * 0.1)), // Staggered slide-in
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: controller,
+        curve: Interval(
+          0.0,
+          0.8,
+          curve: Curves.easeOutCubic,
+        ),
+      ));
+    }).toList();
   }
 
   void _animateInitialLoad() {
-    for (int i = 0;
-        i < _calendarDays.length && i < _tileControllers.length;
-        i++) {
-      Future.delayed(Duration(milliseconds: i * 25), () {
-        if (mounted) _tileControllers[i].forward();
+    if (!_isInitialLoad) return;
+
+    // Staggered animation: row by row, then tile by tile
+    for (int row = 0; row < 6; row++) {
+      for (int col = 0; col < 7; col++) {
+        final index = row * 7 + col;
+        if (index < _tileControllers.length) {
+          final delay = (row * 80) + (col * 25); // Row delay + column delay
+
+          Future.delayed(Duration(milliseconds: delay), () {
+            if (mounted && _isInitialLoad) {
+              _tileControllers[index].forward();
+            }
+          });
+        }
+      }
+    }
+
+    _isInitialLoad = false;
+  }
+
+  void _animateMonthTransition() {
+    // Quick, efficient animation for month changes
+    const quickDuration = Duration(milliseconds: 200);
+
+    for (int i = 0; i < _tileControllers.length; i++) {
+      _tileControllers[i].duration = quickDuration;
+      _tileControllers[i].reset();
+
+      // Immediate animation without staggering for month transitions
+      Future.delayed(Duration(milliseconds: i * 8), () {
+        if (mounted && _isAnimating) {
+          _tileControllers[i].forward();
+        }
       });
     }
   }
@@ -104,7 +178,6 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     final firstWeekday = firstDay.weekday - 1;
     final startDate = firstDay.subtract(Duration(days: firstWeekday));
 
-    // Always generate 42 cells (6 weeks) for consistent layout
     for (int i = 0; i < 42; i++) {
       _calendarDays.add(startDate.add(Duration(days: i)));
     }
@@ -127,101 +200,18 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
   bool _isCurrentMonth(DateTime date) =>
       date.year == _visibleMonth.year && date.month == _visibleMonth.month;
 
-  List<List<DateTime>> _getConsecutiveStreakGroups() {
-    if (widget.streakHistory.isEmpty) return [];
-
-    final streakDates = widget.streakHistory.map(_unixDaysToDateTime).toList()
-      ..sort();
-
-    final groups = <List<DateTime>>[];
-    List<DateTime> currentGroup = [streakDates[0]];
-
-    for (int i = 1; i < streakDates.length; i++) {
-      final daysDiff = streakDates[i].difference(streakDates[i - 1]).inDays;
-      if (daysDiff == 1) {
-        currentGroup.add(streakDates[i]);
-      } else {
-        if (currentGroup.length >= 2) groups.add(List.from(currentGroup));
-        currentGroup = [streakDates[i]];
-      }
-    }
-
-    if (currentGroup.length >= 2) groups.add(currentGroup);
-    return groups;
-  }
-
-  bool _isInStreakGroup(DateTime date) {
-    final streakGroups = _getConsecutiveStreakGroups();
-    return streakGroups.any(
-        (group) => group.any((streakDate) => _isSameDay(date, streakDate)));
-  }
-
-  int _calculateLongestStreakInMonth() {
+  int _calculateStreakCount() {
     if (widget.streakHistory.isEmpty) return 0;
 
     final monthStart = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
     final monthEnd = DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0);
 
-    final monthStreakDays = widget.streakHistory
+    return widget.streakHistory
         .map(_unixDaysToDateTime)
         .where((date) =>
             date.isAfter(monthStart.subtract(const Duration(days: 1))) &&
             date.isBefore(monthEnd.add(const Duration(days: 1))))
-        .toList()
-      ..sort();
-
-    if (monthStreakDays.isEmpty) return 0;
-
-    int longestStreak = 1;
-    int currentStreak = 1;
-
-    for (int i = 1; i < monthStreakDays.length; i++) {
-      final daysDiff =
-          monthStreakDays[i].difference(monthStreakDays[i - 1]).inDays;
-      if (daysDiff == 1) {
-        currentStreak++;
-        longestStreak = math.max(longestStreak, currentStreak);
-      } else {
-        currentStreak = 1;
-      }
-    }
-
-    return longestStreak;
-  }
-
-  Map<String, dynamic> _calculateStreakComparison() {
-    final currentMonth = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
-    final previousMonth =
-        DateTime(_visibleMonth.year, _visibleMonth.month - 1, 1);
-    final currentMonthEnd =
-        DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0);
-    final previousMonthEnd =
-        DateTime(_visibleMonth.year, _visibleMonth.month, 0);
-
-    final currentMonthStreaks = widget.streakHistory
-        .map(_unixDaysToDateTime)
-        .where((date) =>
-            date.isAfter(currentMonth.subtract(const Duration(days: 1))) &&
-            date.isBefore(currentMonthEnd.add(const Duration(days: 1))))
         .length;
-
-    final previousMonthStreaks = widget.streakHistory
-        .map(_unixDaysToDateTime)
-        .where((date) =>
-            date.isAfter(previousMonth.subtract(const Duration(days: 1))) &&
-            date.isBefore(previousMonthEnd.add(const Duration(days: 1))))
-        .length;
-
-    final difference = currentMonthStreaks - previousMonthStreaks;
-
-    return {
-      'current': currentMonthStreaks,
-      'previous': previousMonthStreaks,
-      'difference': difference.abs(),
-      'isIncrease': difference > 0,
-      'isDecrease': difference < 0,
-      'hasComparison': previousMonthStreaks > 0,
-    };
   }
 
   Future<void> _navigateMonth(int direction) async {
@@ -230,21 +220,23 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     try {
       HapticFeedback.lightImpact();
     } catch (e) {
-      debugPrint('Haptic feedback not available: $e');
+      // Haptic feedback not available
     }
 
     setState(() => _isAnimating = true);
 
+    // Reset tile controllers for quick transition
     for (final controller in _tileControllers) {
       controller.reset();
     }
 
+    // Slide animation for month transition
     _slideAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: Offset(direction > 0 ? -1.0 : 1.0, 0.0),
     ).animate(CurvedAnimation(
       parent: _slideController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeInOutCubic,
     ));
 
     await _slideController.forward();
@@ -256,15 +248,24 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     });
 
     _slideController.reset();
-    _animateInitialLoad();
+    _animateMonthTransition();
+
+    // Reset durations for future initial loads
+    Future.delayed(const Duration(milliseconds: 500), () {
+      for (int i = 0; i < _tileControllers.length; i++) {
+        _tileControllers[i].duration = Duration(milliseconds: 300 + (i * 15));
+      }
+    });
+
     setState(() => _isAnimating = false);
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(double headerHeight) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fontSize = math.min(headerHeight * 0.4, 18.0);
 
     return SizedBox(
-      height: 48,
+      height: headerHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -272,49 +273,56 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
             onPressed: _isAnimating ? null : () => _navigateMonth(-1),
             icon: Icon(
               Icons.chevron_left,
-              size: 24,
+              size: math.min(headerHeight * 0.5, 24.0),
               color: isDark
                   ? FlutterFlowTheme.of(context).primaryText
                   : Colors.black87,
             ),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            constraints: BoxConstraints(
+              minWidth: headerHeight * 0.8,
+              minHeight: headerHeight * 0.8,
+            ),
           ),
           Expanded(
             child: Text(
               '${_monthNames[_visibleMonth.month - 1]} ${_visibleMonth.year}',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 18,
-                    color: isDark
-                        ? FlutterFlowTheme.of(context).primaryText
-                        : Colors.black87,
-                  ),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: fontSize,
+                color: isDark
+                    ? FlutterFlowTheme.of(context).primaryText
+                    : Colors.black87,
+              ),
             ),
           ),
           IconButton(
             onPressed: _isAnimating ? null : () => _navigateMonth(1),
             icon: Icon(
               Icons.chevron_right,
-              size: 24,
+              size: math.min(headerHeight * 0.5, 24.0),
               color: isDark
                   ? FlutterFlowTheme.of(context).primaryText
                   : Colors.black87,
             ),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            constraints: BoxConstraints(
+              minWidth: headerHeight * 0.8,
+              minHeight: headerHeight * 0.8,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDayLabels() {
+  Widget _buildDayLabels(double labelHeight) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fontSize = math.min(labelHeight * 0.4, 12.0);
 
     return SizedBox(
-      height: 32,
+      height: labelHeight,
       child: Row(
         children: _dayLabels.asMap().entries.map((entry) {
           final index = entry.key;
@@ -325,17 +333,17 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
             child: Center(
               child: Text(
                 day,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontWeight: isWeekend ? FontWeight.w700 : FontWeight.w600,
-                      fontSize: 12,
-                      color: isWeekend
-                          ? (isDark
-                              ? FlutterFlowTheme.of(context).primary
-                              : _streakColor)
-                          : (isDark
-                              ? FlutterFlowTheme.of(context).secondaryText
-                              : Colors.grey.shade600),
-                    ),
+                style: TextStyle(
+                  fontWeight: isWeekend ? FontWeight.w700 : FontWeight.w600,
+                  fontSize: fontSize,
+                  color: isWeekend
+                      ? (isDark
+                          ? FlutterFlowTheme.of(context).primary
+                          : _streakColor)
+                      : (isDark
+                          ? FlutterFlowTheme.of(context).secondaryText
+                          : Colors.grey.shade600),
+                ),
               ),
             ),
           );
@@ -344,11 +352,10 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     );
   }
 
-  Widget _buildCalendarTile(DateTime date, int index) {
+  Widget _buildCalendarTile(DateTime date, int index, double tileSize) {
     final isToday = _isSameDay(date, _currentDate);
     final isHoliday = _isDateInList(date, widget.holidays);
     final isStreak = _isDateInList(date, widget.streakHistory);
-    final isInStreakGroup = _isInStreakGroup(date);
     final isWeekend = date.weekday >= 6;
     final isCurrentMonth = _isCurrentMonth(date);
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -365,7 +372,7 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     if (isHoliday) {
       backgroundColor = _holidayColor;
       textColor = Colors.white;
-    } else if (isStreak && !isInStreakGroup) {
+    } else if (isStreak) {
       backgroundColor = _streakColor;
       textColor = Colors.white;
     } else {
@@ -383,132 +390,90 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
       );
     }
 
+    final fontSize = math.min(tileSize * 0.3, 14.0);
     final controller = index < _tileControllers.length
         ? _tileControllers[index]
         : _tileControllers[0];
 
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: controller.value,
-          child: Opacity(
-            opacity: controller.value,
-            child: Container(
-              margin: const EdgeInsets.all(1),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(4),
-                border: border,
-                boxShadow: (isToday ||
-                        backgroundColor == _streakColor ||
-                        backgroundColor == _holidayColor)
-                    ? [
-                        BoxShadow(
-                          color: backgroundColor.withOpacity(0.3),
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
-                        )
-                      ]
-                    : null,
-              ),
-              child: Center(
-                child: Text(
-                  date.day.toString(),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return SlideTransition(
+            position: index < _tileSlideAnimations.length
+                ? _tileSlideAnimations[index]
+                : _tileSlideAnimations[0],
+            child: Transform.scale(
+              scale: index < _tileAnimations.length
+                  ? _tileAnimations[index].value
+                  : controller.value,
+              child: Opacity(
+                opacity: controller.value,
+                child: Container(
+                  margin: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(4),
+                    border: border,
+                    boxShadow: (isToday || isStreak || isHoliday)
+                        ? [
+                            BoxShadow(
+                              color: backgroundColor.withOpacity(0.3),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            )
+                          ]
+                        : null,
+                  ),
+                  child: Center(
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(
                         color: textColor,
                         fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                        fontSize: 14,
+                        fontSize: fontSize,
                       ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildStreakStatsDisplay() {
-    final longestStreak = _calculateLongestStreakInMonth();
-    final comparison = _calculateStreakComparison();
+  Widget _buildStreakStats(double statsHeight) {
+    final streakCount = _calculateStreakCount();
+    final fontSize = math.min(statsHeight * 0.3, 13.0);
+    final iconSize = math.min(statsHeight * 0.4, 18.0);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      height: statsHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: _streakColor.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.local_fire_department,
-                size: 18,
-                color: _streakColor,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Streak this month: $longestStreak',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: _streakColor,
-                    ),
-              ),
-            ],
+          Icon(
+            Icons.local_fire_department,
+            size: iconSize,
+            color: _streakColor,
           ),
-          if (comparison['hasComparison'])
-            Row(
-              children: [
-                Icon(
-                  comparison['isIncrease']
-                      ? Icons.trending_up
-                      : comparison['isDecrease']
-                          ? Icons.trending_down
-                          : Icons.trending_flat,
-                  size: 16,
-                  color: comparison['isIncrease']
-                      ? _increaseColor
-                      : comparison['isDecrease']
-                          ? _decreaseColor
-                          : Colors.grey,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  comparison['isIncrease'] || comparison['isDecrease']
-                      ? '${comparison['difference']}'
-                      : 'Same',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: comparison['isIncrease']
-                            ? _increaseColor
-                            : comparison['isDecrease']
-                                ? _decreaseColor
-                                : Colors.grey,
-                      ),
-                ),
-              ],
-            )
-          else
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
-                Text(
-                  '${comparison['current']} days',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
-                      ),
-                ),
-              ],
+          const SizedBox(width: 8),
+          Text(
+            'Streak this month: $streakCount',
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w600,
+              color: _streakColor,
             ),
+          ),
         ],
       ),
     );
@@ -520,6 +485,22 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     final containerWidth = widget.width ?? (screenWidth - 32);
     final containerHeight = widget.height ?? 400.0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Responsive sizing
+    final padding = math.max(containerHeight * 0.04, 12.0);
+    final headerHeight = math.max(containerHeight * 0.12, 40.0);
+    final labelHeight = math.max(containerHeight * 0.08, 28.0);
+    final statsHeight = math.max(containerHeight * 0.1, 36.0);
+    final spacing = math.max(containerHeight * 0.02, 8.0);
+
+    final calendarHeight = containerHeight -
+        (padding * 2) -
+        headerHeight -
+        labelHeight -
+        statsHeight -
+        (spacing * 3);
+
+    final tileSize = calendarHeight / 6;
 
     return Container(
       width: containerWidth,
@@ -538,45 +519,33 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(padding),
         child: Column(
           children: [
-            _buildHeader(),
-            const SizedBox(height: 12),
-            _buildDayLabels(),
-            const SizedBox(height: 8),
-            Expanded(
+            _buildHeader(headerHeight),
+            SizedBox(height: spacing),
+            _buildDayLabels(labelHeight),
+            SizedBox(height: spacing * 0.5),
+            SizedBox(
+              height: calendarHeight,
               child: SlideTransition(
                 position: _slideAnimation,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: ContinuousStreakPainter(
-                          streakGroups: _getConsecutiveStreakGroups(),
-                          calendarDays: _calendarDays,
-                        ),
-                      ),
-                    ),
-                    GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 7,
-                        childAspectRatio: 1.2,
-                        crossAxisSpacing: 2,
-                        mainAxisSpacing: 2,
-                      ),
-                      itemCount: _calendarDays.length,
-                      itemBuilder: (context, index) =>
-                          _buildCalendarTile(_calendarDays[index], index),
-                    ),
-                  ],
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    childAspectRatio: 1.2,
+                    crossAxisSpacing: 2,
+                    mainAxisSpacing: 2,
+                  ),
+                  itemCount: _calendarDays.length,
+                  itemBuilder: (context, index) =>
+                      _buildCalendarTile(_calendarDays[index], index, tileSize),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            _buildStreakStatsDisplay(),
+            SizedBox(height: spacing),
+            _buildStreakStats(statsHeight),
           ],
         ),
       ),
@@ -587,8 +556,6 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
   static const Color _streakColor = Color(0xFF6A4CFF);
   static const Color _holidayColor = Color(0xFF00D26A);
   static const Color _weekendColor = Color(0xFFF5F5F5);
-  static const Color _increaseColor = Color(0xFF00D26A);
-  static const Color _decreaseColor = Color(0xFFFF4757);
 
   static const List<String> _monthNames = [
     'January',
@@ -614,60 +581,4 @@ class _StreakCalendarWidgetState extends State<StreakCalendarWidget>
     'Sat',
     'Sun'
   ];
-}
-
-class ContinuousStreakPainter extends CustomPainter {
-  final List<List<DateTime>> streakGroups;
-  final List<DateTime> calendarDays;
-
-  ContinuousStreakPainter({
-    required this.streakGroups,
-    required this.calendarDays,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (streakGroups.isEmpty) return;
-
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = const Color(0xFF6A4CFF).withOpacity(0.3);
-
-    final tileWidth = size.width / 7;
-    final tileHeight = size.height / 6;
-
-    for (final group in streakGroups) {
-      if (group.length < 2) continue;
-
-      final rects = <Rect>[];
-      for (final date in group) {
-        final index = calendarDays.indexWhere((d) =>
-            d.year == date.year && d.month == date.month && d.day == date.day);
-        if (index != -1) {
-          final row = index ~/ 7;
-          final col = index % 7;
-          final x = col * tileWidth + 1;
-          final y = row * tileHeight + 1;
-
-          rects.add(Rect.fromLTWH(x, y, tileWidth - 2, tileHeight - 2));
-        }
-      }
-
-      if (rects.length >= 2) {
-        final combinedRect = rects.reduce((a, b) => Rect.fromLTRB(
-              math.min(a.left, b.left),
-              math.min(a.top, b.top),
-              math.max(a.right, b.right),
-              math.max(a.bottom, b.bottom),
-            ));
-
-        final rrect =
-            RRect.fromRectAndRadius(combinedRect, const Radius.circular(4));
-        canvas.drawRRect(rrect, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

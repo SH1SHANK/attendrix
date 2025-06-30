@@ -14,12 +14,6 @@ import 'package:flutter/material.dart';
 
 import '/custom_code/actions/index.dart';
 import '/flutter_flow/custom_functions.dart';
-
-import 'package:hive_ce/hive.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart';
-import '/custom_code/actions/initialize_hive_system.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<bool> checkClassCancellation(
@@ -28,94 +22,51 @@ Future<bool> checkClassCancellation(
   DocumentReference userDocRef,
 ) async {
   try {
-    // Validate input parameters first
+    // Validate input parameters
     if (courseID.isEmpty) {
-      debugPrint('FlutterFlow: Invalid input parameters');
+      debugPrint('FlutterFlow: Invalid courseID parameter');
       return false;
     }
 
-    // Initialize Hive system using the separate action
-    await initializeHiveSystem();
+    // Single optimized Firestore query
+    final querySnapshot = await userDocRef
+        .collection('customClasses')
+        .where('courseID', isEqualTo: courseID)
+        .limit(1)
+        .get();
 
-    // Create optimized cache key for cancellation
-    final String cacheKey =
-        "cancellation_${courseID}_${classStartTime.millisecondsSinceEpoch}";
-
-    // Use dynamic type for the box instead of Map<String, dynamic>
-    Box? cancellationBox;
-
-    try {
-      cancellationBox = Hive.isBoxOpen('cancellation_cache')
-          ? Hive.box('cancellation_cache')
-          : await Hive.openBox('cancellation_cache');
-    } catch (hiveError) {
-      debugPrint('FlutterFlow: Hive box error: $hiveError');
-      // Continue without cache if Hive fails
+    if (querySnapshot.docs.isEmpty) {
+      debugPrint('FlutterFlow: No custom class found for courseID: $courseID');
+      return false;
     }
 
-    // Check cache (no expiry needed since cancellations are permanent)
-    if (cancellationBox != null) {
-      try {
-        final cachedData = cancellationBox.get(cacheKey);
-        if (cachedData != null && cachedData is bool) {
+    final docData = querySnapshot.docs.first.data();
+    final cancelledClasses = docData['cancelledClasses'] as List<dynamic>?;
+
+    if (cancelledClasses == null || cancelledClasses.isEmpty) {
+      return false;
+    }
+
+    // Check if the class time matches any cancelled class (with 1-minute tolerance)
+    final targetTime = classStartTime.millisecondsSinceEpoch;
+
+    for (final timestamp in cancelledClasses) {
+      if (timestamp is Timestamp) {
+        final timeDifference =
+            (timestamp.toDate().millisecondsSinceEpoch - targetTime).abs();
+        if (timeDifference < 60000) {
+          // 1 minute tolerance
           debugPrint(
-              'FlutterFlow: Returning cached cancellation result: $cachedData');
-          return cachedData;
-        }
-      } catch (cacheError) {
-        debugPrint('FlutterFlow: Cache read error: $cacheError');
-        // Continue to database query if cache fails
-      }
-    }
-
-    bool isCancelled = false;
-
-    try {
-      // Firestore query for custom classes with null checks
-      final querySnapshot = await userDocRef
-          .collection('customClasses')
-          .where('courseID', isEqualTo: courseID)
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        final docData = querySnapshot.docs.first.data();
-        if (docData != null) {
-          final cancelledClasses =
-              docData['cancelledClasses'] as List<dynamic>?;
-
-          if (cancelledClasses != null && cancelledClasses.isNotEmpty) {
-            final targetTime = classStartTime.millisecondsSinceEpoch;
-            isCancelled = cancelledClasses.any((timestamp) {
-              if (timestamp is Timestamp) {
-                return (timestamp.toDate().millisecondsSinceEpoch - targetTime)
-                        .abs() <
-                    60000; // 1 minute tolerance
-              }
-              return false;
-            });
-          }
+              'FlutterFlow: Class is cancelled at ${timestamp.toDate()}');
+          return true;
         }
       }
-    } catch (firestoreError) {
-      debugPrint('FlutterFlow: Firestore query error: $firestoreError');
-      // Return false if Firestore query fails
     }
 
-    // Cache result permanently (only if box is available)
-    if (cancellationBox != null) {
-      try {
-        await cancellationBox.put(cacheKey, isCancelled);
-      } catch (cacheWriteError) {
-        debugPrint('FlutterFlow: Cache write error: $cacheWriteError');
-        // Continue even if caching fails
-      }
-    }
-
-    debugPrint('FlutterFlow: Cancellation check result: $isCancelled');
-    return isCancelled;
+    debugPrint('FlutterFlow: Class is not cancelled');
+    return false;
   } catch (e) {
-    debugPrint('FlutterFlow: Error checking cancellation: $e');
+    debugPrint('FlutterFlow: Error checking class cancellation: $e');
     return false;
   }
 }

@@ -6,7 +6,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/index.dart';
 import 'classes_widget.dart' show ClassesWidget;
-import 'dart:async';
 import 'package:flutter/material.dart';
 
 class ClassesModel extends FlutterFlowModel<ClassesWidget> {
@@ -40,6 +39,22 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
           int index, Function(ClassRowStruct) updateFn) =>
       customClasses[index] = updateFn(customClasses[index]);
 
+  bool multiSelectMode = false;
+
+  List<MissedClassDetailsStruct> selectedclasses = [];
+  void addToSelectedclasses(MissedClassDetailsStruct item) =>
+      selectedclasses.add(item);
+  void removeFromSelectedclasses(MissedClassDetailsStruct item) =>
+      selectedclasses.remove(item);
+  void removeAtIndexFromSelectedclasses(int index) =>
+      selectedclasses.removeAt(index);
+  void insertAtIndexInSelectedclasses(
+          int index, MissedClassDetailsStruct item) =>
+      selectedclasses.insert(index, item);
+  void updateSelectedclassesAtIndex(
+          int index, Function(MissedClassDetailsStruct) updateFn) =>
+      selectedclasses[index] = updateFn(selectedclasses[index]);
+
   ///  State fields for stateful widgets in this page.
 
   // Stores action output result for [Custom Action - getMissedClasses] action in classes widget.
@@ -56,14 +71,16 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
   // State field(s) for DropDown widget.
   int? dropDownValue;
   FormFieldController<int>? dropDownValueController;
-  bool requestCompleted = false;
-  String? requestLastUniqueKey;
   // Models for classBlock_general dynamic component.
   late FlutterFlowDynamicModels<ClassBlockGeneralModel>
       classBlockGeneralModels1;
   // Models for classBlock_general dynamic component.
   late FlutterFlowDynamicModels<ClassBlockGeneralModel>
       classBlockGeneralModels2;
+  // Stores action output result for [Custom Action - getMissedClasses] action in Button widget.
+  List<ClassRowStruct>? newMissedClasses;
+  // Stores action output result for [Custom Action - getMissedClasses] action in missedClassesList widget.
+  List<ClassRowStruct>? refreshedMissedClasses;
   // Models for classBlock_missed dynamic component.
   late FlutterFlowDynamicModels<ClassBlockMissedModel> classBlockMissedModels;
 
@@ -83,21 +100,5 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
     classBlockGeneralModels1.dispose();
     classBlockGeneralModels2.dispose();
     classBlockMissedModels.dispose();
-  }
-
-  /// Additional helper methods.
-  Future waitForRequestCompleted({
-    double minWait = 0,
-    double maxWait = double.infinity,
-  }) async {
-    final stopwatch = Stopwatch()..start();
-    while (true) {
-      await Future.delayed(Duration(milliseconds: 50));
-      final timeElapsed = stopwatch.elapsedMilliseconds;
-      final requestComplete = requestCompleted;
-      if (timeElapsed > maxWait || (requestComplete && timeElapsed > minWait)) {
-        break;
-      }
-    }
   }
 }

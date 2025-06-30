@@ -1,5 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/class_components/course_attendance/course_attendance_widget.dart';
+import '/custom_dialogs/attendance_calculator/attendance_calculator_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -106,9 +107,31 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                               onPressed: () async {
                                 logFirebaseEvent(
                                     'ATTENDANCE_PAGE_SYLLABUS_BTN_ON_TAP');
-                                logFirebaseEvent('Button_navigate_to');
-
-                                context.pushNamed(AnalyticsWidget.routeName);
+                                logFirebaseEvent('Button_show_snack_bar');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Feature currently unavailable!',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyLarge
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLargeFamily,
+                                            color: FlutterFlowTheme.of(context)
+                                                .info,
+                                            fontSize: 14.0,
+                                            letterSpacing: 0.0,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyLargeIsCustom,
+                                          ),
+                                    ),
+                                    duration: Duration(milliseconds: 4000),
+                                    backgroundColor:
+                                        FlutterFlowTheme.of(context).error,
+                                  ),
+                                );
                               },
                               text: 'Syllabus',
                               icon: Icon(
@@ -288,7 +311,12 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                   .toList();
 
                               return ListView.separated(
-                                padding: EdgeInsets.zero,
+                                padding: EdgeInsets.fromLTRB(
+                                  0,
+                                  0,
+                                  0,
+                                  20.0,
+                                ),
                                 primary: false,
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
@@ -297,18 +325,62 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                     SizedBox(height: 4.0),
                                 itemBuilder: (context, courseIndex) {
                                   final courseItem = course[courseIndex];
-                                  return wrapWithModel(
-                                    model:
-                                        _model.courseAttendanceModels.getModel(
-                                      courseItem.courseID,
-                                      courseIndex,
-                                    ),
-                                    updateCallback: () => safeSetState(() {}),
-                                    child: CourseAttendanceWidget(
-                                      key: Key(
-                                        'Key0d0_${courseItem.courseID}',
+                                  return Builder(
+                                    builder: (context) => InkWell(
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () async {
+                                        logFirebaseEvent(
+                                            'ATTENDANCE_Container_0d086bn0_ON_TAP');
+                                        logFirebaseEvent(
+                                            'courseAttendance_alert_dialog');
+                                        await showDialog(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return Dialog(
+                                              elevation: 0,
+                                              insetPadding: EdgeInsets.zero,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              alignment:
+                                                  AlignmentDirectional(0.0, 0.0)
+                                                      .resolve(
+                                                          Directionality.of(
+                                                              context)),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  FocusScope.of(dialogContext)
+                                                      .unfocus();
+                                                  FocusManager
+                                                      .instance.primaryFocus
+                                                      ?.unfocus();
+                                                },
+                                                child:
+                                                    AttendanceCalculatorWidget(
+                                                  courseRecord: courseItem,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: wrapWithModel(
+                                        model: _model.courseAttendanceModels
+                                            .getModel(
+                                          courseItem.courseID,
+                                          courseIndex,
+                                        ),
+                                        updateCallback: () =>
+                                            safeSetState(() {}),
+                                        child: CourseAttendanceWidget(
+                                          key: Key(
+                                            'Key0d0_${courseItem.courseID}',
+                                          ),
+                                          courseData: courseItem,
+                                        ),
                                       ),
-                                      courseData: courseItem,
                                     ),
                                   );
                                 },

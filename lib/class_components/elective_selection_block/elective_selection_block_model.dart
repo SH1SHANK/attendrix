@@ -21,6 +21,8 @@ class ElectiveSelectionBlockModel
   List<CourseRecordsRow>? courseRecordRow;
   // Stores action output result for [Backend Call - Query Rows] action in Container widget.
   List<CourseRecordsRow>? courseRecordRow2;
+  // Stores action output result for [Backend Call - Query Rows] action in Container widget.
+  List<CourseRecordsRow>? courseRecordRow3;
 
   @override
   void initState(BuildContext context) {}

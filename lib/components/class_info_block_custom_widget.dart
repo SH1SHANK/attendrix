@@ -54,7 +54,7 @@ class _ClassInfoBlockCustomWidgetState
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 170.0,
+      height: 150.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).primaryBackground,
         borderRadius: BorderRadius.circular(16.0),
@@ -375,7 +375,7 @@ class _ClassInfoBlockCustomWidgetState
                       ),
                   ].divide(SizedBox(width: 4.0)),
                 ),
-              ].divide(SizedBox(height: 8.0)),
+              ],
             ),
             Divider(
               thickness: 1.0,

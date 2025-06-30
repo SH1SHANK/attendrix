@@ -1,5 +1,4 @@
 import '/backend/backend.dart';
-import '/components/add_tags_personal_vault_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +49,7 @@ class _FolderDropDownPersonalVaultWidgetState
       padding: EdgeInsets.all(16.0),
       child: Container(
         width: 200.0,
-        height: 195.0,
+        height: 155.0,
         decoration: BoxDecoration(
           color: FlutterFlowTheme.of(context).secondaryBackground,
           boxShadow: [
@@ -209,77 +208,6 @@ class _FolderDropDownPersonalVaultWidgetState
                               12.0, 0.0, 0.0, 0.0),
                           child: Text(
                             'Edit Folder Details',
-                            style: FlutterFlowTheme.of(context)
-                                .labelLarge
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelLargeFamily,
-                                  fontSize: 12.0,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelLargeIsCustom,
-                                ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            InkWell(
-              splashColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: () async {
-                logFirebaseEvent('FOLDER_DROP_DOWN_PERSONAL_VAULT_componen');
-                await Future.wait([
-                  Future(() async {
-                    logFirebaseEvent('component_dismiss_dialog');
-                    Navigator.pop(context);
-                  }),
-                  Future(() async {
-                    logFirebaseEvent('component_bottom_sheet');
-                    await showModalBottomSheet(
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: MediaQuery.viewInsetsOf(context),
-                          child: AddTagsPersonalVaultWidget(
-                            fileRef: widget.folderRecord!,
-                          ),
-                        );
-                      },
-                    ).then((value) => safeSetState(() {}));
-                  }),
-                ]);
-              },
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                        child: Icon(
-                          FFIcons.ktags,
-                          color: FlutterFlowTheme.of(context).primaryText,
-                          size: 20.0,
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              12.0, 0.0, 0.0, 0.0),
-                          child: Text(
-                            'Add Tags',
                             style: FlutterFlowTheme.of(context)
                                 .labelLarge
                                 .override(

@@ -479,11 +479,17 @@ List<DateTime> generatePastDates(
   int? numDays,
   DateTime targetDate,
 ) {
-  // A Code which will generate the past Dates until 1st may and arrange them as decrersing order as current day at top
+  // A Code which will generate the past Dates and arrange them as decrersing order as current day at top
   List<DateTime> pastDates = [];
   DateTime today = DateTime.now();
 
-  for (int i = 0; i < (numDays ?? 30); i++) {
+  // Always include current day first, regardless of weekend settings
+  if (!today.isBefore(targetDate)) {
+    pastDates.add(today);
+  }
+
+  // Generate remaining dates
+  for (int i = 1; i < (numDays ?? 30); i++) {
     DateTime date = today.subtract(Duration(days: i));
     if (date.isBefore(targetDate)) break;
 
