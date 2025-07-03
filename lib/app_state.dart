@@ -81,7 +81,7 @@ class FFAppState extends ChangeNotifier {
     _isDownloading = value;
   }
 
-  String _GOOGLEDRIVEAPIKEY = 'AIzaSyC_5H7NooWPBIZOe8XOwkwxieUF6yXNOT0';
+  String _GOOGLEDRIVEAPIKEY = '';
   String get GOOGLEDRIVEAPIKEY => _GOOGLEDRIVEAPIKEY;
   set GOOGLEDRIVEAPIKEY(String value) {
     _GOOGLEDRIVEAPIKEY = value;
