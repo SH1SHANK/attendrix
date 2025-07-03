@@ -234,7 +234,7 @@ class _AddExamWidgetState extends State<AddExamWidget> {
                           padding: EdgeInsetsDirectional.fromSTEB(
                               4.0, 0.0, 4.0, 0.0),
                           child: FlutterFlowDropDown<String>(
-                            controller: _model.dropDownValueController1 ??=
+                            controller: _model.dropDownValueController ??=
                                 FormFieldController<String>(null),
                             options: [
                               'Tutorial Test',
@@ -244,7 +244,7 @@ class _AddExamWidgetState extends State<AddExamWidget> {
                               'Tentitive '
                             ],
                             onChanged: (val) =>
-                                safeSetState(() => _model.dropDownValue1 = val),
+                                safeSetState(() => _model.dropDownValue = val),
                             width: double.infinity,
                             height: 45.0,
                             textStyle: FlutterFlowTheme.of(context)
@@ -292,67 +292,125 @@ class _AddExamWidgetState extends State<AddExamWidget> {
                                 ),
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              4.0, 0.0, 4.0, 0.0),
-                          child: AuthUserStreamWidget(
-                            builder: (context) => FlutterFlowDropDown<String>(
-                              controller: _model.dropDownValueController2 ??=
-                                  FormFieldController<String>(
-                                _model.dropDownValue2 ??= '',
-                              ),
-                              options: List<String>.from((currentUserDocument
-                                          ?.coursesEnrolled
-                                          .toList() ??
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            if (valueOrDefault<bool>(
+                              (currentUserDocument?.coursesEnrolled.toList() ??
                                       [])
                                   .where((e) => e.isEditable == true)
                                   .toList()
-                                  .map((e) => e.courseID)
-                                  .toList()),
-                              optionLabels: (currentUserDocument
-                                          ?.coursesEnrolled
-                                          .toList() ??
-                                      [])
-                                  .where((e) => e.isEditable == true)
-                                  .toList()
-                                  .map((e) => e.courseName)
-                                  .toList(),
-                              onChanged: (val) => safeSetState(
-                                  () => _model.dropDownValue2 = val),
-                              width: double.infinity,
-                              height: 45.0,
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .labelMedium
-                                  .override(
-                                    fontFamily: FlutterFlowTheme.of(context)
-                                        .labelMediumFamily,
-                                    letterSpacing: 0.0,
-                                    useGoogleFonts:
-                                        !FlutterFlowTheme.of(context)
-                                            .labelMediumIsCustom,
+                                  .isNotEmpty,
+                              true,
+                            ))
+                              AuthUserStreamWidget(
+                                builder: (context) =>
+                                    FlutterFlowDropDown<String>(
+                                  controller:
+                                      _model.courseNameValueController ??=
+                                          FormFieldController<String>(
+                                    _model.courseNameValue ??= '',
                                   ),
-                              hintText: 'Pick the related course',
-                              icon: Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                color:
-                                    FlutterFlowTheme.of(context).secondaryText,
-                                size: 24.0,
+                                  options: List<String>.from(
+                                      (currentUserDocument?.coursesEnrolled
+                                                  .toList() ??
+                                              [])
+                                          .where((e) => e.isEditable == true)
+                                          .toList()
+                                          .map((e) => e.courseID)
+                                          .toList()),
+                                  optionLabels: (currentUserDocument
+                                              ?.coursesEnrolled
+                                              .toList() ??
+                                          [])
+                                      .where((e) => e.isEditable == true)
+                                      .toList()
+                                      .map((e) => e.courseName)
+                                      .toList(),
+                                  onChanged: (val) => safeSetState(
+                                      () => _model.courseNameValue = val),
+                                  width: double.infinity,
+                                  height: 48.0,
+                                  textStyle: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.outfit(
+                                          fontWeight: FontWeight.w600,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
+                                        ),
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryText,
+                                        fontSize: 15.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                  hintText:
+                                      'select the corresponding course...',
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down_sharp,
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryText,
+                                    size: 24.0,
+                                  ),
+                                  fillColor: FlutterFlowTheme.of(context)
+                                      .secondaryBackground,
+                                  elevation: 2.0,
+                                  borderColor:
+                                      FlutterFlowTheme.of(context).alternate,
+                                  borderWidth: 2.0,
+                                  borderRadius: 8.0,
+                                  margin: EdgeInsetsDirectional.fromSTEB(
+                                      12.0, 0.0, 12.0, 0.0),
+                                  hidesUnderline: true,
+                                  isOverButton: false,
+                                  isSearchable: false,
+                                  isMultiSelect: false,
+                                ),
                               ),
-                              fillColor: FlutterFlowTheme.of(context)
-                                  .primaryBackground,
-                              elevation: 2.0,
-                              borderColor:
-                                  FlutterFlowTheme.of(context).alternate,
-                              borderWidth: 1.0,
-                              borderRadius: 8.0,
-                              margin: EdgeInsetsDirectional.fromSTEB(
-                                  12.0, 0.0, 12.0, 0.0),
-                              hidesUnderline: true,
-                              isOverButton: false,
-                              isSearchable: false,
-                              isMultiSelect: false,
-                            ),
-                          ),
+                            if (!valueOrDefault<bool>(
+                              (currentUserDocument?.coursesEnrolled.toList() ??
+                                      [])
+                                  .where((e) => e.isEditable == true)
+                                  .toList()
+                                  .isNotEmpty,
+                              false,
+                            ))
+                              AuthUserStreamWidget(
+                                builder: (context) => Container(
+                                  width: double.infinity,
+                                  height: 40.0,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: Align(
+                                    alignment: AlignmentDirectional(0.0, 0.0),
+                                    child: Text(
+                                      'No Available Courses! Requires Admin Access',
+                                      style: FlutterFlowTheme.of(context)
+                                          .headlineSmall
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmallFamily,
+                                            fontSize: 14.0,
+                                            letterSpacing: 0.0,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .headlineSmallIsCustom,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
@@ -900,107 +958,137 @@ class _AddExamWidgetState extends State<AddExamWidget> {
             ),
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
-              child: FFButtonWidget(
-                onPressed: () async {
-                  logFirebaseEvent('ADD_EXAM_COMP_POST_EXAM_BTN_ON_TAP');
-                  logFirebaseEvent('Button_backend_call');
-                  _model.assignmentFeedback = await TaskRecordsTable().insert({
-                    'created_at': supaSerialize<DateTime>(getCurrentTimestamp),
-                    'courseID': _model.dropDownValue2,
-                    'taskType': TaskType.exam.name,
-                    'taskName': _model.nameTextController.text,
-                    'taskDescription': _model.descriptionTextController.text,
-                    'taskStartTime':
-                        supaSerialize<DateTime>(_model.datePicked1),
-                    'taskEndTime': supaSerialize<DateTime>(_model.datePicked2),
-                    'taskAssets': _model.linkTextController.text,
-                    'taskVenue': _model.placeTextController.text,
-                    'additional_info': _model.dropDownValue1,
-                  });
-                  if (_model.assignmentFeedback != null) {
-                    logFirebaseEvent('Button_show_snack_bar');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${_model.assignmentFeedback?.taskName} Assigned!',
-                          style: FlutterFlowTheme.of(context)
-                              .labelSmall
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelSmallFamily,
-                                color: FlutterFlowTheme.of(context).info,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelSmallIsCustom,
-                              ),
-                        ),
-                        duration: Duration(milliseconds: 4000),
-                        backgroundColor: FlutterFlowTheme.of(context).primary,
-                      ),
-                    );
-                  } else {
-                    logFirebaseEvent('Button_show_snack_bar');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Unknown Error, Please Try Again in a moment!',
-                          style: FlutterFlowTheme.of(context)
-                              .labelSmall
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelSmallFamily,
-                                color: FlutterFlowTheme.of(context).info,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelSmallIsCustom,
-                              ),
-                        ),
-                        duration: Duration(milliseconds: 4000),
-                        backgroundColor: FlutterFlowTheme.of(context).error,
-                      ),
-                    );
-                  }
+              child: AuthUserStreamWidget(
+                builder: (context) => FFButtonWidget(
+                  onPressed: !valueOrDefault<bool>(
+                    (currentUserDocument?.coursesEnrolled.toList() ?? [])
+                        .where((e) => e.isEditable == true)
+                        .toList()
+                        .isNotEmpty,
+                    false,
+                  )
+                      ? null
+                      : () async {
+                          logFirebaseEvent(
+                              'ADD_EXAM_COMP_POST_EXAM_BTN_ON_TAP');
+                          if (_model.courseNameValue != null &&
+                              _model.courseNameValue != '') {
+                            logFirebaseEvent('Button_backend_call');
+                            _model.assignmentFeedback =
+                                await TaskRecordsTable().insert({
+                              'created_at':
+                                  supaSerialize<DateTime>(getCurrentTimestamp),
+                              'courseID': _model.courseNameValue,
+                              'taskType': TaskType.exam.name,
+                              'taskName': _model.nameTextController.text,
+                              'taskDescription':
+                                  _model.descriptionTextController.text,
+                              'taskStartTime':
+                                  supaSerialize<DateTime>(_model.datePicked1),
+                              'taskEndTime':
+                                  supaSerialize<DateTime>(_model.datePicked2),
+                              'taskAssets': _model.linkTextController.text,
+                              'taskVenue': _model.placeTextController.text,
+                              'additional_info': _model.dropDownValue,
+                            });
+                            if (_model.assignmentFeedback != null) {
+                              logFirebaseEvent('Button_show_snack_bar');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${_model.assignmentFeedback?.taskName} Assigned!',
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelSmall
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelSmallFamily,
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelSmallIsCustom,
+                                        ),
+                                  ),
+                                  duration: Duration(milliseconds: 4000),
+                                  backgroundColor:
+                                      FlutterFlowTheme.of(context).primary,
+                                ),
+                              );
+                            } else {
+                              logFirebaseEvent('Button_show_snack_bar');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Unknown Error, Please Try Again in a moment!',
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelSmall
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelSmallFamily,
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelSmallIsCustom,
+                                        ),
+                                  ),
+                                  duration: Duration(milliseconds: 4000),
+                                  backgroundColor:
+                                      FlutterFlowTheme.of(context).error,
+                                ),
+                              );
+                            }
 
-                  logFirebaseEvent('Button_dismiss_dialog');
-                  Navigator.pop(context);
+                            logFirebaseEvent('Button_dismiss_dialog');
+                            Navigator.pop(context);
+                          }
 
-                  safeSetState(() {});
-                },
-                text: 'Post Exam',
-                icon: Icon(
-                  FFIcons.kpointerPlus,
-                  size: 24.0,
-                ),
-                options: FFButtonOptions(
-                  width: double.infinity,
-                  height: 50.0,
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                  iconAlignment: IconAlignment.start,
-                  iconPadding:
-                      EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                  iconColor: FlutterFlowTheme.of(context).info,
-                  color: FlutterFlowTheme.of(context).primary,
-                  textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                        font: GoogleFonts.outfit(
+                          safeSetState(() {});
+                        },
+                  text: 'Post Exam',
+                  icon: Icon(
+                    FFIcons.kpointerPlus,
+                    size: 24.0,
+                  ),
+                  options: FFButtonOptions(
+                    width: double.infinity,
+                    height: 50.0,
+                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    iconAlignment: IconAlignment.start,
+                    iconPadding:
+                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                    iconColor: FlutterFlowTheme.of(context).info,
+                    color: FlutterFlowTheme.of(context).primary,
+                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                          font: GoogleFonts.outfit(
+                            fontWeight: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .fontWeight,
+                            fontStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .fontStyle,
+                          ),
+                          color: FlutterFlowTheme.of(context).info,
+                          letterSpacing: 0.0,
                           fontWeight: FlutterFlowTheme.of(context)
                               .titleSmall
                               .fontWeight,
                           fontStyle:
                               FlutterFlowTheme.of(context).titleSmall.fontStyle,
                         ),
-                        color: FlutterFlowTheme.of(context).info,
-                        letterSpacing: 0.0,
-                        fontWeight:
-                            FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                      ),
-                  elevation: 0.0,
-                  borderSide: BorderSide(
-                    color: Colors.transparent,
-                    width: 1.0,
+                    elevation: 0.0,
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(12.0),
+                    disabledColor: FlutterFlowTheme.of(context).secondaryText,
+                    disabledTextColor: FlutterFlowTheme.of(context).primaryText,
                   ),
-                  borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
             ),

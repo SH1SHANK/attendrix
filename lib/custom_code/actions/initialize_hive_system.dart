@@ -28,11 +28,8 @@ class HiveManager {
   static Timer? _cleanupTimer;
 
   // Box constants
-  static const String ATTENDANCE_BOX = 'attendance_cache';
-  static const String CLASSES_BOX = 'classes_cache';
-  static const String MISSED_CLASSES_BOX = 'missed_classes_cache';
-  static const String COURSE_ATTENDANCE_BOX = 'course_attendance_cache';
-  static const String FILE_CACHE_BOX = 'file_cache_data';
+  static const String CUSTOM_CLASSES_BOX = 'classes_cache';
+  static const String MISSED_CLASSES_BOX = 'missed_classes';
 
   // Android-optimized limits
   static const int maxCacheFiles = 30;

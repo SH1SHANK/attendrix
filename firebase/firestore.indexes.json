@@ -37,24 +37,6 @@
       ]
     },
     {
-      "collectionGroup": "userPersonalVault",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "parentPath",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isDeleted",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "last_opened",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "studyMaterials",
       "queryScope": "COLLECTION",
       "fields": [
@@ -63,44 +45,8 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "isDeleted",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "fileName",
           "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "userPersonalVault",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "parentPath",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "mimeType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "last_opened",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "personalRecords",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "entity_type",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "created_at",
-          "order": "DESCENDING"
         }
       ]
     }

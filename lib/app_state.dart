@@ -132,6 +132,35 @@ class FFAppState extends ChangeNotifier {
     secureStorage.delete(key: 'ff_weatherForecastForMessages');
   }
 
+  List<String> _updateCacheFor = [];
+  List<String> get updateCacheFor => _updateCacheFor;
+  set updateCacheFor(List<String> value) {
+    _updateCacheFor = value;
+  }
+
+  void addToUpdateCacheFor(String value) {
+    updateCacheFor.add(value);
+  }
+
+  void removeFromUpdateCacheFor(String value) {
+    updateCacheFor.remove(value);
+  }
+
+  void removeAtIndexFromUpdateCacheFor(int index) {
+    updateCacheFor.removeAt(index);
+  }
+
+  void updateUpdateCacheForAtIndex(
+    int index,
+    String Function(String) updateFn,
+  ) {
+    updateCacheFor[index] = updateFn(_updateCacheFor[index]);
+  }
+
+  void insertAtIndexInUpdateCacheFor(int index, String value) {
+    updateCacheFor.insert(index, value);
+  }
+
   final _timetableRecordsQueryDayManager =
       FutureRequestManager<List<TimetableRecordsRow>>();
   Future<List<TimetableRecordsRow>> timetableRecordsQueryDay({
@@ -149,39 +178,6 @@ class FFAppState extends ChangeNotifier {
   void clearTimetableRecordsQueryDayCacheKey(String? uniqueKey) =>
       _timetableRecordsQueryDayManager.clearRequest(uniqueKey);
 
-  final _taskArchivesManager =
-      StreamRequestManager<List<PersonalRecordsRecord>>();
-  Stream<List<PersonalRecordsRecord>> taskArchives({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Stream<List<PersonalRecordsRecord>> Function() requestFn,
-  }) =>
-      _taskArchivesManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearTaskArchivesCache() => _taskArchivesManager.clear();
-  void clearTaskArchivesCacheKey(String? uniqueKey) =>
-      _taskArchivesManager.clearRequest(uniqueKey);
-
-  final _timetableQueryIndividualManager =
-      FutureRequestManager<List<TimetableRecordsRow>>();
-  Future<List<TimetableRecordsRow>> timetableQueryIndividual({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Future<List<TimetableRecordsRow>> Function() requestFn,
-  }) =>
-      _timetableQueryIndividualManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearTimetableQueryIndividualCache() =>
-      _timetableQueryIndividualManager.clear();
-  void clearTimetableQueryIndividualCacheKey(String? uniqueKey) =>
-      _timetableQueryIndividualManager.clearRequest(uniqueKey);
-
   final _userPersonalFilesManager =
       FutureRequestManager<List<UserPersonalVaultRecord>>();
   Future<List<UserPersonalVaultRecord>> userPersonalFiles({
@@ -198,6 +194,23 @@ class FFAppState extends ChangeNotifier {
   void clearUserPersonalFilesCacheKey(String? uniqueKey) =>
       _userPersonalFilesManager.clearRequest(uniqueKey);
 
+  final _individualCustomClassViaCourseIDManager =
+      StreamRequestManager<List<CustomClassesRecord>>();
+  Stream<List<CustomClassesRecord>> individualCustomClassViaCourseID({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Stream<List<CustomClassesRecord>> Function() requestFn,
+  }) =>
+      _individualCustomClassViaCourseIDManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearIndividualCustomClassViaCourseIDCache() =>
+      _individualCustomClassViaCourseIDManager.clear();
+  void clearIndividualCustomClassViaCourseIDCacheKey(String? uniqueKey) =>
+      _individualCustomClassViaCourseIDManager.clearRequest(uniqueKey);
+
   final _tasksQueryManager = StreamRequestManager<List<TaskRecordsRow>>();
   Stream<List<TaskRecordsRow>> tasksQuery({
     String? uniqueQueryKey,
@@ -212,6 +225,23 @@ class FFAppState extends ChangeNotifier {
   void clearTasksQueryCache() => _tasksQueryManager.clear();
   void clearTasksQueryCacheKey(String? uniqueKey) =>
       _tasksQueryManager.clearRequest(uniqueKey);
+
+  final _individualAttendanceRecordManager =
+      FutureRequestManager<List<AttendanceRecordsRow>>();
+  Future<List<AttendanceRecordsRow>> individualAttendanceRecord({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<AttendanceRecordsRow>> Function() requestFn,
+  }) =>
+      _individualAttendanceRecordManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearIndividualAttendanceRecordCache() =>
+      _individualAttendanceRecordManager.clear();
+  void clearIndividualAttendanceRecordCacheKey(String? uniqueKey) =>
+      _individualAttendanceRecordManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {

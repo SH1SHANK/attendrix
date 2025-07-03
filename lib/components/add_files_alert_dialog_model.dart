@@ -17,10 +17,11 @@ class AddFilesAlertDialogModel
 
   ///  State fields for stateful widgets in this component.
 
-  // State field(s) for TextField widget.
-  FocusNode? textFieldFocusNode1;
-  TextEditingController? textController1;
-  String? Function(BuildContext, String?)? textController1Validator;
+  // State field(s) for FileNameTextField widget.
+  FocusNode? fileNameTextFieldFocusNode;
+  TextEditingController? fileNameTextFieldTextController;
+  String? Function(BuildContext, String?)?
+      fileNameTextFieldTextControllerValidator;
   // State field(s) for TabBar widget.
   TabController? tabBarController;
   int get tabBarCurrentIndex =>
@@ -31,7 +32,7 @@ class AddFilesAlertDialogModel
   // Stores action output result for [Custom Action - fetchFileInfo] action in Container widget.
   FileInfoStruct? fileMetadata;
   // State field(s) for TextField widget.
-  FocusNode? textFieldFocusNode2;
+  FocusNode? textFieldFocusNode;
   TextEditingController? textController2;
   String? Function(BuildContext, String?)? textController2Validator;
   // Stores action output result for [Custom Action - fetchFileInfo] action in Button widget.
@@ -39,19 +40,21 @@ class AddFilesAlertDialogModel
   // State field(s) for DropDown widget.
   String? dropDownValue;
   FormFieldController<String>? dropDownValueController;
+  // Stores action output result for [Firestore Query - Query a collection] action in DropDown widget.
+  StudyMaterialsRecord? selectedFolder;
   // Stores action output result for [Backend Call - Create Document] action in Button widget.
-  UserPersonalVaultRecord? userNewFile;
+  StudyMaterialsRecord? userNewFile;
 
   @override
   void initState(BuildContext context) {}
 
   @override
   void dispose() {
-    textFieldFocusNode1?.dispose();
-    textController1?.dispose();
+    fileNameTextFieldFocusNode?.dispose();
+    fileNameTextFieldTextController?.dispose();
 
     tabBarController?.dispose();
-    textFieldFocusNode2?.dispose();
+    textFieldFocusNode?.dispose();
     textController2?.dispose();
   }
 }

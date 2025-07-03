@@ -1,10 +1,9 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/actions/actions.dart' as action_blocks;
-import '/custom_code/actions/index.dart' as actions;
+import '/backend/schema/structs/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -52,16 +51,20 @@ class _ClassBlockPrimaryWidgetState extends State<ClassBlockPrimaryWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<AttendanceRecordsRow>>(
-      future: AttendanceRecordsTable().querySingleRow(
-        queryFn: (q) => q
-            .eqOrNull(
-              'classID',
-              widget.classRecord?.classID,
-            )
-            .eqOrNull(
-              'userID',
-              currentUserUid,
-            ),
+      future: FFAppState().individualAttendanceRecord(
+        uniqueQueryKey: '${widget.classRecord?.classID}_${currentUserUid}',
+        overrideCache: _model.rebuildComponent,
+        requestFn: () => AttendanceRecordsTable().querySingleRow(
+          queryFn: (q) => q
+              .eqOrNull(
+                'classID',
+                widget.classRecord?.classID,
+              )
+              .eqOrNull(
+                'userID',
+                currentUserUid,
+              ),
+        ),
       ),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
@@ -542,69 +545,66 @@ class _ClassBlockPrimaryWidgetState extends State<ClassBlockPrimaryWidget> {
                                 courseID: widget.classRecord?.courseID,
                                 classStartTime:
                                     widget.classRecord?.classStartTime,
-                                snackBarVisible: true,
+                              );
+                              logFirebaseEvent('Checkbox_show_snack_bar');
+                              ScaffoldMessenger.of(context).clearSnackBars();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    _model.attendanceFeedback!,
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelSmall
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelSmallFamily,
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelSmallIsCustom,
+                                        ),
+                                  ),
+                                  duration: Duration(milliseconds: 4000),
+                                  backgroundColor:
+                                      FlutterFlowTheme.of(context).primary,
+                                ),
                               );
                               logFirebaseEvent(
                                   'Checkbox_update_component_state');
-                              _model.rebuildComponent =
-                                  !_model.rebuildComponent;
+                              _model.rebuildComponent = true;
                               safeSetState(() {});
 
                               safeSetState(() {});
                             } else {
                               logFirebaseEvent(
                                   'CLASS_BLOCK_PRIMARY_Checkbox_jx89frfk_ON');
-                              logFirebaseEvent('Checkbox_custom_action');
-                              _model.absentFeedback =
-                                  await actions.markClassAsAbsent(
-                                widget.classRecord!.classID,
-                                (currentUserDocument?.coursesEnrolled
+                              logFirebaseEvent(
+                                  'Checkbox_update_component_state');
+                              _model.rebuildComponent = false;
+                              safeSetState(() {});
+                              logFirebaseEvent('Checkbox_action_block');
+                              await action_blocks.checkOutAttendanceProtocol(
+                                context,
+                                userID: currentUserUid,
+                                enrolledCourses: (currentUserDocument
+                                            ?.coursesEnrolled
                                             .toList() ??
                                         [])
                                     .map((e) => e.courseID)
                                     .toList(),
+                                classID: widget.classRecord?.classID,
+                                courseID: widget.classRecord?.courseID,
+                                classStartTime:
+                                    widget.classRecord?.classStartTime,
+                                classEndTime: widget.classRecord?.classEndTime,
+                                courseName: widget.classRecord?.courseName,
                               );
-                              if (_model.absentFeedback != null) {
-                                logFirebaseEvent('Checkbox_show_snack_bar');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      _model.absentFeedback!.message,
-                                      style: GoogleFonts.outfit(
-                                        color:
-                                            FlutterFlowTheme.of(context).info,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14.0,
-                                      ),
-                                    ),
-                                    duration: Duration(milliseconds: 4000),
-                                    backgroundColor: () {
-                                      if (_model.absentFeedback?.status ==
-                                          'error') {
-                                        return FlutterFlowTheme.of(context)
-                                            .error;
-                                      } else if (_model
-                                              .absentFeedback?.status ==
-                                          'success') {
-                                        return FlutterFlowTheme.of(context)
-                                            .mintGreen;
-                                      } else {
-                                        return FlutterFlowTheme.of(context)
-                                            .primary;
-                                      }
-                                    }(),
-                                  ),
-                                );
-                                logFirebaseEvent('Checkbox_custom_action');
-                                await actions.markClassAbsence(
-                                  widget.classRecord!.courseID,
-                                  widget.classRecord!.classStartTime!,
-                                  currentUserUid,
-                                  false,
-                                  widget.classRecord!.classID,
-                                );
-                              }
-
+                              safeSetState(() {});
+                              logFirebaseEvent(
+                                  'Checkbox_update_component_state');
+                              _model.rebuildComponent = true;
                               safeSetState(() {});
                             }
                           },

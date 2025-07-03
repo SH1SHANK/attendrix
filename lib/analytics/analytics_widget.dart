@@ -307,7 +307,7 @@ class _AnalyticsWidgetState extends State<AnalyticsWidget> {
                             _model.period,
                             '7d',
                           ),
-                          selectedCourseId: _model.courseID,
+                          courseID: _model.courseID!,
                         ),
                       ),
                     ),

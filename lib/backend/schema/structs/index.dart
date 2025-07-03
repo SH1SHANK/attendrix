@@ -9,6 +9,7 @@ export 'challenge_feedback_struct.dart';
 export 'class_cancellation_feedback_struct.dart';
 export 'class_row_struct.dart';
 export 'class_status_struct.dart';
+export 'course_details_struct.dart';
 export 'course_faculty_struct.dart';
 export 'course_type_struct.dart';
 export 'course_type2_struct.dart';

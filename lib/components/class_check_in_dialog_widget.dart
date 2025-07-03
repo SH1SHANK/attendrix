@@ -218,14 +218,6 @@ class _ClassCheckInDialogWidgetState extends State<ClassCheckInDialogWidget> {
                               currentUserReference!,
                               widget.classStartTime!,
                             );
-                            logFirebaseEvent('Button_custom_action');
-                            await actions.markClassAttendance(
-                              widget.courseID!,
-                              widget.classStartTime!,
-                              currentUserUid,
-                              true,
-                              widget.classID!,
-                            );
                           } else {
                             logFirebaseEvent('Button_action_block');
                             await action_blocks.checkInAttendanceProtocal(
@@ -233,7 +225,6 @@ class _ClassCheckInDialogWidgetState extends State<ClassCheckInDialogWidget> {
                               classID: widget.classID,
                               courseID: widget.courseID,
                               classStartTime: widget.classStartTime,
-                              snackBarVisible: true,
                             );
                             safeSetState(() {});
                           }

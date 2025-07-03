@@ -3,6 +3,7 @@ import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'announement_model.dart';
@@ -71,17 +72,20 @@ class _AnnounementWidgetState extends State<AnnounementWidget> {
                   context.pop();
                 },
               ),
-              title: Text(
-                'Remainders & Notifications',
-                style: FlutterFlowTheme.of(context).headlineSmall.override(
-                      fontFamily:
-                          FlutterFlowTheme.of(context).headlineSmallFamily,
-                      fontSize: 18.0,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.bold,
-                      useGoogleFonts:
-                          !FlutterFlowTheme.of(context).headlineSmallIsCustom,
-                    ),
+              title: Align(
+                alignment: AlignmentDirectional(-1.0, 0.0),
+                child: Text(
+                  'Your Remainders & Notifications',
+                  style: FlutterFlowTheme.of(context).headlineSmall.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).headlineSmallFamily,
+                        fontSize: 18.0,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.bold,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).headlineSmallIsCustom,
+                      ),
+                ),
               ),
               actions: [],
               centerTitle: false,
@@ -157,11 +161,12 @@ class _AnnounementWidgetState extends State<AnnounementWidget> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
+                                          AutoSizeText(
                                             valueOrDefault<String>(
                                               listViewNotificationsRow.title,
                                               'Notification Title',
                                             ),
+                                            minFontSize: 8.0,
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(

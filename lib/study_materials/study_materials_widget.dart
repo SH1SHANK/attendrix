@@ -1,17 +1,15 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/schema/enums/enums.dart';
-import '/components/add_files_alert_dialog_widget.dart';
-import '/components/add_folder_bottom_sheet_widget.dart';
-import '/components/folder_block_user_vault_widget.dart';
+import '/components/add_study_materials_widget.dart';
 import '/components/folder_block_widget.dart';
 import '/components/task_manager_block_widget.dart';
+import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/empty_list_comp/empty_state_dynamic/empty_state_dynamic_widget.dart';
 import '/flutter_flow/flutter_flow_button_tabbar.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'dart:async';
@@ -124,10 +122,26 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                       onPressed: () async {
                         logFirebaseEvent(
                             'STUDY_MATERIALS_FloatingActionButton_aqm');
-                        logFirebaseEvent('FloatingActionButton_navigate_to');
-
-                        context.pushNamed(
-                            AddResoursesToGlobalRepositoryWidget.routeName);
+                        logFirebaseEvent('FloatingActionButton_bottom_sheet');
+                        await showModalBottomSheet(
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          context: context,
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              child: Padding(
+                                padding: MediaQuery.viewInsetsOf(context),
+                                child: AddStudyMaterialsWidget(
+                                  parentPath: 'home/',
+                                ),
+                              ),
+                            );
+                          },
+                        ).then((value) => safeSetState(() {}));
                       },
                       backgroundColor: FlutterFlowTheme.of(context).primary,
                       icon: Icon(
@@ -549,38 +563,28 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                                           12.0, 4.0, 12.0, 0.0),
                                       child: FutureBuilder<
                                           List<StudyMaterialsRecord>>(
-                                        future: (_model
-                                                    .firestoreRequestCompleter ??=
-                                                Completer<
-                                                    List<
-                                                        StudyMaterialsRecord>>()
-                                                  ..complete(
-                                                      queryStudyMaterialsRecordOnce(
-                                                    queryBuilder:
-                                                        (studyMaterialsRecord) =>
-                                                            studyMaterialsRecord
-                                                                .where(
-                                                                  'material_type',
-                                                                  isEqualTo:
-                                                                      StudyMaterialType
-                                                                          .folder
-                                                                          .serialize(),
-                                                                )
-                                                                .where(
-                                                                  'isDeleted',
-                                                                  isEqualTo:
-                                                                      false,
-                                                                )
-                                                                .where(
-                                                                  'parentPath',
-                                                                  isEqualTo:
-                                                                      'home/',
-                                                                )
-                                                                .orderBy(
-                                                                    'fileName'),
-                                                    limit: 6,
-                                                  )))
-                                            .future,
+                                        future: queryStudyMaterialsRecordOnce(
+                                          queryBuilder:
+                                              (studyMaterialsRecord) =>
+                                                  studyMaterialsRecord
+                                                      .where(
+                                                        'material_type',
+                                                        isEqualTo:
+                                                            StudyMaterialType
+                                                                .folder
+                                                                .serialize(),
+                                                      )
+                                                      .where(
+                                                        'isDeleted',
+                                                        isEqualTo: false,
+                                                      )
+                                                      .where(
+                                                        'parentPath',
+                                                        isEqualTo: 'home/',
+                                                      )
+                                                      .orderBy('fileName'),
+                                          limit: 9,
+                                        ),
                                         builder: (context, snapshot) {
                                           // Customize what your widget looks like when it's loading.
                                           if (!snapshot.hasData) {
@@ -615,82 +619,62 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                                             );
                                           }
 
-                                          return RefreshIndicator(
-                                            color: FlutterFlowTheme.of(context)
-                                                .velvetSky,
-                                            backgroundColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .accent4,
-                                            strokeWidth: 3.5,
-                                            onRefresh: () async {
-                                              logFirebaseEvent(
-                                                  'STUDY_MATERIALS_globalFolders_ON_PULL_TO');
-                                              logFirebaseEvent(
-                                                  'globalFolders_refresh_database_request');
-                                              safeSetState(() => _model
-                                                      .firestoreRequestCompleter =
-                                                  null);
-                                              await _model
-                                                  .waitForFirestoreRequestCompleted();
-                                            },
-                                            child: GridView.builder(
-                                              padding: EdgeInsets.zero,
-                                              gridDelegate:
-                                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 3,
-                                                crossAxisSpacing: 5.0,
-                                                mainAxisSpacing: 5.0,
-                                                childAspectRatio: 1.0,
-                                              ),
-                                              primary: false,
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.vertical,
-                                              itemCount:
-                                                  globalFoldersStudyMaterialsRecordList
-                                                      .length,
-                                              itemBuilder: (context,
-                                                  globalFoldersIndex) {
-                                                final globalFoldersStudyMaterialsRecord =
-                                                    globalFoldersStudyMaterialsRecordList[
-                                                        globalFoldersIndex];
-                                                return wrapWithModel(
-                                                  model: _model
-                                                      .folderBlockModels
-                                                      .getModel(
-                                                    globalFoldersStudyMaterialsRecord
-                                                        .reference.id,
-                                                    globalFoldersIndex,
-                                                  ),
-                                                  updateCallback: () =>
-                                                      safeSetState(() {}),
-                                                  child: FolderBlockWidget(
-                                                    key: Key(
-                                                      'Keymkt_${globalFoldersStudyMaterialsRecord.reference.id}',
-                                                    ),
-                                                    folderRef:
-                                                        globalFoldersStudyMaterialsRecord,
-                                                    onTap: (parentPath) async {
-                                                      logFirebaseEvent(
-                                                          'STUDY_MATERIALS_Container_mktcrw9p_CALLB');
-                                                      logFirebaseEvent(
-                                                          'folderBlock_navigate_to');
-
-                                                      context.goNamed(
-                                                        FileManagerWidget
-                                                            .routeName,
-                                                        queryParameters: {
-                                                          'parentPath':
-                                                              serializeParam(
-                                                            parentPath,
-                                                            ParamType.String,
-                                                          ),
-                                                        }.withoutNulls,
-                                                      );
-                                                    },
-                                                  ),
-                                                );
-                                              },
+                                          return GridView.builder(
+                                            padding: EdgeInsets.zero,
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 3,
+                                              crossAxisSpacing: 4.0,
+                                              mainAxisSpacing: 4.0,
+                                              childAspectRatio: 1.0,
                                             ),
+                                            primary: false,
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            itemCount:
+                                                globalFoldersStudyMaterialsRecordList
+                                                    .length,
+                                            itemBuilder:
+                                                (context, globalFoldersIndex) {
+                                              final globalFoldersStudyMaterialsRecord =
+                                                  globalFoldersStudyMaterialsRecordList[
+                                                      globalFoldersIndex];
+                                              return wrapWithModel(
+                                                model: _model.folderBlockModels
+                                                    .getModel(
+                                                  globalFoldersStudyMaterialsRecord
+                                                      .reference.id,
+                                                  globalFoldersIndex,
+                                                ),
+                                                updateCallback: () =>
+                                                    safeSetState(() {}),
+                                                child: FolderBlockWidget(
+                                                  key: Key(
+                                                    'Keymkt_${globalFoldersStudyMaterialsRecord.reference.id}',
+                                                  ),
+                                                  folderRef:
+                                                      globalFoldersStudyMaterialsRecord,
+                                                  onTap: (parentPath) async {
+                                                    logFirebaseEvent(
+                                                        'STUDY_MATERIALS_Container_mktcrw9p_CALLB');
+                                                    logFirebaseEvent(
+                                                        'folderBlock_navigate_to');
+
+                                                    context.goNamed(
+                                                      FileManagerWidget
+                                                          .routeName,
+                                                      queryParameters: {
+                                                        'parentPath':
+                                                            serializeParam(
+                                                          parentPath,
+                                                          ParamType.String,
+                                                        ),
+                                                      }.withoutNulls,
+                                                    );
+                                                  },
+                                                ),
+                                              );
+                                            },
                                           );
                                         },
                                       ),
@@ -829,6 +813,7 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                                                       ),
                                                       updateCallback: () =>
                                                           safeSetState(() {}),
+                                                      updateOnChange: true,
                                                       child:
                                                           TaskManagerBlockWidget(
                                                         key: Key(
@@ -851,273 +836,20 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                             ),
                             Column(
                               mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
-                                      12.0, 6.0, 12.0, 0.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Builder(
-                                        builder: (context) => FFButtonWidget(
-                                          onPressed: () async {
-                                            logFirebaseEvent(
-                                                'STUDY_MATERIALS_ADD_NEW_MATERIALS_BTN_ON');
-                                            logFirebaseEvent(
-                                                'Button_alert_dialog');
-                                            await showDialog(
-                                              context: context,
-                                              builder: (dialogContext) {
-                                                return Dialog(
-                                                  elevation: 0,
-                                                  insetPadding: EdgeInsets.zero,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  alignment:
-                                                      AlignmentDirectional(
-                                                              0.0, 0.0)
-                                                          .resolve(
-                                                              Directionality.of(
-                                                                  context)),
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      FocusScope.of(
-                                                              dialogContext)
-                                                          .unfocus();
-                                                      FocusManager
-                                                          .instance.primaryFocus
-                                                          ?.unfocus();
-                                                    },
-                                                    child:
-                                                        AddFilesAlertDialogWidget(),
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                          text: 'Add New Materials',
-                                          icon: Icon(
-                                            FFIcons.kplus,
-                                            size: 22.0,
-                                          ),
-                                          options: FFButtonOptions(
-                                            width: MediaQuery.sizeOf(context)
-                                                    .width *
-                                                0.8,
-                                            height: 45.0,
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    16.0, 0.0, 16.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            iconColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .info,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            textStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .override(
-                                                      fontFamily:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmallFamily,
-                                                      letterSpacing: 0.0,
-                                                      useGoogleFonts:
-                                                          !FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmallIsCustom,
-                                                    ),
-                                            elevation: 0.0,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            5.0, 0.0, 0.0, 0.0),
-                                        child: FlutterFlowIconButton(
-                                          borderColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .alternate,
-                                          borderRadius: 8.0,
-                                          borderWidth: 2.0,
-                                          buttonSize: 45.0,
-                                          fillColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .primaryBackground,
-                                          icon: Icon(
-                                            FFIcons.kfolderPlus,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            size: 24.0,
-                                          ),
-                                          onPressed: () async {
-                                            logFirebaseEvent(
-                                                'STUDY_MATERIALS_folderPlus_ICN_ON_TAP');
-                                            logFirebaseEvent(
-                                                'IconButton_bottom_sheet');
-                                            await showModalBottomSheet(
-                                              isScrollControlled: true,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              enableDrag: false,
-                                              context: context,
-                                              builder: (context) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    FocusScope.of(context)
-                                                        .unfocus();
-                                                    FocusManager
-                                                        .instance.primaryFocus
-                                                        ?.unfocus();
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        MediaQuery.viewInsetsOf(
-                                                            context),
-                                                    child:
-                                                        AddFolderBottomSheetWidget(),
-                                                  ),
-                                                );
-                                              },
-                                            ).then(
-                                                (value) => safeSetState(() {}));
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Align(
-                                  alignment: AlignmentDirectional(-1.0, -1.0),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        12.0, 8.0, 0.0, 0.0),
-                                    child: Text(
-                                      'Your Resourses',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelLargeFamily,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 18.0,
-                                            letterSpacing: 0.0,
-                                            useGoogleFonts:
-                                                !FlutterFlowTheme.of(context)
-                                                    .labelLargeIsCustom,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        12.0, 4.0, 12.0, 0.0),
-                                    child: StreamBuilder<
-                                        List<UserPersonalVaultRecord>>(
-                                      stream: queryUserPersonalVaultRecord(
-                                        parent: currentUserReference,
-                                        queryBuilder:
-                                            (userPersonalVaultRecord) =>
-                                                userPersonalVaultRecord
-                                                    .where(
-                                                      'parentPath',
-                                                      isEqualTo: "root/",
-                                                    )
-                                                    .where(
-                                                      'isDeleted',
-                                                      isEqualTo: false,
-                                                    )
-                                                    .orderBy('last_opened',
-                                                        descending: true),
-                                        limit: 9,
-                                      ),
-                                      builder: (context, snapshot) {
-                                        // Customize what your widget looks like when it's loading.
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 25.0,
-                                              height: 25.0,
-                                              child: SpinKitFadingCube(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primary,
-                                                size: 25.0,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        List<UserPersonalVaultRecord>
-                                            personalFolderUserPersonalVaultRecordList =
-                                            snapshot.data!;
-
-                                        return GridView.builder(
-                                          padding: EdgeInsets.zero,
-                                          gridDelegate:
-                                              SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 3,
-                                            crossAxisSpacing: 5.0,
-                                            mainAxisSpacing: 5.0,
-                                            childAspectRatio: 1.0,
-                                          ),
-                                          primary: false,
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          itemCount:
-                                              personalFolderUserPersonalVaultRecordList
-                                                  .length,
-                                          itemBuilder:
-                                              (context, personalFolderIndex) {
-                                            final personalFolderUserPersonalVaultRecord =
-                                                personalFolderUserPersonalVaultRecordList[
-                                                    personalFolderIndex];
-                                            return wrapWithModel(
-                                              model: _model
-                                                  .folderBlockUserVaultModels
-                                                  .getModel(
-                                                personalFolderUserPersonalVaultRecord
-                                                    .reference.id,
-                                                personalFolderIndex,
-                                              ),
-                                              updateCallback: () =>
-                                                  safeSetState(() {}),
-                                              child: FolderBlockUserVaultWidget(
-                                                key: Key(
-                                                  'Keyy79_${personalFolderUserPersonalVaultRecord.reference.id}',
-                                                ),
-                                                userFolderRecord:
-                                                    personalFolderUserPersonalVaultRecord,
-                                                onTap: (pathPath) async {
-                                                  logFirebaseEvent(
-                                                      'STUDY_MATERIALS_Container_y79ww7xz_CALLB');
-                                                  logFirebaseEvent(
-                                                      'folderBlockUserVault_navigate_to');
-
-                                                  context.pushNamed(
-                                                    FileMangerPersonalvaultWidget
-                                                        .routeName,
-                                                    queryParameters: {
-                                                      'parentPath':
-                                                          serializeParam(
-                                                        pathPath,
-                                                        ParamType.String,
-                                                      ),
-                                                    }.withoutNulls,
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
+                                      0.0, 0.0, 0.0, 100.0),
+                                  child: wrapWithModel(
+                                    model: _model.emptyClassModel,
+                                    updateCallback: () => safeSetState(() {}),
+                                    child: EmptyClassWidget(
+                                      imageUrl:
+                                          'https://cdn-icons-gif.flaticon.com/15586/15586080.gif',
+                                      title: 'Your Study Den is Coming!',
+                                      description:
+                                          'Personal Repository is under construction.\nSoon, you’ll have your own space to store notes, docs & genius ideas.',
                                     ),
                                   ),
                                 ),

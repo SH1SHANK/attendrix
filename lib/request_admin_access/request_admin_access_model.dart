@@ -16,8 +16,6 @@ class RequestAdminAccessModel
   ///  State fields for stateful widgets in this page.
 
   Stream<List<AdminusersRow>>? requestAdminAccessSupabaseStream;
-  // Stores action output result for [Backend Call - Query Rows] action in requestAdminAccess widget.
-  List<AdminusersRow>? userQuery;
   // State field(s) for TextField widget.
   FocusNode? textFieldFocusNode;
   TextEditingController? textController;

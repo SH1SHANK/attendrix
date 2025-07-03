@@ -1,11 +1,11 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/backend/schema/enums/enums.dart';
 import '/components/class_archive_block_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'class_archives_model.dart';
 export 'class_archives_model.dart';
 
@@ -86,7 +86,7 @@ class _ClassArchivesWidgetState extends State<ClassArchivesWidget> {
                           padding: EdgeInsetsDirectional.fromSTEB(
                               12.0, 0.0, 0.0, 0.0),
                           child: Text(
-                            'Class Archives',
+                            'Quick Notes',
                             style: FlutterFlowTheme.of(context)
                                 .headlineSmall
                                 .override(
@@ -105,68 +105,67 @@ class _ClassArchivesWidgetState extends State<ClassArchivesWidget> {
                   Padding(
                     padding:
                         EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
-                    child: FutureBuilder<List<PersonalRecordsRecord>>(
-                      future: queryPersonalRecordsRecordOnce(
-                        parent: currentUserReference,
-                        queryBuilder: (personalRecordsRecord) =>
-                            personalRecordsRecord
-                                .where(
-                                  'entity_type',
-                                  isEqualTo:
-                                      RecordType.timetableRecord.serialize(),
-                                )
-                                .orderBy('created_at', descending: true),
-                        limit: 12,
-                      ),
-                      builder: (context, snapshot) {
-                        // Customize what your widget looks like when it's loading.
-                        if (!snapshot.hasData) {
-                          return Center(
-                            child: SizedBox(
-                              width: 25.0,
-                              height: 25.0,
-                              child: SpinKitFadingCube(
-                                color: FlutterFlowTheme.of(context).primary,
-                                size: 25.0,
+                    child: PagedListView<DocumentSnapshot<Object?>?,
+                        ClassNotesRecord>.separated(
+                      pagingController: _model.setListViewController(
+                          ClassNotesRecord.collection(currentUserReference)
+                              .orderBy('modified_at', descending: true),
+                          parent: currentUserReference),
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      reverse: false,
+                      scrollDirection: Axis.vertical,
+                      separatorBuilder: (_, __) => SizedBox(height: 6.0),
+                      builderDelegate:
+                          PagedChildBuilderDelegate<ClassNotesRecord>(
+                        // Customize what your widget looks like when it's loading the first page.
+                        firstPageProgressIndicatorBuilder: (_) => Center(
+                          child: SizedBox(
+                            width: 25.0,
+                            height: 25.0,
+                            child: SpinKitFadingCube(
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 25.0,
+                            ),
+                          ),
+                        ),
+                        // Customize what your widget looks like when it's loading another page.
+                        newPageProgressIndicatorBuilder: (_) => Center(
+                          child: SizedBox(
+                            width: 25.0,
+                            height: 25.0,
+                            child: SpinKitFadingCube(
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 25.0,
+                            ),
+                          ),
+                        ),
+
+                        itemBuilder: (context, _, listViewIndex) {
+                          final listViewClassNotesRecord = _model
+                              .listViewPagingController!
+                              .itemList![listViewIndex];
+                          return Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                8.0, 0.0, 8.0, 0.0),
+                            child: wrapWithModel(
+                              model: _model.classArchiveBlockModels.getModel(
+                                listViewClassNotesRecord.classID,
+                                listViewIndex,
+                              ),
+                              updateCallback: () => safeSetState(() {}),
+                              updateOnChange: true,
+                              child: ClassArchiveBlockWidget(
+                                key: Key(
+                                  'Key6sy_${listViewClassNotesRecord.classID}',
+                                ),
+                                classRecord: listViewClassNotesRecord,
+                                indexInList: listViewIndex,
                               ),
                             ),
                           );
-                        }
-                        List<PersonalRecordsRecord>
-                            listViewPersonalRecordsRecordList = snapshot.data!;
-
-                        return ListView.separated(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          itemCount: listViewPersonalRecordsRecordList.length,
-                          separatorBuilder: (_, __) => SizedBox(height: 3.0),
-                          itemBuilder: (context, listViewIndex) {
-                            final listViewPersonalRecordsRecord =
-                                listViewPersonalRecordsRecordList[
-                                    listViewIndex];
-                            return Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  8.0, 0.0, 8.0, 0.0),
-                              child: wrapWithModel(
-                                model: _model.classArchiveBlockModels.getModel(
-                                  listViewPersonalRecordsRecord.reference.id,
-                                  listViewIndex,
-                                ),
-                                updateCallback: () => safeSetState(() {}),
-                                updateOnChange: true,
-                                child: ClassArchiveBlockWidget(
-                                  key: Key(
-                                    'Key6sy_${listViewPersonalRecordsRecord.reference.id}',
-                                  ),
-                                  classRecord: listViewPersonalRecordsRecord,
-                                  indexInList: listViewIndex,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ],

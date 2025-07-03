@@ -1,5 +1,6 @@
 import '/backend/backend.dart';
 import '/backend/schema/structs/index.dart';
+import '/class_components/class_block_custom/class_block_custom_widget.dart';
 import '/class_components/class_block_general/class_block_general_widget.dart';
 import '/class_components/class_block_missed/class_block_missed_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -55,10 +56,14 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
           int index, Function(MissedClassDetailsStruct) updateFn) =>
       selectedclasses[index] = updateFn(selectedclasses[index]);
 
+  bool includeSundays = false;
+
+  bool includeSaturdays = false;
+
   ///  State fields for stateful widgets in this page.
 
   // Stores action output result for [Custom Action - getMissedClasses] action in classes widget.
-  List<ClassRowStruct>? missedClassesQuery;
+  List<ClassRowStruct>? missedClassesLoad;
   // Stores action output result for [Custom Action - fetchAllClasses] action in classes widget.
   List<ClassRowStruct>? customClassesQuery;
   // State field(s) for TabBar widget.
@@ -69,27 +74,28 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
       tabBarController != null ? tabBarController!.previousIndex : 0;
 
   // State field(s) for DropDown widget.
-  int? dropDownValue;
-  FormFieldController<int>? dropDownValueController;
+  int? dropDownValue1;
+  FormFieldController<int>? dropDownValueController1;
+  // State field(s) for DropDown widget.
+  String? dropDownValue2;
+  FormFieldController<String>? dropDownValueController2;
   // Models for classBlock_general dynamic component.
-  late FlutterFlowDynamicModels<ClassBlockGeneralModel>
-      classBlockGeneralModels1;
-  // Models for classBlock_general dynamic component.
-  late FlutterFlowDynamicModels<ClassBlockGeneralModel>
-      classBlockGeneralModels2;
+  late FlutterFlowDynamicModels<ClassBlockGeneralModel> classBlockGeneralModels;
+  // Models for classBlock_custom dynamic component.
+  late FlutterFlowDynamicModels<ClassBlockCustomModel> classBlockCustomModels;
+  // Stores action output result for [Custom Action - getMissedClasses] action in Button widget.
+  List<ClassRowStruct>? refreshedMissedClasses;
   // Stores action output result for [Custom Action - getMissedClasses] action in Button widget.
   List<ClassRowStruct>? newMissedClasses;
-  // Stores action output result for [Custom Action - getMissedClasses] action in missedClassesList widget.
-  List<ClassRowStruct>? refreshedMissedClasses;
   // Models for classBlock_missed dynamic component.
   late FlutterFlowDynamicModels<ClassBlockMissedModel> classBlockMissedModels;
 
   @override
   void initState(BuildContext context) {
-    classBlockGeneralModels1 =
+    classBlockGeneralModels =
         FlutterFlowDynamicModels(() => ClassBlockGeneralModel());
-    classBlockGeneralModels2 =
-        FlutterFlowDynamicModels(() => ClassBlockGeneralModel());
+    classBlockCustomModels =
+        FlutterFlowDynamicModels(() => ClassBlockCustomModel());
     classBlockMissedModels =
         FlutterFlowDynamicModels(() => ClassBlockMissedModel());
   }
@@ -97,8 +103,8 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
   @override
   void dispose() {
     tabBarController?.dispose();
-    classBlockGeneralModels1.dispose();
-    classBlockGeneralModels2.dispose();
+    classBlockGeneralModels.dispose();
+    classBlockCustomModels.dispose();
     classBlockMissedModels.dispose();
   }
 }

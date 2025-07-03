@@ -51,25 +51,6 @@ Future<UserFeedbackStruct> checkInToClass(
 
     final result = await _processCheckInResponse(response, userId);
 
-    if (result.status == 'success') {
-      try {
-        debugPrint('$logPrefix Marking attendance for course: $courseID');
-
-        await markClassAttendance(
-          courseID,
-          classStartTime,
-          userId,
-          false, // Not a custom class
-          classId,
-        );
-
-        debugPrint('$logPrefix Attendance cache updated');
-      } catch (e) {
-        debugPrint('$logPrefix Failed to mark attendance: $e');
-        // Continue: attendance marking is secondary
-      }
-    }
-
     return result;
   } on TimeoutException catch (e) {
     debugPrint('$logPrefix Timeout: $e');

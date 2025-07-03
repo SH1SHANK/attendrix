@@ -6,7 +6,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,39 +35,6 @@ class _RequestAdminAccessWidgetState extends State<RequestAdminAccessWidget> {
 
     logFirebaseEvent('screen_view',
         parameters: {'screen_name': 'requestAdminAccess'});
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      logFirebaseEvent('REQUEST_ADMIN_ACCESS_requestAdminAccess_');
-      logFirebaseEvent('requestAdminAccess_backend_call');
-      _model.userQuery = await AdminusersTable().queryRows(
-        queryFn: (q) => q.eqOrNull(
-          'userid',
-          currentUserUid,
-        ),
-      );
-      if (_model.userQuery != null && (_model.userQuery)!.isNotEmpty) {
-        logFirebaseEvent('requestAdminAccess_navigate_to');
-
-        context.goNamed(AdminPageWidget.routeName);
-
-        logFirebaseEvent('requestAdminAccess_show_snack_bar');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'You\'re already an admin. Redirecting to dashboard…',
-              style: GoogleFonts.outfit(
-                color: FlutterFlowTheme.of(context).primaryText,
-                fontWeight: FontWeight.w600,
-                fontSize: 13.0,
-              ),
-            ),
-            duration: Duration(milliseconds: 4000),
-            backgroundColor: FlutterFlowTheme.of(context).primary,
-          ),
-        );
-      }
-    });
-
     _model.textController ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
 

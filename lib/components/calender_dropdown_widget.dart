@@ -1,11 +1,13 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/auth_pages/class_management/class_report/class_report_widget.dart';
+import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
 import '/class_components/class_block_bottom_sheet/class_block_bottom_sheet_widget.dart';
 import '/components/quick_notes_widget.dart';
 import '/components/schedule_remainder_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'calender_dropdown_model.dart';
@@ -18,12 +20,14 @@ class CalenderDropdownWidget extends StatefulWidget {
     required this.courseID,
     required this.classStartTime,
     required this.className,
+    this.classRecord,
   });
 
   final String? classID;
   final String? courseID;
   final DateTime? classStartTime;
   final String? className;
+  final TimetableRecordsRow? classRecord;
 
   @override
   State<CalenderDropdownWidget> createState() => _CalenderDropdownWidgetState();
@@ -58,6 +62,21 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
               widget.classID,
             ),
       );
+      logFirebaseEvent('calender_dropdown_firestore_query');
+      _model.classNotes = await queryClassNotesRecordOnce(
+        parent: currentUserReference,
+        queryBuilder: (classNotesRecord) => classNotesRecord.where(
+          'classID',
+          isEqualTo: widget.classID,
+        ),
+        singleRecord: true,
+      ).then((s) => s.firstOrNull);
+      if (_model.classNotes?.classID != null &&
+          _model.classNotes?.classID != '') {
+        logFirebaseEvent('calender_dropdown_update_component_state');
+        _model.quickNotesSet = true;
+        safeSetState(() {});
+      }
       if (_model.remainderNotificationRow != null &&
           (_model.remainderNotificationRow)!.isNotEmpty) {
         logFirebaseEvent('calender_dropdown_update_component_state');
@@ -85,7 +104,7 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
     return Container(
       width: 215.0,
       height: valueOrDefault<double>(
-        getCurrentTimestamp > widget.classStartTime! ? 195.0 : 155.0,
+        getCurrentTimestamp > widget.classStartTime! ? 155.0 : 195.0,
         195.0,
       ),
       decoration: BoxDecoration(
@@ -307,9 +326,9 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
                     return Padding(
                       padding: MediaQuery.viewInsetsOf(context),
                       child: QuickNotesWidget(
-                        id: widget.classID!,
-                        className: widget.className,
-                        classDate: widget.classStartTime,
+                        classRecord: widget.classRecord!,
+                        classNotesRef: _model.classNotes,
+                        documentExists: _model.quickNotesSet,
                       ),
                     );
                   },
@@ -337,7 +356,12 @@ class _CalenderDropdownWidgetState extends State<CalenderDropdownWidget> {
                           padding: EdgeInsetsDirectional.fromSTEB(
                               12.0, 0.0, 0.0, 0.0),
                           child: Text(
-                            'Add Quick Notes',
+                            valueOrDefault<String>(
+                              _model.quickNotesSet
+                                  ? 'Update QuickNotes'
+                                  : 'Add QuickNotes',
+                              'Add QuickNotes',
+                            ),
                             style: FlutterFlowTheme.of(context)
                                 .labelLarge
                                 .override(

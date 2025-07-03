@@ -4,7 +4,6 @@ import '/components/user_card_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -115,64 +114,33 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    if (!((widget.index != 0) &&
-                        (widget.index != 1) &&
-                        (widget.index != 2)))
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 5.0, 0.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: CachedNetworkImage(
-                            fadeInDuration: Duration(milliseconds: 500),
-                            fadeOutDuration: Duration(milliseconds: 500),
-                            imageUrl: () {
-                              if (widget.index == 2) {
-                                return 'https://cdn-icons-png.flaticon.com/128/2583/2583448.png';
-                              } else if (widget.index == 1) {
-                                return 'https://cdn-icons-gif.flaticon.com/13311/13311714.gif';
-                              } else if (widget.index == 0) {
-                                return 'https://cdn-icons-gif.flaticon.com/13311/13311751.gif';
-                              } else {
-                                return 'https://cdn-icons-png.flaticon.com/128/2583/2583448.png';
-                              }
-                            }(),
-                            width: 35.0,
-                            height: 40.0,
-                            fit: BoxFit.cover,
+                    Container(
+                      width: 28.0,
+                      height: 28.0,
+                      decoration: BoxDecoration(
+                        color: FlutterFlowTheme.of(context).primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional(0.0, 0.0),
+                        child: Text(
+                          valueOrDefault<String>(
+                            (widget.index + 1).toString(),
+                            '1',
                           ),
+                          style: FlutterFlowTheme.of(context)
+                              .labelLarge
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .labelLargeFamily,
+                                color: FlutterFlowTheme.of(context).info,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .labelLargeIsCustom,
+                              ),
                         ),
                       ),
-                    if ((widget.index != 0) &&
-                        (widget.index != 1) &&
-                        (widget.index != 2))
-                      Container(
-                        width: 28.0,
-                        height: 28.0,
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Align(
-                          alignment: AlignmentDirectional(0.0, 0.0),
-                          child: Text(
-                            valueOrDefault<String>(
-                              (widget.index + 1).toString(),
-                              '1',
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .labelLarge
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelLargeFamily,
-                                  color: FlutterFlowTheme.of(context).info,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelLargeIsCustom,
-                                ),
-                          ),
-                        ),
-                      ),
+                    ),
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),

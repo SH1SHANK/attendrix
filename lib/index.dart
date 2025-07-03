@@ -35,10 +35,6 @@ export '/tasks/tasks_widget.dart' show TasksWidget;
 export '/settings/settings_widget.dart' show SettingsWidget;
 export '/study_materials/study_materials_widget.dart' show StudyMaterialsWidget;
 export '/file_manager/file_manager_widget.dart' show FileManagerWidget;
-export '/add_resourses_to_global_repository/add_resourses_to_global_repository_widget.dart'
-    show AddResoursesToGlobalRepositoryWidget;
-export '/file_manger_personalvault/file_manger_personalvault_widget.dart'
-    show FileMangerPersonalvaultWidget;
 export '/challenges/challenges_widget.dart' show ChallengesWidget;
 export '/analytics/analytics_widget.dart' show AnalyticsWidget;
 export '/custom_classes/custom_classes_widget.dart' show CustomClassesWidget;
@@ -49,5 +45,3 @@ export '/request_admin_access/request_admin_access_widget.dart'
 export '/request_access_follow_up/request_access_follow_up_widget.dart'
     show RequestAccessFollowUpWidget;
 export '/admin_page/admin_page_widget.dart' show AdminPageWidget;
-export '/customize_notifications/customize_notifications_widget.dart'
-    show CustomizeNotificationsWidget;

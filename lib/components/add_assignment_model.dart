@@ -20,9 +20,9 @@ class AddAssignmentModel extends FlutterFlowModel<AddAssignmentWidget> {
     return null;
   }
 
-  // State field(s) for DropDown widget.
-  String? dropDownValue;
-  FormFieldController<String>? dropDownValueController;
+  // State field(s) for courseName widget.
+  String? courseNameValue;
+  FormFieldController<String>? courseNameValueController;
   // State field(s) for description widget.
   FocusNode? descriptionFocusNode;
   TextEditingController? descriptionTextController;

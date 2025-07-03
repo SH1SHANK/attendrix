@@ -5,9 +5,11 @@ import '/components/custom_class_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'custom_classes_model.dart';
 export 'custom_classes_model.dart';
 
@@ -154,13 +156,71 @@ class _CustomClassesWidgetState extends State<CustomClassesWidget> {
                         ),
                       ],
                     ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FFButtonWidget(
+                          onPressed: () async {
+                            logFirebaseEvent(
+                                'CUSTOM_CLASSES_PAGE_REFRESH_BTN_ON_TAP');
+                            logFirebaseEvent('Button_update_page_state');
+                            _model.hasChanges = true;
+                            safeSetState(() {});
+                          },
+                          text: 'Refresh',
+                          icon: Icon(
+                            Icons.sync_rounded,
+                            size: 16.0,
+                          ),
+                          options: FFButtonOptions(
+                            width: 110.0,
+                            height: 25.0,
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                12.0, 0.0, 12.0, 0.0),
+                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 0.0, 0.0),
+                            iconColor:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                            color: FlutterFlowTheme.of(context).primaryText,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  font: GoogleFonts.outfit(
+                                    fontWeight: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .fontWeight,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .fontStyle,
+                                  ),
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .fontWeight,
+                                  fontStyle: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .fontStyle,
+                                ),
+                            elevation: 0.0,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ],
+                    ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(0.0, 4.0, 0.0, 0.0),
                       child: StreamBuilder<List<CustomClassesRecord>>(
-                        stream: queryCustomClassesRecord(
-                          parent: currentUserReference,
-                          limit: 12,
+                        stream: _model.customClasses(
+                          uniqueQueryKey: 'customClasses_${currentUserUid}',
+                          overrideCache: _model.hasChanges,
+                          requestFn: () => queryCustomClassesRecord(
+                            parent: currentUserReference,
+                            limit: 12,
+                          ),
                         ),
                         builder: (context, snapshot) {
                           // Customize what your widget looks like when it's loading.

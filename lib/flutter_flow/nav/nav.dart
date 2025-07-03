@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import '/backend/backend.dart';
 
@@ -256,24 +255,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               ),
             ),
             FFRoute(
-              name: AddResoursesToGlobalRepositoryWidget.routeName,
-              path: AddResoursesToGlobalRepositoryWidget.routePath,
-              requireAuth: true,
-              builder: (context, params) =>
-                  AddResoursesToGlobalRepositoryWidget(),
-            ),
-            FFRoute(
-              name: FileMangerPersonalvaultWidget.routeName,
-              path: FileMangerPersonalvaultWidget.routePath,
-              requireAuth: true,
-              builder: (context, params) => FileMangerPersonalvaultWidget(
-                parentPath: params.getParam(
-                  'parentPath',
-                  ParamType.String,
-                ),
-              ),
-            ),
-            FFRoute(
               name: ChallengesWidget.routeName,
               path: ChallengesWidget.routePath,
               requireAuth: true,
@@ -339,11 +320,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: AdminPageWidget.routePath,
               requireAuth: true,
               builder: (context, params) => AdminPageWidget(),
-            ),
-            FFRoute(
-              name: CustomizeNotificationsWidget.routeName,
-              path: CustomizeNotificationsWidget.routePath,
-              builder: (context, params) => CustomizeNotificationsWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),
@@ -532,14 +508,11 @@ class FFRoute {
                 )
               : builder(context, ffParams);
           final child = appStateNotifier.loading
-              ? Center(
-                  child: SizedBox(
-                    width: 25.0,
-                    height: 25.0,
-                    child: SpinKitFadingCube(
-                      color: FlutterFlowTheme.of(context).primary,
-                      size: 25.0,
-                    ),
+              ? Container(
+                  color: FlutterFlowTheme.of(context).info,
+                  child: Image.asset(
+                    'assets/images/Vitaly_Silkin_Loaders.gif',
+                    fit: BoxFit.contain,
                   ),
                 )
               : page;

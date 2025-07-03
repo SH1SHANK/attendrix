@@ -42,15 +42,13 @@ Future userDataAuthenticityCheck(BuildContext context) async {
   }
 }
 
-Future<bool> checkInAttendanceProtocal(
+Future<String?> checkInAttendanceProtocal(
   BuildContext context, {
   required String? classID,
   required String? courseID,
   required DateTime? classStartTime,
-  required bool? snackBarVisible,
 }) async {
   UserFeedbackStruct? userFeedbackForAttendance;
-  bool? isAttended;
   ChallengeFeedbackStruct? challengeFeedback;
 
   logFirebaseEvent('CheckInAttendanceProtocal_custom_action');
@@ -65,16 +63,6 @@ Future<bool> checkInAttendanceProtocal(
     courseID!,
   );
   logFirebaseEvent('CheckInAttendanceProtocal_custom_action');
-  isAttended = await actions.checkClassAttendance(
-    courseID,
-    classStartTime,
-    currentUserUid,
-    false,
-    currentUserReference!,
-    classID,
-    true,
-  );
-  logFirebaseEvent('CheckInAttendanceProtocal_custom_action');
   await actions.updateAttendanceForCourse(
     (currentUserDocument?.coursesEnrolled.toList() ?? [])
         .where((e) => e.courseID == courseID)
@@ -82,24 +70,6 @@ Future<bool> checkInAttendanceProtocal(
         .firstOrNull!,
     currentUserReference!,
   );
-  if (snackBarVisible!) {
-    logFirebaseEvent('CheckInAttendanceProtocal_show_snack_bar');
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          userFeedbackForAttendance.message,
-          style: GoogleFonts.outfit(
-            color: FlutterFlowTheme.of(context).info,
-            fontWeight: FontWeight.w600,
-            fontSize: 12.0,
-          ),
-        ),
-        duration: Duration(milliseconds: 4000),
-        backgroundColor: FlutterFlowTheme.of(context).primary,
-      ),
-    );
-  }
   logFirebaseEvent('CheckInAttendanceProtocal_custom_action');
   await actions.manageUserStreaks(
     currentUserUid,
@@ -119,7 +89,12 @@ Future<bool> checkInAttendanceProtocal(
         .toList()
         .toList(),
   );
-  return isAttended;
+  logFirebaseEvent('CheckInAttendanceProtocal_custom_action');
+  await actions.removeMissedClass(
+    currentUserUid,
+    classID,
+  );
+  return userFeedbackForAttendance.message;
 }
 
 Future checkOutAttendanceProtocol(
@@ -129,6 +104,8 @@ Future checkOutAttendanceProtocol(
   required String? classID,
   required String? courseID,
   required DateTime? classStartTime,
+  required DateTime? classEndTime,
+  required String? courseName,
 }) async {
   UserFeedbackStruct? checkOutUserFeedback;
 
@@ -144,12 +121,14 @@ Future checkOutAttendanceProtocol(
     classStartTime,
   );
   logFirebaseEvent('CheckOutAttendanceProtocol_custom_action');
-  await actions.markClassAbsence(
-    courseID!,
-    classStartTime!,
-    userID!,
-    false,
+  await actions.addMissedClass(
+    currentUserUid,
     classID,
+    courseID!,
+    courseName!,
+    classStartTime!.toString(),
+    classEndTime!.toString(),
+    false,
   );
   logFirebaseEvent('CheckOutAttendanceProtocol_show_snack_ba');
   ScaffoldMessenger.of(context).clearSnackBars();

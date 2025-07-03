@@ -938,50 +938,26 @@ String generateChallengeKey(bool isWeekly) {
 String? generateClassReminderText(
   bool isTitle,
   String className,
-  DateTime classTime,
   int minutesBefore,
   String userDisplayName,
-  int? currentStreak,
 ) {
   final titles = [
-    "🚨 Hey $userDisplayName! $className is Almost Here!",
-    "📢 Attention $userDisplayName! $className Incoming!",
-    "⏰ Time Check $userDisplayName: $className Starts Soon!",
-    "🎯 Focus Mode $userDisplayName: $className Approaching!",
-    "📚 Study Break Over $userDisplayName! $className Time!",
-    "🔔 Ding Ding $userDisplayName! $className Bell Ringing!",
-    "🚀 Launch Prep $userDisplayName: $className Mission Starts Soon!",
-    "⚡ Power Up $userDisplayName! $className Energy Needed!",
-    "🧠 Brain Activation $userDisplayName: $className Mode Engaged!",
-    "🎪 Show Time $userDisplayName! $className Performance Begins!",
-    "🏃‍♂️ Last Call $userDisplayName! $className Departure Gate!",
-    "🌟 Spotlight On $userDisplayName: $className Stage Awaits!",
-    "🎮 Game On $userDisplayName! $className Level Loading!",
-    "🔥 Heat Up $userDisplayName! $className Session Starting!",
-    "📖 Story Time $userDisplayName! $className Chapter Begins!",
+    "Hey $userDisplayName! 👋",
+    "$userDisplayName, Time's Up! ⏰",
+    "Psst $userDisplayName! 🔔",
+    "Yo $userDisplayName! 🚀",
+    "$userDisplayName, Let's Go! 💪",
   ];
 
   final descriptions = [
-    "Get ready to dive into $className at $classTime, $userDisplayName - only $minutesBefore minutes to go!",
-    "$className adventure begins at $classTime, $userDisplayName - T-minus $minutesBefore minutes and counting!",
-    "Your $className journey starts at $classTime, $userDisplayName - just $minutesBefore minutes to mentally prepare!",
-    "Time to channel your inner scholar, $userDisplayName! $className at $classTime - $minutesBefore minutes left to shine!",
-    "$className magic happens at $classTime, $userDisplayName - you've got $minutesBefore precious minutes to get ready!",
-    "Buckle up $userDisplayName! $className takes off at $classTime - $minutesBefore minutes until blast off!",
-    "Your brain's favorite workout, $className, starts at $classTime, $userDisplayName - warm up those neurons in $minutesBefore minutes!",
-    "Plot twist $userDisplayName: $className begins at $classTime - grab your thinking cap, $minutesBefore minutes to showtime!",
-    "Academic excellence awaits, $userDisplayName! $className at $classTime - $minutesBefore minutes until you become unstoppable!",
-    "Time to be legendary, $userDisplayName! $className starts at $classTime - channel your inner genius in $minutesBefore minutes!",
-    "Your future self will thank you, $userDisplayName! $className at $classTime - $minutesBefore minutes to make it happen!",
-    "Knowledge loading $userDisplayName... $className begins at $classTime - progress bar at $minutesBefore minutes remaining!",
-    "Ready, set, learn $userDisplayName! $className kicks off at $classTime - final countdown: $minutesBefore minutes!",
-    "Your intellectual adventure of $className starts at $classTime, $userDisplayName - $minutesBefore minutes to level up!",
-    "Time to make your mark, $userDisplayName! $className begins at $classTime - you're $minutesBefore minutes away from greatness!",
-    "Calling brilliant mind $userDisplayName! $className starts at $classTime - assemble in $minutesBefore minutes!",
-    "Your $className destiny awaits at $classTime, $userDisplayName - $minutesBefore minutes until you conquer the world!",
-    "Breaking news $userDisplayName: $className happens at $classTime - exclusive coverage begins in $minutesBefore minutes!",
-    "Mission briefing $userDisplayName: $className starts at $classTime - agents report for duty in $minutesBefore minutes!",
-    "Plot armor activated, $userDisplayName! $className begins at $classTime - main character energy in $minutesBefore minutes!",
+    "$className starts in $minutesBefore mins - you got this!",
+    "Time for $className, $userDisplayName! $minutesBefore mins left",
+    "$userDisplayName, $className in $minutesBefore minutes ⚡",
+    "Ready $userDisplayName? $className begins in $minutesBefore mins",
+    "$className time $userDisplayName! T-minus $minutesBefore minutes 🎯",
+    "Heads up $userDisplayName - $className in $minutesBefore mins",
+    "$userDisplayName, your $className starts in $minutesBefore minutes!",
+    "Game time $userDisplayName! $className in $minutesBefore mins 🔥",
   ];
 
   final random = math.Random();
@@ -989,153 +965,7 @@ String? generateClassReminderText(
   if (isTitle) {
     return titles[random.nextInt(titles.length)];
   } else {
-    String base = descriptions[random.nextInt(descriptions.length)];
-
-    // Add time-specific motivational suffix
-    String timeSuffix = _getTimeSuffix(minutesBefore);
-
-    // Add streak-based motivation
-    String streakMotivation =
-        _getStreakMotivation(currentStreak, userDisplayName);
-
-    return "$base $timeSuffix $streakMotivation";
-  }
-}
-
-String _getTimeSuffix(int minutesBefore) {
-  final suffixes = {
-    1: [
-      "Go time! 🏃‍♂️",
-      "Right now! ⚡",
-      "This is it! 🎯",
-      "Show time! 🌟",
-    ],
-    2: [
-      "Almost there! 🚀",
-      "Final stretch! 💪",
-      "Home stretch! 🏁",
-      "Nearly time! ⏰",
-    ],
-    5: [
-      "Perfect timing! ✨",
-      "Quick prep time! 📝",
-      "Get pumped! 🔥",
-      "Almost ready! 🎪",
-      "Gear up time! ⚙️",
-    ],
-    10: [
-      "Plenty of prep time! 📚",
-      "Get organized! 📋",
-      "Perfect window! 🪟",
-      "Prep mode activated! 🛠️",
-      "Strategic planning time! 🎯",
-    ],
-    15: [
-      "Great timing! 👌",
-      "Solid prep window! 🕐",
-      "Get ready mode! 📦",
-      "Preparation station! 🚉",
-      "Perfect setup time! 🎨",
-    ],
-    30: [
-      "Excellent heads up! 🎉",
-      "Plenty of runway! ✈️",
-      "Perfect notice! 📢",
-      "Great advance warning! ⚠️",
-      "Optimal preparation time! 🎯",
-    ],
-    60: [
-      "Ultimate prep time! 👑",
-      "Champion's notice! 🏆",
-      "VIP early warning! 💎",
-      "Premium preparation window! ⭐",
-      "Executive briefing time! 💼",
-    ],
-  };
-
-  final random = math.Random();
-
-  // Find the closest time bracket
-  final timeKeys = suffixes.keys.toList()..sort();
-  int closestTime = timeKeys.reduce(
-      (a, b) => (a - minutesBefore).abs() < (b - minutesBefore).abs() ? a : b);
-
-  final options = suffixes[closestTime] ?? suffixes[5]!;
-  return options[random.nextInt(options.length)];
-}
-
-String _getStreakMotivation(int? currentStreak, String userDisplayName) {
-  final random = math.Random();
-
-  // Handle null or zero streak - fresh start motivation
-  if (currentStreak == null || currentStreak == 0) {
-    final freshStartMessages = [
-      "Time to start your winning streak, $userDisplayName! 🌱",
-      "Every legend begins with day 1 - this is yours, $userDisplayName! ⭐",
-      "Ready to build something amazing, $userDisplayName? Let's go! 🚀",
-      "Your success story starts now, $userDisplayName! 📖",
-      "Time to plant the seeds of greatness, $userDisplayName! 🌟",
-      "New chapter, new victories await, $userDisplayName! 📚",
-      "Today's the day you become unstoppable, $userDisplayName! ⚡",
-      "Your journey to excellence begins right here, $userDisplayName! 🎯",
-    ];
-    return freshStartMessages[random.nextInt(freshStartMessages.length)];
-  }
-
-  // Streak-based messages with different tiers
-  if (currentStreak >= 1 && currentStreak <= 3) {
-    // Early streak (1-3 days)
-    final earlyStreakMessages = [
-      "Day $currentStreak strong, $userDisplayName! Keep the momentum rolling! 🔥",
-      "$currentStreak days in a row, $userDisplayName - you're building something special! 💪",
-      "Streak level: $currentStreak! You're on fire, $userDisplayName! 🌟",
-      "$currentStreak consecutive days, $userDisplayName - the habit is forming! 🎯",
-      "Day $currentStreak complete! You're crushing it, $userDisplayName! ⚡",
-    ];
-    return earlyStreakMessages[random.nextInt(earlyStreakMessages.length)];
-  } else if (currentStreak >= 4 && currentStreak <= 7) {
-    // Building streak (4-7 days)
-    final buildingStreakMessages = [
-      "$currentStreak days straight, $userDisplayName! You're officially on a roll! 🚀",
-      "Week warrior $userDisplayName! $currentStreak days of pure dedication! 👑",
-      "$currentStreak-day streak, $userDisplayName - consistency is your superpower! ⭐",
-      "Look at you go, $userDisplayName! $currentStreak days of excellence! 🏆",
-      "$currentStreak days strong, $userDisplayName - you're becoming unstoppable! 💎",
-    ];
-    return buildingStreakMessages[
-        random.nextInt(buildingStreakMessages.length)];
-  } else if (currentStreak >= 8 && currentStreak <= 14) {
-    // Strong streak (8-14 days)
-    final strongStreakMessages = [
-      "$currentStreak days of pure genius, $userDisplayName! You're a legend! 🌟",
-      "Double digits approaching, $userDisplayName! $currentStreak days of mastery! 👑",
-      "$currentStreak-day champion, $userDisplayName - you're rewriting the rules! 🏆",
-      "Streak master $userDisplayName! $currentStreak days of absolute domination! ⚡",
-      "$currentStreak days straight, $userDisplayName - you're officially legendary! 💎",
-    ];
-    return strongStreakMessages[random.nextInt(strongStreakMessages.length)];
-  } else if (currentStreak >= 15 && currentStreak <= 30) {
-    // Elite streak (15-30 days)
-    final eliteStreakMessages = [
-      "$currentStreak days of excellence, $userDisplayName! You're in the elite zone! 👑",
-      "Streak royalty $userDisplayName! $currentStreak days of absolute perfection! 💎",
-      "$currentStreak consecutive days, $userDisplayName - you're breaking records! 🏆",
-      "Elite level achieved, $userDisplayName! $currentStreak days of pure dedication! ⭐",
-      "$currentStreak days strong, $userDisplayName - you're inspirational! 🌟",
-    ];
-    return eliteStreakMessages[random.nextInt(eliteStreakMessages.length)];
-  } else {
-    // Legendary streak (31+ days)
-    final legendaryStreakMessages = [
-      "LEGENDARY STATUS: $currentStreak days, $userDisplayName! You're making history! 👑",
-      "$currentStreak days of pure greatness, $userDisplayName! You're untouchable! 💎",
-      "Streak god $userDisplayName! $currentStreak days of absolute mastery! ⚡",
-      "$currentStreak consecutive days, $userDisplayName - you're the definition of dedication! 🏆",
-      "Hall of Fame material, $userDisplayName! $currentStreak days of legendary performance! 🌟",
-      "$currentStreak days straight, $userDisplayName - you're creating your own legacy! ⭐",
-    ];
-    return legendaryStreakMessages[
-        random.nextInt(legendaryStreakMessages.length)];
+    return descriptions[random.nextInt(descriptions.length)];
   }
 }
 

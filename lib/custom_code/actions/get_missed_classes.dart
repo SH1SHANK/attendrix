@@ -12,373 +12,204 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/custom_code/actions/index.dart';
-import '/flutter_flow/custom_functions.dart';
-
 import '/custom_code/actions/initialize_hive_system.dart';
 import 'package:hive_ce/hive.dart';
 
 Future<List<ClassRowStruct>> getMissedClasses(
   String userID,
   List<String> enrolledCourseIDs,
-  bool forceRefresh, // New parameter to force refresh
+  bool forceRefresh,
 ) async {
   try {
+    // Initialize Hive
     final initialized = await initializeHiveSystem();
     if (!initialized) {
       debugPrint('FlutterFlow: Hive initialization failed');
       return [];
     }
 
-    final String cacheKey = "missed_classes_${userID}";
-    final String metaKey = "missed_classes_meta_${userID}";
+    // Open single cache box
+    final Box cacheBox = Hive.isBoxOpen('missed_classes')
+        ? Hive.box('missed_classes')
+        : await Hive.openBox('missed_classes');
 
-    // Open cache boxes directly using Hive
-    final Box missedClassesBox = Hive.isBoxOpen("missed_classes_cache")
-        ? Hive.box("missed_classes_cache")
-        : await Hive.openBox("missed_classes_cache");
+    final String cacheKey = userID;
+    final DateTime now = DateTime.now();
+    final String todayStr = now.toIso8601String().split('T')[0];
 
-    final Box metadataBox = Hive.isBoxOpen('cache_metadata')
-        ? Hive.box('cache_metadata')
-        : await Hive.openBox('cache_metadata');
+    // Get cached data
+    Map<String, dynamic>? cachedData = cacheBox.get(cacheKey);
 
-    final Box attendanceBox = Hive.isBoxOpen('attendance_cache')
-        ? Hive.box('attendance_cache')
-        : await Hive.openBox('attendance_cache');
+    // Check if we need to fetch data
+    bool shouldFetch = forceRefresh;
 
-    final DateTime today = DateTime.now();
-    final String todayStr = today.toIso8601String().split('T')[0];
-
-    // Initialize variables
-    String? lastFetchDate;
-    DateTime? enrollmentStartDate;
-    List<dynamic> cachedClasses = [];
-
-    if (forceRefresh) {
-      // Force refresh: Clear existing cache and fetch all data
-      debugPrint('FlutterFlow: Force refresh triggered - clearing cache');
-
-      // Clear existing cache
-      await missedClassesBox.delete(cacheKey);
-      await metadataBox.delete(metaKey);
-
-      // Set enrollment start date (fallback to 1 year ago if not found)
-      final cachedMeta = metadataBox.get(metaKey);
-      if (cachedMeta != null && cachedMeta is Map) {
-        final meta = Map<String, dynamic>.from(cachedMeta);
-        final enrollmentStart = meta['enrollment_start_date'] as String?;
-        if (enrollmentStart != null) {
-          enrollmentStartDate = DateTime.parse(enrollmentStart);
-        }
-      }
-      enrollmentStartDate ??= today.subtract(Duration(days: 365));
-
-      // Fetch all data from enrollment start
-      await _fetchMissedClassesForDateRange(
-          userID,
-          enrolledCourseIDs,
-          enrollmentStartDate,
-          today,
-          cachedClasses,
-          missedClassesBox,
-          cacheKey);
-
-      // Update metadata
-      await metadataBox.put(metaKey, {
-        'last_fetch_date': todayStr,
-        'enrollment_start_date':
-            enrollmentStartDate.toIso8601String().split('T')[0],
-        'last_update': DateTime.now().millisecondsSinceEpoch,
-        'total_count': cachedClasses.length,
-        'force_refresh_timestamp': DateTime.now().millisecondsSinceEpoch,
-      });
-
-      debugPrint(
-          'FlutterFlow: Force refresh completed - fetched ${cachedClasses.length} missed classes');
-    } else {
-      // Normal flow: Check cache metadata and perform incremental sync
-      final cachedMeta = metadataBox.get(metaKey);
-
-      if (cachedMeta != null && cachedMeta is Map) {
-        final meta = Map<String, dynamic>.from(cachedMeta);
-        lastFetchDate = meta['last_fetch_date'] as String?;
-        final enrollmentStart = meta['enrollment_start_date'] as String?;
-        if (enrollmentStart != null) {
-          enrollmentStartDate = DateTime.parse(enrollmentStart);
-        }
-      }
-
-      // Get cached missed classes
-      final cachedData = missedClassesBox.get(cacheKey);
-      if (cachedData != null && cachedData is List) {
-        cachedClasses = List<dynamic>.from(cachedData);
-      }
-
-      // Determine date range to check
-      bool needsFetch = false;
-      DateTime? fetchStartDate;
-      DateTime fetchEndDate = today;
-      List<String> daysToFetch = [];
-
-      if (lastFetchDate == null) {
-        // First run - fetch all from enrollment start
-        needsFetch = true;
-        enrollmentStartDate ??= today.subtract(Duration(days: 365));
-        fetchStartDate = enrollmentStartDate;
-        debugPrint('FlutterFlow: First run - fetching all missed classes');
-      } else if (lastFetchDate != todayStr) {
-        // Check which days need fetching based on attendance verification
-        fetchStartDate = DateTime.parse(lastFetchDate).add(Duration(days: 1));
-
-        // Get list of days between last fetch and today
-        DateTime currentDay = fetchStartDate!;
-        while (currentDay.isBefore(today) || currentDay.day == today.day) {
-          final dayStr = currentDay.toIso8601String().split('T')[0];
-
-          // Check if this day needs fetching by comparing attendance cache count
-          final needsDayFetch = await _verifyDayRequiresFetch(
-              userID, dayStr, enrolledCourseIDs, attendanceBox);
-
-          if (needsDayFetch) {
-            daysToFetch.add(dayStr);
-            needsFetch = true;
-          } else {
-            debugPrint(
-                'FlutterFlow: Skipping $dayStr - attendance records complete');
-          }
-
-          currentDay = currentDay.add(Duration(days: 1));
-        }
-      }
-
-      if (needsFetch && fetchStartDate != null) {
-        try {
-          if (daysToFetch.isEmpty) {
-            // First run or large range - fetch all
-            await _fetchMissedClassesForDateRange(
-                userID,
-                enrolledCourseIDs,
-                fetchStartDate,
-                fetchEndDate,
-                cachedClasses,
-                missedClassesBox,
-                cacheKey);
-          } else {
-            // Incremental fetch - only specific days
-            await _fetchMissedClassesForSpecificDays(userID, enrolledCourseIDs,
-                daysToFetch, cachedClasses, missedClassesBox, cacheKey);
-          }
-
-          // Update metadata
-          await metadataBox.put(metaKey, {
-            'last_fetch_date': todayStr,
-            'enrollment_start_date':
-                enrollmentStartDate?.toIso8601String().split('T')[0],
-            'last_update': DateTime.now().millisecondsSinceEpoch,
-            'total_count': cachedClasses.length,
-          });
-        } catch (e) {
-          debugPrint('FlutterFlow: Error fetching missed classes: $e');
-        }
-      }
+    if (!shouldFetch && cachedData != null) {
+      final String? lastFetchDate = cachedData['lastFetchDate'];
+      shouldFetch = lastFetchDate != todayStr;
     }
 
-    // Convert to ClassRowStruct list
-    return cachedClasses.map((classData) {
-      final data = Map<String, dynamic>.from(classData);
+    List<dynamic> missedClasses = [];
 
-      // Helper function to convert DateTime to UNIX timestamp string
-      String _dateTimeToUnixString(dynamic dateValue) {
-        if (dateValue == null) {
-          return DateTime.now().millisecondsSinceEpoch.toString();
-        }
+    if (shouldFetch) {
+      debugPrint(
+          'FlutterFlow: ${forceRefresh ? "Force refresh" : "Fetching new data"} for $todayStr');
 
-        if (dateValue is String) {
-          try {
-            // If it's already a UNIX timestamp string, return as is
-            if (RegExp(r'^\d+$').hasMatch(dateValue)) {
-              return dateValue;
-            }
-            // If it's an ISO date string, parse and convert to UNIX timestamp
-            final dateTime = DateTime.parse(dateValue);
-            return dateTime.millisecondsSinceEpoch.toString();
-          } catch (e) {
-            debugPrint('FlutterFlow: Error parsing date string: $dateValue');
-            return DateTime.now().millisecondsSinceEpoch.toString();
-          }
-        }
-
-        if (dateValue is DateTime) {
-          return dateValue.millisecondsSinceEpoch.toString();
-        }
-
-        if (dateValue is int) {
-          return dateValue.toString();
-        }
-
-        return DateTime.now().millisecondsSinceEpoch.toString();
+      // Determine date range
+      DateTime startDate;
+      if (forceRefresh || cachedData == null) {
+        // Fetch from 1 year ago or enrollment start
+        startDate = now.subtract(Duration(days: 365));
+      } else {
+        // Incremental fetch from last fetch date
+        final lastFetchDate = cachedData['lastFetchDate'] as String?;
+        startDate = lastFetchDate != null
+            ? DateTime.parse(lastFetchDate).add(Duration(days: 1))
+            : now.subtract(Duration(days: 365));
       }
 
-      return ClassRowStruct(
-        classID: data['classID'] as String? ?? '',
-        courseID: data['courseID'] as String? ?? '',
-        courseName: data['courseName'] as String? ?? '',
-        classStartTime: _dateTimeToUnixString(data['classStartTime']),
-        classEndTime: _dateTimeToUnixString(data['classEndTime']),
-        isCustomClass: data['isCustomClass'] as bool? ?? false,
-      );
-    }).toList();
+      // Fetch missed classes
+      final fetchedClasses = await _fetchMissedClassesFromDB(
+          userID, enrolledCourseIDs, startDate, now);
+
+      if (forceRefresh || cachedData == null) {
+        // Replace all data
+        missedClasses = fetchedClasses;
+      } else {
+        // Merge with existing data
+        final existingClasses = List<dynamic>.from(cachedData['classes'] ?? []);
+        missedClasses = _mergeClasses(existingClasses, fetchedClasses);
+      }
+
+      // Update cache
+      await cacheBox.put(cacheKey, {
+        'classes': missedClasses,
+        'lastFetchDate': todayStr,
+        'lastUpdate': now.millisecondsSinceEpoch,
+      });
+
+      debugPrint('FlutterFlow: Cached ${missedClasses.length} missed classes');
+    } else {
+      // Use cached data
+      missedClasses = List<dynamic>.from(cachedData!['classes'] ?? []);
+      debugPrint(
+          'FlutterFlow: Using cached data with ${missedClasses.length} classes');
+    }
+
+    // Convert to ClassRowStruct
+    return missedClasses
+        .map((classData) => _convertToClassRowStruct(classData))
+        .toList();
   } catch (e) {
-    debugPrint('FlutterFlow: Error in getMissedClassesWithIncrementalSync: $e');
+    debugPrint('FlutterFlow: Error in getMissedClasses: $e');
     return [];
   }
 }
 
-// Helper function to verify if a day requires data fetching
-Future<bool> _verifyDayRequiresFetch(
-  String userID,
-  String dateStr,
-  List<String> enrolledCourseIDs,
-  Box attendanceBox,
-) async {
-  try {
-    // Get the total count of classes for this day
-    final countResponse = await SupaFlow.client.rpc(
-      'get_timetable_count_by_date_range',
-      params: {
-        'p_enrolled_courses': enrolledCourseIDs,
-        'p_start_date': dateStr,
-        'p_end_date': dateStr,
-      },
-    );
-
-    if (countResponse == null) return true; // Fetch if we can't get count
-
-    final countData = Map<String, dynamic>.from(countResponse);
-    final dailyCounts = countData['daily_counts'] as Map<String, dynamic>?;
-    final totalClassesForDay = dailyCounts?[dateStr] as int? ?? 0;
-
-    if (totalClassesForDay == 0) return false; // No classes that day
-
-    // Count attendance records in cache for this day
-    int attendedClassesCount = 0;
-    final attendanceKeys = attendanceBox.keys.where((key) =>
-        key.toString().startsWith('regular_${userID}_') ||
-        key.toString().startsWith('custom_'));
-
-    for (final key in attendanceKeys) {
-      final attendanceData = attendanceBox.get(key);
-      if (attendanceData != null && attendanceData is Map) {
-        final data = Map<String, dynamic>.from(attendanceData);
-        final attended = data['attended'] as bool? ?? false;
-        final timestamp = data['timestamp'] as int?;
-
-        if (attended && timestamp != null) {
-          final attendanceDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
-          final attendanceDateStr =
-              attendanceDate.toIso8601String().split('T')[0];
-
-          if (attendanceDateStr == dateStr) {
-            attendedClassesCount++;
-          }
-        }
-      }
-    }
-
-    // If attended classes count matches total classes, no need to fetch
-    final shouldFetch = attendedClassesCount < totalClassesForDay;
-
-    debugPrint(
-        'FlutterFlow: Day $dateStr - Attended: $attendedClassesCount, Total: $totalClassesForDay, Fetch: $shouldFetch');
-
-    return shouldFetch;
-  } catch (e) {
-    debugPrint('FlutterFlow: Error verifying day $dateStr: $e');
-    return true; // Fetch if error occurs
-  }
-}
-
-// Helper function for date range fetching
-Future<void> _fetchMissedClassesForDateRange(
+// Fetch missed classes from database
+Future<List<dynamic>> _fetchMissedClassesFromDB(
   String userID,
   List<String> enrolledCourseIDs,
   DateTime startDate,
   DateTime endDate,
-  List<dynamic> cachedClasses,
-  Box missedClassesBox,
-  String cacheKey,
 ) async {
-  final response = await SupaFlow.client.rpc(
-    'get_missed_classes_by_date_range',
-    params: {
-      'p_user_id': userID,
-      'p_enrolled_courses': enrolledCourseIDs,
-      'p_start_date': startDate.toIso8601String().split('T')[0],
-      'p_end_date': endDate.toIso8601String().split('T')[0],
-    },
-  );
-
-  if (response != null) {
-    final responseData = Map<String, dynamic>.from(response);
-    final List<dynamic> newMissedClasses =
-        responseData['missed_classes'] as List<dynamic>? ?? [];
-
-    await _mergeCachedClasses(
-        cachedClasses, newMissedClasses, missedClassesBox, cacheKey);
-  }
-}
-
-// Helper function for specific days fetching
-Future<void> _fetchMissedClassesForSpecificDays(
-  String userID,
-  List<String> enrolledCourseIDs,
-  List<String> daysToFetch,
-  List<dynamic> cachedClasses,
-  Box missedClassesBox,
-  String cacheKey,
-) async {
-  for (final day in daysToFetch) {
+  try {
     final response = await SupaFlow.client.rpc(
       'get_missed_classes_by_date_range',
       params: {
         'p_user_id': userID,
         'p_enrolled_courses': enrolledCourseIDs,
-        'p_start_date': day,
-        'p_end_date': day,
+        'p_start_date': startDate.toIso8601String().split('T')[0],
+        'p_end_date': endDate.toIso8601String().split('T')[0],
       },
     );
 
     if (response != null) {
       final responseData = Map<String, dynamic>.from(response);
-      final List<dynamic> dayMissedClasses =
-          responseData['missed_classes'] as List<dynamic>? ?? [];
-
-      await _mergeCachedClasses(
-          cachedClasses, dayMissedClasses, missedClassesBox, cacheKey);
+      return responseData['missed_classes'] as List<dynamic>? ?? [];
     }
+    return [];
+  } catch (e) {
+    debugPrint('FlutterFlow: Error fetching from DB: $e');
+    return [];
   }
 }
 
-// Helper function to merge cached classes
-Future<void> _mergeCachedClasses(
-  List<dynamic> cachedClasses,
-  List<dynamic> newMissedClasses,
-  Box missedClassesBox,
-  String cacheKey,
-) async {
-  final Set<String> existingClassIds =
-      cachedClasses.map((c) => c['classID'] as String).toSet();
+// Merge existing and new classes, removing duplicates
+List<dynamic> _mergeClasses(List<dynamic> existing, List<dynamic> newClasses) {
+  final Map<String, dynamic> classMap = {};
 
-  final List<dynamic> uniqueNewClasses = newMissedClasses
-      .where((c) => !existingClassIds.contains(c['classID']))
-      .toList();
+  // Add existing classes
+  for (final classData in existing) {
+    final classID = classData['classID'];
+    if (classID != null) {
+      classMap[classID] = classData;
+    }
+  }
 
-  cachedClasses.addAll(uniqueNewClasses);
-  cachedClasses.sort((a, b) => DateTime.parse(b['classStartTime'])
-      .compareTo(DateTime.parse(a['classStartTime'])));
+  // Add/update with new classes
+  for (final classData in newClasses) {
+    final classID = classData['classID'];
+    if (classID != null) {
+      classMap[classID] = classData;
+    }
+  }
 
-  await missedClassesBox.put(cacheKey, cachedClasses);
+  // Convert back to list and sort by start time (newest first)
+  final result = classMap.values.toList();
+  result.sort((a, b) {
+    try {
+      final timeA = DateTime.parse(a['classStartTime']);
+      final timeB = DateTime.parse(b['classStartTime']);
+      return timeB.compareTo(timeA);
+    } catch (e) {
+      return 0;
+    }
+  });
 
-  debugPrint(
-      'FlutterFlow: Added ${uniqueNewClasses.length} new missed classes');
+  return result;
+}
+
+// Convert database row to ClassRowStruct
+ClassRowStruct _convertToClassRowStruct(dynamic classData) {
+  final data = Map<String, dynamic>.from(classData);
+
+  String _dateTimeToUnixString(dynamic dateValue) {
+    if (dateValue == null) {
+      return DateTime.now().millisecondsSinceEpoch.toString();
+    }
+
+    if (dateValue is String) {
+      try {
+        // If already a UNIX timestamp
+        if (RegExp(r'^\d+$').hasMatch(dateValue)) {
+          return dateValue;
+        }
+        // Parse ISO date and convert to UNIX timestamp
+        final dateTime = DateTime.parse(dateValue);
+        return dateTime.millisecondsSinceEpoch.toString();
+      } catch (e) {
+        debugPrint('FlutterFlow: Error parsing date: $dateValue');
+        return DateTime.now().millisecondsSinceEpoch.toString();
+      }
+    }
+
+    if (dateValue is DateTime) {
+      return dateValue.millisecondsSinceEpoch.toString();
+    }
+
+    if (dateValue is int) {
+      return dateValue.toString();
+    }
+
+    return DateTime.now().millisecondsSinceEpoch.toString();
+  }
+
+  return ClassRowStruct(
+    classID: data['classID'] as String? ?? '',
+    courseID: data['courseID'] as String? ?? '',
+    courseName: data['courseName'] as String? ?? '',
+    classStartTime: _dateTimeToUnixString(data['classStartTime']),
+    classEndTime: _dateTimeToUnixString(data['classEndTime']),
+    isCustomClass: data['isCustomClass'] as bool? ?? false,
+  );
 }

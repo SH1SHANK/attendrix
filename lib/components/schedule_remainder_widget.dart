@@ -241,19 +241,13 @@ class _ScheduleRemainderWidgetState extends State<ScheduleRemainderWidget> {
                       'title': functions.generateClassReminderText(
                           true,
                           widget.className!,
-                          widget.classStartTime!,
                           _model.minutes,
-                          currentUserDisplayName,
-                          valueOrDefault(
-                              currentUserDocument?.currentStreak, 0)),
+                          currentUserDisplayName),
                       'body': functions.generateClassReminderText(
                           false,
                           widget.className!,
-                          widget.classStartTime!,
                           _model.minutes,
-                          currentUserDisplayName,
-                          valueOrDefault(
-                              currentUserDocument?.currentStreak, 0)),
+                          currentUserDisplayName),
                       'scheduled_at': supaSerialize<DateTime>(
                           functions.subtractTime(
                               widget.classStartTime!, _model.minutes, 'MM')),

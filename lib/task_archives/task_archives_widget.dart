@@ -1,5 +1,4 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/schema/enums/enums.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/task_archive_block_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
@@ -104,7 +103,7 @@ class _TaskArchivesWidgetState extends State<TaskArchivesWidget> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                    padding: EdgeInsetsDirectional.fromSTEB(8.0, 8.0, 8.0, 0.0),
                     child: AuthUserStreamWidget(
                       builder: (context) => StreamBuilder<List<TaskRecordsRow>>(
                         stream: FFAppState().tasksQuery(
@@ -164,27 +163,19 @@ class _TaskArchivesWidgetState extends State<TaskArchivesWidget> {
                             itemBuilder: (context, listViewIndex) {
                               final listViewTaskRecordsRow =
                                   listViewTaskRecordsRowList[listViewIndex];
-                              return Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    8.0, 0.0, 8.0, 0.0),
-                                child: wrapWithModel(
-                                  model: _model.taskArchiveBlockModels.getModel(
-                                    listViewTaskRecordsRow.id,
-                                    listViewIndex,
+                              return wrapWithModel(
+                                model: _model.taskArchiveBlockModels.getModel(
+                                  listViewTaskRecordsRow.id,
+                                  listViewIndex,
+                                ),
+                                updateCallback: () => safeSetState(() {}),
+                                updateOnChange: true,
+                                child: TaskArchiveBlockWidget(
+                                  key: Key(
+                                    'Keyagf_${listViewTaskRecordsRow.id}',
                                   ),
-                                  updateCallback: () => safeSetState(() {}),
-                                  updateOnChange: true,
-                                  child: TaskArchiveBlockWidget(
-                                    key: Key(
-                                      'Keysmb_${listViewTaskRecordsRow.id}',
-                                    ),
-                                    taskID: listViewTaskRecordsRow.id,
-                                    taskType: listViewTaskRecordsRow.taskType ==
-                                            'exam'
-                                        ? RecordType.exam
-                                        : RecordType.assignment,
-                                    taskRecord: listViewTaskRecordsRow,
-                                  ),
+                                  indexInList: listViewIndex,
+                                  taskRecord: listViewTaskRecordsRow,
                                 ),
                               );
                             },

@@ -13,10 +13,6 @@ import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import '/custom_code/widgets/index.dart';
-import '/custom_code/actions/index.dart';
-import '/flutter_flow/custom_functions.dart';
-
 import 'dart:math';
 import 'package:animated_flip_counter/animated_flip_counter.dart';
 
@@ -90,22 +86,19 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
 
   void _initializeControllers() {
     _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
-
     _particleController = AnimationController(
-      duration: const Duration(milliseconds: 1800),
-      vsync: this,
-    );
-
-    _differenceController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-
+    _differenceController = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    );
     _glowController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
   }
@@ -116,7 +109,7 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
       end: 1.08,
     ).animate(CurvedAnimation(
       parent: _pulseController,
-      curve: Curves.elasticOut,
+      curve: Curves.easeInOut,
     ));
 
     _particleAnimation = Tween<double>(
@@ -124,7 +117,7 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _particleController,
-      curve: Curves.easeOutQuart,
+      curve: Curves.easeOutCubic,
     ));
 
     _differenceOpacity = Tween<double>(
@@ -137,7 +130,7 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
 
     _differenceOffset = Tween<double>(
       begin: 0.0,
-      end: -40.0,
+      end: -32.0,
     ).animate(CurvedAnimation(
       parent: _differenceController,
       curve: Curves.easeOutCubic,
@@ -153,7 +146,7 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
 
     _glowRadius = Tween<double>(
       begin: 0.0,
-      end: 20.0,
+      end: 28.0,
     ).animate(CurvedAnimation(
       parent: _glowController,
       curve: Curves.easeOutCubic,
@@ -183,7 +176,7 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
   }
 
   void _resetState() {
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
         setState(() {
           _showEffects = false;
@@ -248,8 +241,8 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
   Widget _buildParticleEffect() {
     if (!_showEffects) return const SizedBox.shrink();
 
-    final particleCount = _isLevelUp ? 16 : 8;
-    final maxRadius = _isLevelUp ? 80.0 : 50.0;
+    final particleCount = _isLevelUp ? 14 : 7;
+    final maxRadius = _isLevelUp ? 62.0 : 38.0;
 
     return AnimatedBuilder(
       animation: _particleAnimation,
@@ -260,13 +253,13 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
             final angle = (index * (360 / particleCount)) * (pi / 180);
             final progress = _particleAnimation.value;
             final distance = maxRadius * progress;
-            final opacity = (1.0 - progress) * 0.9;
-            final size = _isLevelUp ? 6.0 : 4.0;
+            final baseOpacity = (1.0 - progress) * 0.8;
+            final size = _isLevelUp ? 7.0 : 4.0;
 
             // Staggered animation for more dynamic effect
             final staggeredProgress =
-                ((progress - (index * 0.02)).clamp(0.0, 1.0));
-            final finalOpacity = opacity * staggeredProgress;
+                ((progress - (index * 0.025)).clamp(0.0, 1.0));
+            final finalOpacity = baseOpacity * staggeredProgress;
 
             return Transform.translate(
               offset: Offset(
@@ -282,17 +275,12 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        _changeColor,
-                        _changeColor.withOpacity(0.3),
+                        _changeColor
+                            .withAlpha((255 * 0.8 * staggeredProgress).round()),
+                        _changeColor.withAlpha(0),
                       ],
+                      stops: const [0.0, 1.0],
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _changeColor.withOpacity(0.6),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      ),
-                    ],
                   ),
                 ),
               ),
@@ -316,12 +304,19 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
           child: Opacity(
             opacity: _differenceOpacity.value,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: _changeColor.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  colors: [
+                    _changeColor.withAlpha((255 * 0.18).round()),
+                    _changeColor.withAlpha((255 * 0.10).round()),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: _changeColor.withOpacity(0.4),
+                  color: _changeColor.withAlpha((255 * 0.32).round()),
                   width: 1,
                 ),
               ),
@@ -329,10 +324,10 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
                 '${_scoreDifference > 0 ? '+' : ''}$_scoreDifference',
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: widget.fontSize * 0.4,
+                  fontSize: widget.fontSize * 0.44,
                   fontWeight: FontWeight.w600,
                   color: _changeColor,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.4,
                 ),
               ),
             ),
@@ -361,64 +356,67 @@ class _AmplixChangeWidgetState extends State<AmplixChangeWidget>
       builder: (context, constraints) {
         return Container(
           width: widget.width ?? constraints.maxWidth,
-          height: widget.height ?? responsiveFontSize * 1.8,
+          height: widget.height ?? responsiveFontSize * 1.7,
           alignment: Alignment.centerRight,
           child: Stack(
             alignment: Alignment.centerRight,
             clipBehavior: Clip.none,
             children: [
-              // Subtle glow effect
+              // Subtle gradient glow effect (no shadows)
               if (_showEffects)
                 AnimatedBuilder(
                   animation: _glowController,
                   builder: (context, child) {
                     return Container(
-                      width: responsiveFontSize * 3,
-                      height: responsiveFontSize * 1.2,
+                      width: responsiveFontSize * 2.4,
+                      height: responsiveFontSize * 1.0,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _changeColor
-                                .withOpacity(0.3 * _glowIntensity.value),
-                            blurRadius: _glowRadius.value,
-                            spreadRadius: _glowRadius.value * 0.3,
-                          ),
-                        ],
+                        gradient: RadialGradient(
+                          colors: [
+                            _changeColor.withAlpha(
+                                (255 * 0.25 * _glowIntensity.value).round()),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 1.0],
+                        ),
                       ),
                     );
                   },
                 ),
 
-              // Particle effects
+              // Particle effects (minimal, gradient, no shadow)
               _buildParticleEffect(),
 
-              // Main counter
+              // Main counter with right padding and smooth animation
               AnimatedBuilder(
                 animation: _pulseAnimation,
                 builder: (context, child) {
-                  return Transform.scale(
-                    scale: _pulseAnimation.value,
-                    alignment: Alignment.centerRight,
-                    child: AnimatedFlipCounter(
-                      value: widget.amplix,
-                      duration:
-                          Duration(milliseconds: widget.animationDuration),
-                      curve: Curves.fastOutSlowIn,
-                      textStyle: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: responsiveFontSize,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                        height: 1.0,
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: Transform.scale(
+                      scale: _pulseAnimation.value,
+                      alignment: Alignment.centerRight,
+                      child: AnimatedFlipCounter(
+                        value: widget.amplix,
+                        duration:
+                            Duration(milliseconds: widget.animationDuration),
+                        curve: Curves.easeInOut,
+                        textStyle: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: responsiveFontSize,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                          height: 1.0,
+                        ),
                       ),
                     ),
                   );
                 },
               ),
 
-              // Difference indicator
+              // Difference indicator (minimal, gradient, no shadow)
               Positioned(
                 top: -8,
                 right: 0,

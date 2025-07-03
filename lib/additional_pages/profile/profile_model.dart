@@ -3,8 +3,6 @@ import '/backend/supabase/supabase.dart';
 import '/components/leaderboard_widget.dart';
 import '/components/toast_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/request_manager.dart';
-
 import 'profile_widget.dart' show ProfileWidget;
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -27,25 +25,9 @@ class ProfileModel extends FlutterFlowModel<ProfileWidget> {
 
   // Models for leaderboard dynamic component.
   late FlutterFlowDynamicModels<LeaderboardModel> leaderboardModels;
+  Stream<List<AmplixLogsRow>>? listViewSupabaseStream;
   // Models for Toast dynamic component.
   late FlutterFlowDynamicModels<ToastModel> toastModels;
-
-  /// Query cache managers for this widget.
-
-  final _amplixLogsManager = FutureRequestManager<List<AmplixLogsRow>>();
-  Future<List<AmplixLogsRow>> amplixLogs({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Future<List<AmplixLogsRow>> Function() requestFn,
-  }) =>
-      _amplixLogsManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearAmplixLogsCache() => _amplixLogsManager.clear();
-  void clearAmplixLogsCacheKey(String? uniqueKey) =>
-      _amplixLogsManager.clearRequest(uniqueKey);
 
   @override
   void initState(BuildContext context) {
@@ -61,10 +43,6 @@ class ProfileModel extends FlutterFlowModel<ProfileWidget> {
 
     leaderboardModels.dispose();
     toastModels.dispose();
-
-    /// Dispose query cache managers for this widget.
-
-    clearAmplixLogsCache();
   }
 
   /// Additional helper methods.

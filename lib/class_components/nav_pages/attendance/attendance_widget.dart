@@ -1,5 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/class_components/course_attendance/course_attendance_widget.dart';
+import '/components/c_g_p_a_calculator_widget.dart';
 import '/custom_dialogs/attendance_calculator/attendance_calculator_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -224,72 +225,74 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           Expanded(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 5.0, 0.0, 0.0),
-                              child: FFButtonWidget(
-                                onPressed: () async {
-                                  logFirebaseEvent(
-                                      'ATTENDANCE_C_G_P_A_CALCULATOR_BTN_ON_TAP');
-                                  logFirebaseEvent('Button_show_snack_bar');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Feature currently unavailable!',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .override(
-                                              fontFamily:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyLargeFamily,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .info,
-                                              fontSize: 14.0,
-                                              letterSpacing: 0.0,
-                                              useGoogleFonts:
-                                                  !FlutterFlowTheme.of(context)
-                                                      .bodyLargeIsCustom,
-                                            ),
-                                      ),
-                                      duration: Duration(milliseconds: 4000),
-                                      backgroundColor:
-                                          FlutterFlowTheme.of(context).error,
-                                    ),
-                                  );
-                                },
-                                text: 'CGPA Calculator',
-                                icon: Icon(
-                                  FFIcons.kcalculatorComputeMathAlt,
-                                  size: 22.0,
-                                ),
-                                options: FFButtonOptions(
-                                  height: 35.0,
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 0.0, 16.0, 0.0),
-                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 0.0),
-                                  iconColor: FlutterFlowTheme.of(context).info,
-                                  color: Color(0xBD37D437),
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .override(
-                                        font: GoogleFonts.outfit(
+                            child: Builder(
+                              builder: (context) => Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 5.0, 0.0, 0.0),
+                                child: FFButtonWidget(
+                                  onPressed: () async {
+                                    logFirebaseEvent(
+                                        'ATTENDANCE_C_G_P_A_CALCULATOR_BTN_ON_TAP');
+                                    logFirebaseEvent('Button_alert_dialog');
+                                    await showDialog(
+                                      context: context,
+                                      builder: (dialogContext) {
+                                        return Dialog(
+                                          elevation: 0,
+                                          insetPadding: EdgeInsets.zero,
+                                          backgroundColor: Colors.transparent,
+                                          alignment: AlignmentDirectional(
+                                                  0.0, 0.0)
+                                              .resolve(
+                                                  Directionality.of(context)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              FocusScope.of(dialogContext)
+                                                  .unfocus();
+                                              FocusManager.instance.primaryFocus
+                                                  ?.unfocus();
+                                            },
+                                            child: CGPACalculatorWidget(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  text: 'CGPA Calculator',
+                                  icon: Icon(
+                                    FFIcons.kcalculatorComputeMathAlt,
+                                    size: 22.0,
+                                  ),
+                                  options: FFButtonOptions(
+                                    height: 35.0,
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        16.0, 0.0, 16.0, 0.0),
+                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 0.0, 0.0),
+                                    iconColor:
+                                        FlutterFlowTheme.of(context).info,
+                                    color: Color(0xBD37D437),
+                                    textStyle: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .override(
+                                          font: GoogleFonts.outfit(
+                                            fontWeight: FontWeight.w600,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .fontStyle,
+                                          ),
+                                          color: Colors.white,
+                                          letterSpacing: 0.0,
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
                                                   .titleSmall
                                                   .fontStyle,
                                         ),
-                                        color: Colors.white,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                  elevation: 2.0,
-                                  borderRadius: BorderRadius.circular(24.0),
+                                    elevation: 2.0,
+                                    borderRadius: BorderRadius.circular(24.0),
+                                  ),
                                 ),
                               ),
                             ),

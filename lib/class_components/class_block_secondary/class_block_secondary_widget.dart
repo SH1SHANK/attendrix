@@ -60,13 +60,17 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<CustomClassesRecord>>(
-      stream: queryCustomClassesRecord(
-        parent: currentUserReference,
-        queryBuilder: (customClassesRecord) => customClassesRecord.where(
-          'courseID',
-          isEqualTo: widget.courseID,
+      stream: FFAppState().individualCustomClassViaCourseID(
+        uniqueQueryKey: '${widget.courseID}_${currentUserUid}',
+        overrideCache: _model.attendanceMarked,
+        requestFn: () => queryCustomClassesRecord(
+          parent: currentUserReference,
+          queryBuilder: (customClassesRecord) => customClassesRecord.where(
+            'courseID',
+            isEqualTo: widget.courseID,
+          ),
+          singleRecord: true,
         ),
-        singleRecord: true,
       ),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
@@ -307,15 +311,9 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
                                             widget.classStartTime!),
                                       );
                                       logFirebaseEvent(
-                                          'Checkbox_custom_action');
-                                      await actions.markClassAttendance(
-                                        widget.courseID!,
-                                        functions.convertToDateTime(
-                                            widget.classStartTime!),
-                                        currentUserUid,
-                                        true,
-                                        widget.classID!,
-                                      );
+                                          'Checkbox_update_component_state');
+                                      _model.attendanceMarked = true;
+                                      safeSetState(() {});
                                       logFirebaseEvent(
                                           'Checkbox_show_snack_bar');
                                       ScaffoldMessenger.of(context)
@@ -344,6 +342,10 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
                                       logFirebaseEvent(
                                           'CLASS_BLOCK_SECONDARY_Checkbox_htwgpqv1_');
                                       logFirebaseEvent(
+                                          'Checkbox_update_component_state');
+                                      _model.attendanceMarked = false;
+                                      safeSetState(() {});
+                                      logFirebaseEvent(
                                           'Checkbox_custom_action');
                                       _model.removeAttendanceFeedback =
                                           await actions
@@ -354,15 +356,9 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
                                             widget.classStartTime!),
                                       );
                                       logFirebaseEvent(
-                                          'Checkbox_custom_action');
-                                      await actions.markClassAbsence(
-                                        widget.courseID!,
-                                        functions.convertToDateTime(
-                                            widget.classStartTime!),
-                                        currentUserUid,
-                                        true,
-                                        widget.classID!,
-                                      );
+                                          'Checkbox_update_component_state');
+                                      _model.attendanceMarked = true;
+                                      safeSetState(() {});
                                       logFirebaseEvent(
                                           'Checkbox_show_snack_bar');
                                       ScaffoldMessenger.of(context)

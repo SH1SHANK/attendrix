@@ -1,9 +1,6 @@
-import '/auth/firebase_auth/auth_util.dart';
-import '/backend/schema/structs/index.dart';
 import '/components/class_check_in_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/custom_code/actions/index.dart' as actions;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'class_block_missed_model.dart';
@@ -21,7 +18,6 @@ class ClassBlockMissedWidget extends StatefulWidget {
     bool? multiSelectMode,
     this.msCallbackAddToList,
     this.msCallbackRemoveFromList,
-    required this.refreshMissedClasses,
   })  : this.isCustomClass = isCustomClass ?? false,
         this.multiSelectMode = multiSelectMode ?? false;
 
@@ -35,8 +31,6 @@ class ClassBlockMissedWidget extends StatefulWidget {
   final Future Function(String classID, String courseID)? msCallbackAddToList;
   final Future Function(String classID, String courseID)?
       msCallbackRemoveFromList;
-  final Future Function(List<ClassRowStruct> missedClasses)?
-      refreshMissedClasses;
 
   @override
   State<ClassBlockMissedWidget> createState() => _ClassBlockMissedWidgetState();
@@ -71,7 +65,10 @@ class _ClassBlockMissedWidgetState extends State<ClassBlockMissedWidget> {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        if (widget.multiSelectMode)
+        if (valueOrDefault<bool>(
+          widget.multiSelectMode,
+          false,
+        ))
           Padding(
             padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 2.0, 0.0),
             child: Theme(
@@ -147,21 +144,6 @@ class _ClassBlockMissedWidgetState extends State<ClassBlockMissedWidget> {
                     );
                   },
                 );
-
-                logFirebaseEvent('Container_custom_action');
-                _model.latestMissedClasses = await actions.getMissedClasses(
-                  currentUserUid,
-                  (currentUserDocument?.coursesEnrolled.toList() ?? [])
-                      .map((e) => e.courseID)
-                      .toList(),
-                  true,
-                );
-                logFirebaseEvent('Container_execute_callback');
-                await widget.refreshMissedClasses?.call(
-                  _model.latestMissedClasses!,
-                );
-
-                safeSetState(() {});
               },
               child: AnimatedContainer(
                 duration: Duration(milliseconds: 400),

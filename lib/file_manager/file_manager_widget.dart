@@ -1,11 +1,10 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/schema/enums/enums.dart';
 import '/components/add_study_materials_widget.dart';
 import '/components/task_manager_block_widget.dart';
-import '/flutter_flow/flutter_flow_choice_chips.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/form_field_controller.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
@@ -76,37 +75,44 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
           child: Scaffold(
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                logFirebaseEvent('FILE_MANAGER_FloatingActionButton_1r5akr');
-                logFirebaseEvent('FloatingActionButton_bottom_sheet');
-                await showModalBottomSheet(
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  enableDrag: false,
-                  context: context,
-                  builder: (context) {
-                    return GestureDetector(
-                      onTap: () {
-                        FocusScope.of(context).unfocus();
-                        FocusManager.instance.primaryFocus?.unfocus();
+            floatingActionButton: Visibility(
+              visible:
+                  valueOrDefault(currentUserDocument?.userRole, '') == 'admin',
+              child: AuthUserStreamWidget(
+                builder: (context) => FloatingActionButton(
+                  onPressed: () async {
+                    logFirebaseEvent(
+                        'FILE_MANAGER_FloatingActionButton_1r5akr');
+                    logFirebaseEvent('FloatingActionButton_bottom_sheet');
+                    await showModalBottomSheet(
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      enableDrag: false,
+                      context: context,
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          },
+                          child: Padding(
+                            padding: MediaQuery.viewInsetsOf(context),
+                            child: AddStudyMaterialsWidget(
+                              parentPath: _model.parentPath!,
+                            ),
+                          ),
+                        );
                       },
-                      child: Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: AddStudyMaterialsWidget(
-                          parentPath: _model.parentPath!,
-                        ),
-                      ),
-                    );
+                    ).then((value) => safeSetState(() {}));
                   },
-                ).then((value) => safeSetState(() {}));
-              },
-              backgroundColor: FlutterFlowTheme.of(context).primary,
-              elevation: 8.0,
-              child: Icon(
-                Icons.add_rounded,
-                color: FlutterFlowTheme.of(context).info,
-                size: 24.0,
+                  backgroundColor: FlutterFlowTheme.of(context).primary,
+                  elevation: 8.0,
+                  child: Icon(
+                    Icons.add_rounded,
+                    color: FlutterFlowTheme.of(context).info,
+                    size: 24.0,
+                  ),
+                ),
               ),
             ),
             body: SafeArea(
@@ -363,92 +369,7 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
                       ),
                       Padding(
                         padding:
-                            EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 16.0, 8.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: FlutterFlowChoiceChips(
-                                options: [
-                                  ChipData('All'),
-                                  ChipData('PDF'),
-                                  ChipData('PPT'),
-                                  ChipData('TXT'),
-                                  ChipData('Folders')
-                                ],
-                                onChanged: (val) => safeSetState(() =>
-                                    _model.choiceChipsValue = val?.firstOrNull),
-                                selectedChipStyle: ChipStyle(
-                                  backgroundColor:
-                                      FlutterFlowTheme.of(context).velvetSky,
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .override(
-                                        fontFamily: FlutterFlowTheme.of(context)
-                                            .labelSmallFamily,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        useGoogleFonts:
-                                            !FlutterFlowTheme.of(context)
-                                                .labelSmallIsCustom,
-                                      ),
-                                  iconColor:
-                                      FlutterFlowTheme.of(context).mintGreen,
-                                  iconSize: 12.0,
-                                  labelPadding: EdgeInsetsDirectional.fromSTEB(
-                                      6.0, 0.0, 6.0, 0.0),
-                                  elevation: 2.0,
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                unselectedChipStyle: ChipStyle(
-                                  backgroundColor: FlutterFlowTheme.of(context)
-                                      .primaryBackground,
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .override(
-                                        fontFamily: FlutterFlowTheme.of(context)
-                                            .labelSmallFamily,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        useGoogleFonts:
-                                            !FlutterFlowTheme.of(context)
-                                                .labelSmallIsCustom,
-                                      ),
-                                  iconColor: FlutterFlowTheme.of(context)
-                                      .secondaryText,
-                                  iconSize: 12.0,
-                                  labelPadding: EdgeInsetsDirectional.fromSTEB(
-                                      6.0, 0.0, 6.0, 0.0),
-                                  elevation: 0.0,
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                chipSpacing: 8.0,
-                                rowSpacing: 8.0,
-                                multiselect: false,
-                                initialized: _model.choiceChipsValue != null,
-                                alignment: WrapAlignment.start,
-                                controller:
-                                    _model.choiceChipsValueController ??=
-                                        FormFieldController<List<String>>(
-                                  ['All'],
-                                ),
-                                wrapped: true,
-                              ),
-                            ),
-                            Icon(
-                              FFIcons.ksortAscending,
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              size: 24.0,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
+                            EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
                         child: StreamBuilder<List<StudyMaterialsRecord>>(
                           stream: queryStudyMaterialsRecord(
                             queryBuilder: (studyMaterialsRecord) =>

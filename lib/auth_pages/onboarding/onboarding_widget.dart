@@ -9,6 +9,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
+import 'dart:async';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
@@ -344,6 +345,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                       obscureText: false,
                                                       decoration:
                                                           InputDecoration(
+                                                        isDense: false,
                                                         labelText: 'Your Name',
                                                         labelStyle:
                                                             FlutterFlowTheme.of(
@@ -982,10 +984,10 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                 ),
                                                 child: Checkbox(
                                                   value: _model
-                                                      .checkboxValue ??= false,
+                                                      .checkboxValue1 ??= false,
                                                   onChanged: (newValue) async {
                                                     safeSetState(() =>
-                                                        _model.checkboxValue =
+                                                        _model.checkboxValue1 =
                                                             newValue!);
                                                   },
                                                   side: (FlutterFlowTheme.of(
@@ -1018,98 +1020,222 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                               child: Align(
                                                 alignment: AlignmentDirectional(
                                                     0.0, 0.0),
-                                                child: Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 0.0, 0.0, 8.0),
-                                                  child: RichText(
-                                                    textScaler:
-                                                        MediaQuery.of(context)
-                                                            .textScaler,
-                                                    text: TextSpan(
-                                                      children: [
-                                                        TextSpan(
-                                                          text:
-                                                              'I confirm that I have read and agree to the ',
-                                                          style: TextStyle(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            fontSize: 12.0,
-                                                          ),
+                                                child: RichText(
+                                                  textScaler:
+                                                      MediaQuery.of(context)
+                                                          .textScaler,
+                                                  text: TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                        text:
+                                                            'I confirm that I have read and agree to the ',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 11.0,
                                                         ),
-                                                        TextSpan(
-                                                          text:
-                                                              'Terms and Conditions',
-                                                          style: GoogleFonts
-                                                              .outfit(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .tertiary,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            'Terms of Service',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .tertiary,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12.0,
                                                         ),
-                                                        TextSpan(
-                                                          text: ' and',
-                                                          style: GoogleFonts
-                                                              .outfit(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal,
-                                                          ),
+                                                      ),
+                                                      TextSpan(
+                                                        text: ' and',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          fontWeight:
+                                                              FontWeight.normal,
                                                         ),
-                                                        TextSpan(
-                                                          text:
-                                                              ' Privacy Policy ',
-                                                          style: GoogleFonts
-                                                              .outfit(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .tertiary,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            ' Privacy Policy ',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .tertiary,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12.0,
                                                         ),
-                                                        TextSpan(
-                                                          text:
-                                                              ' of Attendrix Inc.',
-                                                          style: GoogleFonts
-                                                              .outfit(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryText,
-                                                          ),
-                                                        )
-                                                      ],
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            useGoogleFonts:
-                                                                !FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumIsCustom,
-                                                          ),
-                                                    ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            ' of Attendrix Inc.',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      )
+                                                    ],
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
+                                      ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 6.0),
+                                            child: Theme(
+                                              data: ThemeData(
+                                                checkboxTheme:
+                                                    CheckboxThemeData(
+                                                  visualDensity:
+                                                      VisualDensity.compact,
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.0),
+                                                  ),
+                                                ),
+                                                unselectedWidgetColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryText,
+                                              ),
+                                              child: Checkbox(
+                                                value: _model.checkboxValue2 ??=
+                                                    false,
+                                                onChanged: (newValue) async {
+                                                  safeSetState(() =>
+                                                      _model.checkboxValue2 =
+                                                          newValue!);
+                                                },
+                                                side: (FlutterFlowTheme.of(
+                                                                context)
+                                                            .secondaryText !=
+                                                        null)
+                                                    ? BorderSide(
+                                                        width: 2,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                      )
+                                                    : null,
+                                                activeColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primary,
+                                                checkColor:
+                                                    FlutterFlowTheme.of(context)
+                                                        .info,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: MediaQuery.sizeOf(context)
+                                                    .width *
+                                                0.832,
+                                            decoration: BoxDecoration(),
+                                            child: Align(
+                                              alignment: AlignmentDirectional(
+                                                  0.0, 0.0),
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        0.0, 0.0, 0.0, 8.0),
+                                                child: RichText(
+                                                  textScaler:
+                                                      MediaQuery.of(context)
+                                                          .textScaler,
+                                                  text: TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                        text:
+                                                            'Get optional promotional content and updates about Attendrix via email. ',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontSize: 12.0,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text: '(Optional)',
+                                                        style:
+                                                            GoogleFonts.outfit(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryText,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12.0,
+                                                        ),
+                                                      )
+                                                    ],
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       Padding(
                                         padding: EdgeInsetsDirectional.fromSTEB(
@@ -1151,7 +1277,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                             }
                                             if (_model
                                                 .academicProfileValidation!) {
-                                              if (_model.checkboxValue!) {
+                                              if (_model.checkboxValue1!) {
                                                 logFirebaseEvent(
                                                     'Button_backend_call');
 
@@ -2385,12 +2511,16 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                   'ONBOARDING_PAGE_COMPLETE_BTN_ON_TAP');
                                               logFirebaseEvent(
                                                   'Button_page_view');
-                                              await _model
-                                                  .onboardingPagesController
-                                                  ?.nextPage(
-                                                duration:
-                                                    Duration(milliseconds: 300),
-                                                curve: Curves.ease,
+                                              unawaited(
+                                                () async {
+                                                  await _model
+                                                      .onboardingPagesController
+                                                      ?.nextPage(
+                                                    duration: Duration(
+                                                        milliseconds: 300),
+                                                    curve: Curves.ease,
+                                                  );
+                                                }(),
                                               );
                                               while (_model.loopParameter! <
                                                   _model
@@ -2438,11 +2568,20 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                                                   ),
                                                   attendedClasses: 0,
                                                   totalClasses: 0,
-                                                  isEditable: _model
+                                                  isEditable: CourseTypeStruct
+                                                              .maybeFromMap(_model
+                                                                  .coursesEnrolled
+                                                                  .elementAtOrNull(
+                                                                      _model
+                                                                          .loopParameter!)
+                                                                  ?.courseType)
+                                                          ?.courseType ==
+                                                      'elective',
+                                                  credits: _model
                                                       .coursesEnrolled
                                                       .elementAtOrNull(
                                                           _model.loopParameter!)
-                                                      ?.isElective,
+                                                      ?.credits,
                                                 ));
                                                 _model.loopParameter =
                                                     _model.loopParameter! + 1;

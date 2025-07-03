@@ -1,5 +1,4 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -7,7 +6,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'package:styled_divider/styled_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'enrolled_courses_model.dart';
 export 'enrolled_courses_model.dart';
@@ -154,50 +152,24 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                       ),
                     ),
                     AuthUserStreamWidget(
-                      builder: (context) =>
-                          FutureBuilder<List<CourseRecordsRow>>(
-                        future: _model.userCoreCourses(
-                          uniqueQueryKey: '${currentUserUid}_coreCourses',
-                          requestFn: () => CourseRecordsTable().queryRows(
-                            queryFn: (q) => q.inFilterOrNull(
-                              'courseID',
-                              (currentUserDocument?.coursesEnrolled.toList() ??
-                                      [])
-                                  .where(
-                                      (e) => e.courseType.courseType == 'core')
-                                  .toList()
-                                  .map((e) => e.courseID)
-                                  .toList(),
-                            ),
-                            limit: 4,
-                          ),
-                        ),
-                        builder: (context, snapshot) {
-                          // Customize what your widget looks like when it's loading.
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: SizedBox(
-                                width: 25.0,
-                                height: 25.0,
-                                child: SpinKitFadingCube(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 25.0,
-                                ),
-                              ),
-                            );
-                          }
-                          List<CourseRecordsRow> listViewCourseRecordsRowList =
-                              snapshot.data!;
+                      builder: (context) => Builder(
+                        builder: (context) {
+                          final courseRecord = (currentUserDocument
+                                      ?.coursesEnrolled
+                                      .toList() ??
+                                  [])
+                              .where((e) => e.courseType.courseType == 'core')
+                              .toList();
 
                           return ListView.builder(
                             padding: EdgeInsets.zero,
                             primary: false,
                             shrinkWrap: true,
                             scrollDirection: Axis.vertical,
-                            itemCount: listViewCourseRecordsRowList.length,
-                            itemBuilder: (context, listViewIndex) {
-                              final listViewCourseRecordsRow =
-                                  listViewCourseRecordsRowList[listViewIndex];
+                            itemCount: courseRecord.length,
+                            itemBuilder: (context, courseRecordIndex) {
+                              final courseRecordItem =
+                                  courseRecord[courseRecordIndex];
                               return Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     16.0, 0.0, 16.0, 4.0),
@@ -209,6 +181,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                   ),
                                   child: Container(
                                     width: double.infinity,
+                                    height: 45.0,
                                     decoration: BoxDecoration(
                                       color: FlutterFlowTheme.of(context)
                                           .secondaryBackground,
@@ -229,11 +202,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                 EdgeInsetsDirectional.fromSTEB(
                                                     4.0, 0.0, 0.0, 0.0),
                                             child: Text(
-                                              valueOrDefault<String>(
-                                                listViewCourseRecordsRow
-                                                    .courseName,
-                                                'Advanced Mathematics',
-                                              ),
+                                              courseRecordItem.courseName,
                                               style: FlutterFlowTheme.of(
                                                       context)
                                                   .bodyMedium
@@ -281,46 +250,11 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                   TextSpan(
                                                     text:
                                                         valueOrDefault<String>(
-                                                      listViewCourseRecordsRow
-                                                          .courseID
+                                                      courseRecordItem.courseID
                                                           .substring(0, 7),
                                                       'ME1001E',
                                                     ),
                                                     style: GoogleFonts.outfit(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .tertiary,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize: 11.0,
-                                                    ),
-                                                  ),
-                                                  TextSpan(
-                                                    text: ' | ',
-                                                    style: TextStyle(),
-                                                  ),
-                                                  TextSpan(
-                                                    text: 'Credits: ',
-                                                    style: GoogleFonts.outfit(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 10.0,
-                                                    ),
-                                                  ),
-                                                  TextSpan(
-                                                    text:
-                                                        valueOrDefault<String>(
-                                                      listViewCourseRecordsRow
-                                                          .credits
-                                                          ?.toString(),
-                                                      '3',
-                                                    ),
-                                                    style: TextStyle(
                                                       color:
                                                           FlutterFlowTheme.of(
                                                                   context)
@@ -352,7 +286,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                       () {
                                                         if (valueOrDefault<
                                                                 String>(
-                                                              listViewCourseRecordsRow
+                                                              courseRecordItem
                                                                   .courseID
                                                                   .substring(
                                                                       7, 9),
@@ -362,7 +296,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                           return 'Department Elective';
                                                         } else if (valueOrDefault<
                                                                 String>(
-                                                              listViewCourseRecordsRow
+                                                              courseRecordItem
                                                                   .courseID
                                                                   .substring(
                                                                       7, 9),
@@ -372,14 +306,10 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                           return 'Institute Core';
                                                         } else if (valueOrDefault<
                                                                 String>(
-                                                              valueOrDefault<
-                                                                  String>(
-                                                                listViewCourseRecordsRow
-                                                                    .courseID
-                                                                    .substring(
-                                                                        7, 9),
-                                                                'ME1001E',
-                                                              ).substring(7, 9),
+                                                              courseRecordItem
+                                                                  .courseID
+                                                                  .substring(
+                                                                      7, 9),
                                                               'ME1001E',
                                                             ) ==
                                                             'PC') {
@@ -475,15 +405,9 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                     ),
                                   ),
                                   AuthUserStreamWidget(
-                                    builder: (context) =>
-                                        FutureBuilder<List<CourseRecordsRow>>(
-                                      future: _model.userElectiveCourses(
-                                        uniqueQueryKey:
-                                            '${currentUserUid}_electiveCourses',
-                                        requestFn: () =>
-                                            CourseRecordsTable().queryRows(
-                                          queryFn: (q) => q.inFilterOrNull(
-                                            'courseID',
+                                    builder: (context) => Builder(
+                                      builder: (context) {
+                                        final electiveRecords =
                                             (currentUserDocument
                                                         ?.coursesEnrolled
                                                         .toList() ??
@@ -491,46 +415,19 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                 .where((e) =>
                                                     e.courseType.courseType ==
                                                     'elective')
-                                                .toList()
-                                                .map((e) => e.courseID)
-                                                .toList(),
-                                          ),
-                                          limit: 4,
-                                        ),
-                                      ),
-                                      builder: (context, snapshot) {
-                                        // Customize what your widget looks like when it's loading.
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 25.0,
-                                              height: 25.0,
-                                              child: SpinKitFadingCube(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primary,
-                                                size: 25.0,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        List<CourseRecordsRow>
-                                            listViewCourseRecordsRowList =
-                                            snapshot.data!;
+                                                .toList();
 
                                         return ListView.builder(
                                           padding: EdgeInsets.zero,
                                           primary: false,
                                           shrinkWrap: true,
                                           scrollDirection: Axis.vertical,
-                                          itemCount:
-                                              listViewCourseRecordsRowList
-                                                  .length,
+                                          itemCount: electiveRecords.length,
                                           itemBuilder:
-                                              (context, listViewIndex) {
-                                            final listViewCourseRecordsRow =
-                                                listViewCourseRecordsRowList[
-                                                    listViewIndex];
+                                              (context, electiveRecordsIndex) {
+                                            final electiveRecordsItem =
+                                                electiveRecords[
+                                                    electiveRecordsIndex];
                                             return Padding(
                                               padding: EdgeInsetsDirectional
                                                   .fromSTEB(
@@ -577,12 +474,8 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                                       0.0,
                                                                       0.0),
                                                           child: Text(
-                                                            valueOrDefault<
-                                                                String>(
-                                                              listViewCourseRecordsRow
-                                                                  .courseName,
-                                                              'Advanced Mathematics',
-                                                            ),
+                                                            electiveRecordsItem
+                                                                .courseName,
                                                             style: FlutterFlowTheme
                                                                     .of(context)
                                                                 .bodyMedium
@@ -643,7 +536,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                                 TextSpan(
                                                                   text: valueOrDefault<
                                                                       String>(
-                                                                    listViewCourseRecordsRow
+                                                                    electiveRecordsItem
                                                                         .courseID
                                                                         .substring(
                                                                             0,
@@ -653,47 +546,6 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                                   style:
                                                                       GoogleFonts
                                                                           .outfit(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .tertiary,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w900,
-                                                                    fontSize:
-                                                                        11.0,
-                                                                  ),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: ' | ',
-                                                                  style:
-                                                                      TextStyle(),
-                                                                ),
-                                                                TextSpan(
-                                                                  text:
-                                                                      'Credits: ',
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .outfit(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryText,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        10.0,
-                                                                  ),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: valueOrDefault<
-                                                                      String>(
-                                                                    listViewCourseRecordsRow
-                                                                        .credits
-                                                                        ?.toString(),
-                                                                    '3',
-                                                                  ),
-                                                                  style:
-                                                                      TextStyle(
                                                                     color: FlutterFlowTheme.of(
                                                                             context)
                                                                         .tertiary,
@@ -731,7 +583,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                                     () {
                                                                       if (valueOrDefault<
                                                                               String>(
-                                                                            listViewCourseRecordsRow.courseID.substring(7,
+                                                                            electiveRecordsItem.courseID.substring(7,
                                                                                 9),
                                                                             'ME1001E',
                                                                           ) ==
@@ -739,7 +591,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                                         return 'Department Elective';
                                                                       } else if (valueOrDefault<
                                                                               String>(
-                                                                            listViewCourseRecordsRow.courseID.substring(7,
+                                                                            electiveRecordsItem.courseID.substring(7,
                                                                                 9),
                                                                             'ME1001E',
                                                                           ) ==
@@ -747,7 +599,7 @@ class _EnrolledCoursesWidgetState extends State<EnrolledCoursesWidget>
                                                                         return 'Institute Core';
                                                                       } else if (valueOrDefault<
                                                                               String>(
-                                                                            listViewCourseRecordsRow.courseID.substring(7,
+                                                                            electiveRecordsItem.courseID.substring(7,
                                                                                 9),
                                                                             'ME1001E',
                                                                           ) ==

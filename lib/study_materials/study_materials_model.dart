@@ -1,7 +1,7 @@
 import '/backend/backend.dart';
-import '/components/folder_block_user_vault_widget.dart';
 import '/components/folder_block_widget.dart';
 import '/components/task_manager_block_widget.dart';
+import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 import 'dart:async';
@@ -10,10 +10,6 @@ import 'package:flutter/material.dart';
 
 class StudyMaterialsModel extends FlutterFlowModel<StudyMaterialsWidget> {
   ///  Local state fields for this page.
-
-  bool isFavoritteSelectedPersonalVault = false;
-
-  bool isFavoriteSelectedGlobal = false;
 
   bool searchActiveGlobal = false;
 
@@ -32,7 +28,6 @@ class StudyMaterialsModel extends FlutterFlowModel<StudyMaterialsWidget> {
   FocusNode? textFieldFocusNode;
   TextEditingController? textController;
   String? Function(BuildContext, String?)? textControllerValidator;
-  Completer<List<StudyMaterialsRecord>>? firestoreRequestCompleter;
   // Models for folderBlock dynamic component.
   late FlutterFlowDynamicModels<FolderBlockModel> folderBlockModels;
   Completer<List<StudyMaterialsRecord>>? algoliaRequestCompleter;
@@ -40,17 +35,15 @@ class StudyMaterialsModel extends FlutterFlowModel<StudyMaterialsWidget> {
   late FlutterFlowDynamicModels<TaskManagerBlockModel> taskManagerBlockModels;
   // Stores action output result for [Custom Action - fileViewer] action in taskManager_block widget.
   String? fileStatus;
-  // Models for folderBlockUserVault dynamic component.
-  late FlutterFlowDynamicModels<FolderBlockUserVaultModel>
-      folderBlockUserVaultModels;
+  // Model for emptyClass component.
+  late EmptyClassModel emptyClassModel;
 
   @override
   void initState(BuildContext context) {
     folderBlockModels = FlutterFlowDynamicModels(() => FolderBlockModel());
     taskManagerBlockModels =
         FlutterFlowDynamicModels(() => TaskManagerBlockModel());
-    folderBlockUserVaultModels =
-        FlutterFlowDynamicModels(() => FolderBlockUserVaultModel());
+    emptyClassModel = createModel(context, () => EmptyClassModel());
   }
 
   @override
@@ -61,25 +54,10 @@ class StudyMaterialsModel extends FlutterFlowModel<StudyMaterialsWidget> {
 
     folderBlockModels.dispose();
     taskManagerBlockModels.dispose();
-    folderBlockUserVaultModels.dispose();
+    emptyClassModel.dispose();
   }
 
   /// Additional helper methods.
-  Future waitForFirestoreRequestCompleted({
-    double minWait = 0,
-    double maxWait = double.infinity,
-  }) async {
-    final stopwatch = Stopwatch()..start();
-    while (true) {
-      await Future.delayed(Duration(milliseconds: 50));
-      final timeElapsed = stopwatch.elapsedMilliseconds;
-      final requestComplete = firestoreRequestCompleter?.isCompleted ?? false;
-      if (timeElapsed > maxWait || (requestComplete && timeElapsed > minWait)) {
-        break;
-      }
-    }
-  }
-
   Future waitForAlgoliaRequestCompleted({
     double minWait = 0,
     double maxWait = double.infinity,

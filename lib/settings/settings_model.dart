@@ -7,9 +7,7 @@ class SettingsModel extends FlutterFlowModel<SettingsWidget> {
   ///  State fields for stateful widgets in this page.
 
   // State field(s) for Switch widget.
-  bool? switchValue1;
-  // State field(s) for Switch widget.
-  bool? switchValue2;
+  bool? switchValue;
 
   @override
   void initState(BuildContext context) {}

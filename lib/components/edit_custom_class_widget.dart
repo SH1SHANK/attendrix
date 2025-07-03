@@ -7,7 +7,6 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
-import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/flutter_flow/random_data_util.dart' as random_data;
 import 'package:flutter/material.dart';
@@ -558,10 +557,6 @@ class _EditCustomClassWidgetState extends State<EditCustomClassWidget> {
                             clearUnsetFields: false,
                           ),
                         ));
-                        logFirebaseEvent('Button_custom_action');
-                        await actions.clearCustomClassesCache(
-                          currentUserReference,
-                        );
                       },
                       text: 'Save Class',
                       options: FFButtonOptions(

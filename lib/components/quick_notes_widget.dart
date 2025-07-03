@@ -1,6 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/backend/schema/enums/enums.dart';
+import '/backend/supabase/supabase.dart';
+import '/components/mime_image_icon_widget.dart';
 import '/components/pick_file_alert_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -11,7 +12,6 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterflow_colorpicker/flutterflow_colorpicker.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'quick_notes_model.dart';
 export 'quick_notes_model.dart';
 
@@ -22,14 +22,14 @@ export 'quick_notes_model.dart';
 class QuickNotesWidget extends StatefulWidget {
   const QuickNotesWidget({
     super.key,
-    required this.id,
-    this.className,
-    this.classDate,
-  });
+    required this.classRecord,
+    this.classNotesRef,
+    bool? documentExists,
+  }) : this.documentExists = documentExists ?? false;
 
-  final String? id;
-  final String? className;
-  final DateTime? classDate;
+  final TimetableRecordsRow? classRecord;
+  final ClassNotesRecord? classNotesRef;
+  final bool documentExists;
 
   @override
   State<QuickNotesWidget> createState() => _QuickNotesWidgetState();
@@ -49,11 +49,15 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
     super.initState();
     _model = createModel(context, () => QuickNotesModel());
 
-    _model.textController1 ??=
-        TextEditingController(text: 'Note For ${widget.className}');
+    _model.textController1 ??= TextEditingController(
+        text: 'Note For ${widget.classRecord?.courseName}');
     _model.textFieldFocusNode1 ??= FocusNode();
 
-    _model.textController2 ??= TextEditingController();
+    _model.textController2 ??= TextEditingController(
+        text: valueOrDefault<String>(
+      widget.classNotesRef?.noteDescription,
+      'Note Description',
+    ));
     _model.textFieldFocusNode2 ??= FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -102,37 +106,42 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Add Note',
-                    style: FlutterFlowTheme.of(context).headlineSmall.override(
-                          fontFamily:
-                              FlutterFlowTheme.of(context).headlineSmallFamily,
-                          letterSpacing: 0.0,
-                          useGoogleFonts: !FlutterFlowTheme.of(context)
-                              .headlineSmallIsCustom,
-                        ),
-                  ),
-                  FlutterFlowIconButton(
-                    borderColor: Colors.transparent,
-                    borderRadius: 8.0,
-                    borderWidth: 1.0,
-                    buttonSize: 40.0,
-                    icon: Icon(
-                      FFIcons.kcloseLG,
-                      color: FlutterFlowTheme.of(context).primaryText,
-                      size: 24.0,
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(4.0, 0.0, 0.0, 0.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Add Quick Notes',
+                      style:
+                          FlutterFlowTheme.of(context).headlineSmall.override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .headlineSmallFamily,
+                                fontSize: 18.0,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .headlineSmallIsCustom,
+                              ),
                     ),
-                    onPressed: () async {
-                      logFirebaseEvent('QUICK_NOTES_COMP_closeLG_ICN_ON_TAP');
-                      logFirebaseEvent('IconButton_bottom_sheet');
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+                    FlutterFlowIconButton(
+                      borderColor: Colors.transparent,
+                      borderRadius: 8.0,
+                      borderWidth: 1.0,
+                      buttonSize: 40.0,
+                      icon: Icon(
+                        FFIcons.kcloseLG,
+                        color: FlutterFlowTheme.of(context).primaryText,
+                        size: 24.0,
+                      ),
+                      onPressed: () async {
+                        logFirebaseEvent('QUICK_NOTES_COMP_closeLG_ICN_ON_TAP');
+                        logFirebaseEvent('IconButton_bottom_sheet');
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
               ),
               Container(
                 width: double.infinity,
@@ -150,6 +159,7 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                   obscureText: false,
                   decoration: InputDecoration(
                     isDense: true,
+                    labelText: 'Note',
                     labelStyle: FlutterFlowTheme.of(context)
                         .labelMedium
                         .override(
@@ -238,6 +248,7 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                   obscureText: false,
                   decoration: InputDecoration(
                     isDense: true,
+                    labelText: 'Description',
                     labelStyle: FlutterFlowTheme.of(context)
                         .labelMedium
                         .override(
@@ -333,33 +344,43 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0.0, 0.0, 4.0, 0.0),
-                                child: Icon(
-                                  FFIcons.kfileText,
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  size: 18.0,
+                              Container(
+                                width: 20.0,
+                                height: 20.0,
+                                decoration: BoxDecoration(),
+                                child: wrapWithModel(
+                                  model: _model.mimeImageIconModel,
+                                  updateCallback: () => safeSetState(() {}),
+                                  child: MimeImageIconWidget(
+                                    mimeType: valueOrDefault<String>(
+                                      _model.fileInfo?.mimeType,
+                                      'application/pdf',
+                                    ),
+                                  ),
                                 ),
                               ),
                               Align(
                                 alignment: AlignmentDirectional(0.0, 0.0),
-                                child: Text(
-                                  valueOrDefault<String>(
-                                    _model.fileInfo?.name,
-                                    'file',
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      4.0, 0.0, 0.0, 0.0),
+                                  child: Text(
+                                    valueOrDefault<String>(
+                                      _model.fileInfo?.name,
+                                      'file',
+                                    ),
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelLarge
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelLargeFamily,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelLargeIsCustom,
+                                        ),
                                   ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .labelLarge
-                                      .override(
-                                        fontFamily: FlutterFlowTheme.of(context)
-                                            .labelLargeFamily,
-                                        letterSpacing: 0.0,
-                                        useGoogleFonts:
-                                            !FlutterFlowTheme.of(context)
-                                                .labelLargeIsCustom,
-                                      ),
                                 ),
                               ),
                             ],
@@ -500,37 +521,45 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                           : () async {
                               logFirebaseEvent(
                                   'QUICK_NOTES_COMP_SAVE_BTN_ON_TAP');
-                              logFirebaseEvent('Button_backend_call');
+                              if (widget.documentExists) {
+                                logFirebaseEvent('Button_backend_call');
 
-                              await PersonalRecordsRecord.createDoc(
-                                      currentUserReference!)
-                                  .set(createPersonalRecordsRecordData(
-                                recordId: widget.id,
-                                noteTitle: _model.textController1.text,
-                                noteBody: _model.textController2.text,
-                                entityType: RecordType.timetableRecord,
-                                noteType: 'remark',
-                                marksObtained: 0.0,
-                                totalMarks: 0.0,
-                                createdAt: getCurrentTimestamp,
-                                lastModifiedAt: getCurrentTimestamp,
-                                attachments: _model.fileInfo?.filePath,
-                              ));
-                              logFirebaseEvent('Button_show_snack_bar');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Note Added!',
-                                    style: GoogleFonts.outfit(
-                                      color: FlutterFlowTheme.of(context).info,
-                                      fontSize: 14.0,
-                                    ),
+                                await widget.classNotesRef!.reference
+                                    .update(createClassNotesRecordData(
+                                  noteTitle: _model.textController1.text,
+                                  noteDescription: _model.textController2.text,
+                                  noteColor: _model.selectedColour,
+                                  hasAttachments: _model.attachmentAdded,
+                                  attachmentAdded: updateFileInfoStruct(
+                                    _model.fileInfo,
+                                    clearUnsetFields: false,
                                   ),
-                                  duration: Duration(milliseconds: 4000),
-                                  backgroundColor:
-                                      FlutterFlowTheme.of(context).presentGreen,
-                                ),
-                              );
+                                  modifiedAt: getCurrentTimestamp,
+                                ));
+                              } else {
+                                logFirebaseEvent('Button_backend_call');
+
+                                await ClassNotesRecord.createDoc(
+                                        currentUserReference!)
+                                    .set(createClassNotesRecordData(
+                                  classID: widget.classRecord?.classID,
+                                  courseName: widget.classRecord?.courseName,
+                                  classStartTime:
+                                      widget.classRecord?.classStartTime,
+                                  noteTitle: _model.textController1.text,
+                                  noteDescription: _model.textController2.text,
+                                  hasAttachments: _model.attachmentAdded,
+                                  noteColor: _model.selectedColour,
+                                  attachmentAdded: updateFileInfoStruct(
+                                    _model.fileInfo,
+                                    clearUnsetFields: false,
+                                    create: true,
+                                  ),
+                                  createdAt: getCurrentTimestamp,
+                                  modifiedAt: getCurrentTimestamp,
+                                ));
+                              }
+
                               logFirebaseEvent('Button_bottom_sheet');
                               Navigator.pop(context);
                             },

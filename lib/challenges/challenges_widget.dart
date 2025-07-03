@@ -195,7 +195,7 @@ class _ChallengesWidgetState extends State<ChallengesWidget>
                                     } else {
                                       return Padding(
                                         padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 8.0, 12.0, 0.0),
+                                            0.0, 8.0, 40.0, 0.0),
                                         child: Container(
                                           width: 120.0,
                                           height: 30.0,

@@ -15,8 +15,10 @@ class AddFolderBottomSheetModel
   // State field(s) for DropDown widget.
   String? dropDownValue;
   FormFieldController<String>? dropDownValueController;
+  // Stores action output result for [Firestore Query - Query a collection] action in DropDown widget.
+  StudyMaterialsRecord? selectedFolder;
   // Stores action output result for [Backend Call - Create Document] action in Button widget.
-  UserPersonalVaultRecord? createdFolder;
+  StudyMaterialsRecord? createdFolder;
 
   @override
   void initState(BuildContext context) {}

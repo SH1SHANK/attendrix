@@ -17,6 +17,8 @@ class ClassCheckOutDialogWidget extends StatefulWidget {
     required this.classStartTime,
     this.className,
     bool? isCustomClass,
+    required this.classEndTime,
+    required this.courseName,
   }) : this.isCustomClass = isCustomClass ?? false;
 
   final String? classID;
@@ -24,6 +26,8 @@ class ClassCheckOutDialogWidget extends StatefulWidget {
   final DateTime? classStartTime;
   final String? className;
   final bool isCustomClass;
+  final DateTime? classEndTime;
+  final String? courseName;
 
   @override
   State<ClassCheckOutDialogWidget> createState() =>
@@ -221,14 +225,6 @@ class _ClassCheckOutDialogWidgetState extends State<ClassCheckOutDialogWidget> {
                                 currentUserReference!,
                                 widget.classStartTime!,
                               );
-                              logFirebaseEvent('Button_custom_action');
-                              await actions.markClassAbsence(
-                                widget.courseID!,
-                                widget.classStartTime!,
-                                currentUserUid,
-                                true,
-                                widget.classID!,
-                              );
                               logFirebaseEvent('Button_show_snack_bar');
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -268,6 +264,8 @@ class _ClassCheckOutDialogWidgetState extends State<ClassCheckOutDialogWidget> {
                                 classID: widget.classID,
                                 courseID: widget.courseID,
                                 classStartTime: widget.classStartTime,
+                                classEndTime: widget.classEndTime,
+                                courseName: widget.courseName,
                               );
                               safeSetState(() {});
                             }

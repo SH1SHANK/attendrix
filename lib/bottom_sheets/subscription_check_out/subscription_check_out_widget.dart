@@ -45,7 +45,7 @@ class _SubscriptionCheckOutWidgetState
       padding: EdgeInsetsDirectional.fromSTEB(0.0, 44.0, 0.0, 0.0),
       child: Container(
         width: double.infinity,
-        height: MediaQuery.sizeOf(context).height * 0.5,
+        height: MediaQuery.sizeOf(context).height * 0.6,
         decoration: BoxDecoration(
           color: FlutterFlowTheme.of(context).secondaryBackground,
           boxShadow: [
@@ -346,7 +346,7 @@ class _SubscriptionCheckOutWidgetState
                     ),
                     Padding(
                       padding:
-                          EdgeInsetsDirectional.fromSTEB(12.0, 2.0, 0.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(12.0, 2.0, 0.0, 4.0),
                       child: Material(
                         color: Colors.transparent,
                         elevation: 1.0,
@@ -493,7 +493,7 @@ class _SubscriptionCheckOutWidgetState
                   ],
                 ),
               ),
-            ],
+            ].addToEnd(SizedBox(height: 20.0)),
           ),
         ),
       ),

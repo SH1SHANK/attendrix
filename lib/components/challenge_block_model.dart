@@ -8,6 +8,8 @@ class ChallengeBlockModel extends FlutterFlowModel<ChallengeBlockWidget> {
 
   bool rebuildComponent = false;
 
+  bool claimed = false;
+
   ///  State fields for stateful widgets in this component.
 
   Stream<List<AmplixChallengeProgressRow>>? containerSupabaseStream;

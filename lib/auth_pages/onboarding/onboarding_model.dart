@@ -137,7 +137,9 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   TextEditingController? userBioTextController;
   String? Function(BuildContext, String?)? userBioTextControllerValidator;
   // State field(s) for Checkbox widget.
-  bool? checkboxValue;
+  bool? checkboxValue1;
+  // State field(s) for Checkbox widget.
+  bool? checkboxValue2;
   // Stores action output result for [Validate Form] action in Button widget.
   bool? academicProfileValidation;
   // State field(s) for username widget.

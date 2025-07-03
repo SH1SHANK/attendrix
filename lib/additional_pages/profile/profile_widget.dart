@@ -1371,26 +1371,21 @@ class _ProfileWidgetState extends State<ProfileWidget>
                                         ),
                                       ),
                                     ),
-                                    FutureBuilder<List<AmplixLogsRow>>(
-                                      future: _model.amplixLogs(
-                                        uniqueQueryKey:
-                                            '${currentUserUid}_${dateTimeFormat(
-                                          "d/M/y",
-                                          getCurrentTimestamp,
-                                          locale: FFLocalizations.of(context)
-                                              .languageCode,
-                                        )}',
-                                        requestFn: () =>
-                                            AmplixLogsTable().queryRows(
-                                          queryFn: (q) => q
+                                    StreamBuilder<List<AmplixLogsRow>>(
+                                      stream: _model.listViewSupabaseStream ??=
+                                          SupaFlow.client
+                                              .from("amplixLogs")
+                                              .stream(primaryKey: ['id'])
                                               .eqOrNull(
                                                 'userID',
                                                 currentUserUid,
                                               )
-                                              .order('lastUpdatedAt'),
-                                          limit: 20,
-                                        ),
-                                      ),
+                                              .order('lastUpdatedAt')
+                                              .limit(20)
+                                              .map((list) => list
+                                                  .map((item) =>
+                                                      AmplixLogsRow(item))
+                                                  .toList()),
                                       builder: (context, snapshot) {
                                         // Customize what your widget looks like when it's loading.
                                         if (!snapshot.hasData) {

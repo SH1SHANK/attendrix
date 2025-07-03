@@ -459,7 +459,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
                                       child: Text(
-                                        'Study Materials',
+                                        'Academic Resourses',
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
@@ -719,7 +719,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           6.0, 0.0, 0.0, 0.0),
                                       child: AutoSizeText(
-                                        'Custom Classes',
+                                        'Manage Custom Classes',
                                         maxLines: 1,
                                         minFontSize: 14.0,
                                         style: FlutterFlowTheme.of(context)
@@ -875,13 +875,6 @@ class _DashboardWidgetState extends State<DashboardWidget>
 
                             logFirebaseEvent('replaceWidget_custom_action');
                             await actions.logoutOneSignalUser();
-                            logFirebaseEvent('replaceWidget_custom_action');
-                            await actions.clearAllClassAttendanceCache();
-                            logFirebaseEvent('replaceWidget_custom_action');
-                            await actions.clearAllMissedClassesCache(
-                              true,
-                              true,
-                            );
 
                             context.goNamedAuth(
                                 LoginWidget.routeName, context.mounted);
@@ -1291,22 +1284,18 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                   ),
                                   Align(
                                     alignment: AlignmentDirectional(0.7, 0.0),
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 4.0, 0.0),
-                                      child: AuthUserStreamWidget(
-                                        builder: (context) => Container(
+                                    child: AuthUserStreamWidget(
+                                      builder: (context) => Container(
+                                        width: 70.0,
+                                        height: 35.0,
+                                        child:
+                                            custom_widgets.AmplixChangeWidget(
                                           width: 70.0,
                                           height: 35.0,
-                                          child:
-                                              custom_widgets.AmplixChangeWidget(
-                                            width: 70.0,
-                                            height: 35.0,
-                                            fontSize: 18.0,
-                                            amplix: valueOrDefault(
-                                                currentUserDocument?.amplix, 0),
-                                            animationDuration: 600,
-                                          ),
+                                          fontSize: 18.0,
+                                          amplix: valueOrDefault(
+                                              currentUserDocument?.amplix, 0),
+                                          animationDuration: 600,
                                         ),
                                       ),
                                     ),
@@ -1441,8 +1430,11 @@ class _DashboardWidgetState extends State<DashboardWidget>
                     builder: (context) =>
                         FutureBuilder<List<TimetableRecordsRow>>(
                       future: _model.currentDayTimetableRecords(
-                        uniqueQueryKey:
-                            'timetableRecords_${getCurrentTimestamp.millisecondsSinceEpoch.toString()}',
+                        uniqueQueryKey: 'timetableRecords_${dateTimeFormat(
+                          "d/M/y",
+                          getCurrentTimestamp,
+                          locale: FFLocalizations.of(context).languageCode,
+                        )}',
                         requestFn: () => TimetableRecordsTable().queryRows(
                           queryFn: (q) => q
                               .inFilterOrNull(
@@ -1696,7 +1688,14 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                               logFirebaseEvent(
                                                                   'Text_clear_query_cache');
                                                               FFAppState()
-                                                                  .clearTimetableRecordsQueryDayCache();
+                                                                  .clearTimetableRecordsQueryDayCacheKey(
+                                                                      'timetableRecords_${dateTimeFormat(
+                                                                "d/M/y",
+                                                                getCurrentTimestamp,
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              )}');
                                                             },
                                                             child: Text(
                                                               'Refresh Page',
@@ -1798,74 +1797,55 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                             );
                                                           }
 
-                                                          return RefreshIndicator(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .velvetSky,
-                                                            backgroundColor:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .accent4,
-                                                            strokeWidth: 3.5,
-                                                            onRefresh:
-                                                                () async {
-                                                              logFirebaseEvent(
-                                                                  'DASHBOARD_currentDayList_ON_PULL_TO_REFR');
-                                                              logFirebaseEvent(
-                                                                  'currentDayList_clear_query_cache');
-                                                              _model
-                                                                  .clearCurrentDayTimetableRecordsCache();
-                                                            },
-                                                            child: ListView
-                                                                .builder(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .zero,
-                                                              primary: false,
-                                                              shrinkWrap: true,
-                                                              scrollDirection:
-                                                                  Axis.vertical,
-                                                              itemCount:
-                                                                  tabContainerVar
-                                                                      .length,
-                                                              itemBuilder: (context,
-                                                                  tabContainerVarIndex) {
-                                                                final tabContainerVarItem =
-                                                                    tabContainerVar[
-                                                                        tabContainerVarIndex];
-                                                                return Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          4.0,
-                                                                          0.0,
-                                                                          4.0,
-                                                                          4.0),
-                                                                  child:
-                                                                      wrapWithModel(
-                                                                    model: _model
-                                                                        .classBlockPrimaryModels
-                                                                        .getModel(
-                                                                      tabContainerVarItem
-                                                                          .classID,
-                                                                      tabContainerVarIndex,
-                                                                    ),
-                                                                    updateCallback: () =>
-                                                                        safeSetState(
-                                                                            () {}),
-                                                                    updateOnChange:
-                                                                        true,
-                                                                    child:
-                                                                        ClassBlockPrimaryWidget(
-                                                                      key: Key(
-                                                                        'Key2fm_${tabContainerVarItem.classID}',
-                                                                      ),
-                                                                      classRecord:
-                                                                          tabContainerVarItem,
-                                                                    ),
+                                                          return ListView
+                                                              .builder(
+                                                            padding:
+                                                                EdgeInsets.zero,
+                                                            primary: false,
+                                                            shrinkWrap: true,
+                                                            scrollDirection:
+                                                                Axis.vertical,
+                                                            itemCount:
+                                                                tabContainerVar
+                                                                    .length,
+                                                            itemBuilder: (context,
+                                                                tabContainerVarIndex) {
+                                                              final tabContainerVarItem =
+                                                                  tabContainerVar[
+                                                                      tabContainerVarIndex];
+                                                              return Padding(
+                                                                padding:
+                                                                    EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            4.0,
+                                                                            0.0,
+                                                                            4.0,
+                                                                            4.0),
+                                                                child:
+                                                                    wrapWithModel(
+                                                                  model: _model
+                                                                      .classBlockPrimaryModels
+                                                                      .getModel(
+                                                                    tabContainerVarItem
+                                                                        .classID,
+                                                                    tabContainerVarIndex,
                                                                   ),
-                                                                );
-                                                              },
-                                                            ),
+                                                                  updateCallback: () =>
+                                                                      safeSetState(
+                                                                          () {}),
+                                                                  updateOnChange:
+                                                                      true,
+                                                                  child:
+                                                                      ClassBlockPrimaryWidget(
+                                                                    key: Key(
+                                                                      'Key2fm_${tabContainerVarItem.classID}',
+                                                                    ),
+                                                                    classRecord:
+                                                                        tabContainerVarItem,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
                                                           );
                                                         },
                                                       ),
