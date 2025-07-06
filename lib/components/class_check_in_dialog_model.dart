@@ -8,6 +8,10 @@ class ClassCheckInDialogModel
 
   // Stores action output result for [Custom Action - checkInToCustomClasses] action in Button widget.
   String? checkInStatus;
+  // Stores action output result for [Action Block - CheckInAttendanceProtocal] action in Button widget.
+  String? feedbackMessage;
+  // Stores action output result for [Custom Action - checkAttendance] action in Button widget.
+  bool? isAttendedCallBack;
 
   @override
   void initState(BuildContext context) {}

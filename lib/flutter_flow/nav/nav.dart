@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
@@ -175,30 +176,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => ProfileWidget(),
             ),
             FFRoute(
-              name: SupportTicketListWidget.routeName,
-              path: SupportTicketListWidget.routePath,
-              builder: (context, params) => SupportTicketListWidget(),
-            ),
-            FFRoute(
-              name: SupportSubmitTicketWidget.routeName,
-              path: SupportSubmitTicketWidget.routePath,
-              builder: (context, params) => SupportSubmitTicketWidget(),
-            ),
-            FFRoute(
-              name: SupportTicketDetailsWidget.routeName,
-              path: SupportTicketDetailsWidget.routePath,
-              asyncParams: {
-                'ticketRef': getDoc(
-                    ['supportTickets'], SupportTicketsRecord.fromSnapshot),
-              },
-              builder: (context, params) => SupportTicketDetailsWidget(
-                ticketRef: params.getParam(
-                  'ticketRef',
-                  ParamType.Document,
-                ),
-              ),
-            ),
-            FFRoute(
                 name: CalenderWidget.routeName,
                 path: CalenderWidget.routePath,
                 requireAuth: true,
@@ -320,6 +297,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: AdminPageWidget.routePath,
               requireAuth: true,
               builder: (context, params) => AdminPageWidget(),
+            ),
+            FFRoute(
+              name: CreateCustomClassWidget.routeName,
+              path: CreateCustomClassWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => CreateCustomClassWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

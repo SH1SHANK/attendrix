@@ -14,8 +14,6 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
 
   int numDays = 7;
 
-  bool rebuildPage = false;
-
   List<ClassRowStruct> missedClasses = [];
   void addToMissedClasses(ClassRowStruct item) => missedClasses.add(item);
   void removeFromMissedClasses(ClassRowStruct item) =>
@@ -42,18 +40,16 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
 
   bool multiSelectMode = false;
 
-  List<MissedClassDetailsStruct> selectedclasses = [];
-  void addToSelectedclasses(MissedClassDetailsStruct item) =>
-      selectedclasses.add(item);
-  void removeFromSelectedclasses(MissedClassDetailsStruct item) =>
+  List<ClassRowStruct> selectedclasses = [];
+  void addToSelectedclasses(ClassRowStruct item) => selectedclasses.add(item);
+  void removeFromSelectedclasses(ClassRowStruct item) =>
       selectedclasses.remove(item);
   void removeAtIndexFromSelectedclasses(int index) =>
       selectedclasses.removeAt(index);
-  void insertAtIndexInSelectedclasses(
-          int index, MissedClassDetailsStruct item) =>
+  void insertAtIndexInSelectedclasses(int index, ClassRowStruct item) =>
       selectedclasses.insert(index, item);
   void updateSelectedclassesAtIndex(
-          int index, Function(MissedClassDetailsStruct) updateFn) =>
+          int index, Function(ClassRowStruct) updateFn) =>
       selectedclasses[index] = updateFn(selectedclasses[index]);
 
   bool includeSundays = false;
@@ -64,7 +60,7 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
 
   // Stores action output result for [Custom Action - getMissedClasses] action in classes widget.
   List<ClassRowStruct>? missedClassesLoad;
-  // Stores action output result for [Custom Action - fetchAllClasses] action in classes widget.
+  // Stores action output result for [Custom Action - fetchCustomClasses] action in classes widget.
   List<ClassRowStruct>? customClassesQuery;
   // State field(s) for TabBar widget.
   TabController? tabBarController;
@@ -85,10 +81,10 @@ class ClassesModel extends FlutterFlowModel<ClassesWidget> {
   late FlutterFlowDynamicModels<ClassBlockCustomModel> classBlockCustomModels;
   // Stores action output result for [Custom Action - getMissedClasses] action in Button widget.
   List<ClassRowStruct>? refreshedMissedClasses;
-  // Stores action output result for [Custom Action - getMissedClasses] action in Button widget.
-  List<ClassRowStruct>? newMissedClasses;
   // Models for classBlock_missed dynamic component.
   late FlutterFlowDynamicModels<ClassBlockMissedModel> classBlockMissedModels;
+  // Stores action output result for [Alert Dialog - Custom Dialog] action in Button widget.
+  bool? confirmDialogResponse;
 
   @override
   void initState(BuildContext context) {

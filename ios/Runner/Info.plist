@@ -53,12 +53,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-	<key>NSCameraUsageDescription</key>
-    <string>Allow access to your camera to capture and store your student ID for quick and easy access.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow access to your photo library to save your student ID card for quick and easy access.</string>
+
 	<key>PermissionGroupNotification</key>
     <string>Allow notifications to receive important class alerts, attendance reminders, and deadline updates. You can adjust these anytime in settings.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>Allow access to your photo library to save your student ID card for quick and easy access.</string>
 	<key>NSCalendarsUsageDescription</key>
     <string>Allow calendar access to automatically add your class schedule and important academic deadlines to your device calendar.</string>
 

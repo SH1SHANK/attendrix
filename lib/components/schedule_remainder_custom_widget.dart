@@ -185,6 +185,7 @@ class _ScheduleRemainderCustomWidgetState
                   await NotificationsConfigTable().update(
                     data: {
                       'minutes_before_class': _model.minutes,
+                      'toggle_notifications': true,
                     },
                     matchingRows: (rows) => rows
                         .eqOrNull(

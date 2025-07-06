@@ -1,4 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/class_components/course_attendance/course_attendance_widget.dart';
 import '/components/c_g_p_a_calculator_widget.dart';
 import '/custom_dialogs/attendance_calculator/attendance_calculator_widget.dart';
@@ -6,9 +7,12 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'attendance_model.dart';
 export 'attendance_model.dart';
 
@@ -45,6 +49,8 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Title(
         title: 'attendance',
         color: FlutterFlowTheme.of(context).primary.withAlpha(0XFF),
@@ -96,6 +102,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
               child: Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(8.0, 12.0, 8.0, 0.0),
                 child: SingleChildScrollView(
+                  primary: false,
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
@@ -314,12 +321,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                   .toList();
 
                               return ListView.separated(
-                                padding: EdgeInsets.fromLTRB(
-                                  0,
-                                  0,
-                                  0,
-                                  20.0,
-                                ),
+                                padding: EdgeInsets.zero,
                                 primary: false,
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
@@ -370,7 +372,7 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                         );
                                       },
                                       child: wrapWithModel(
-                                        model: _model.courseAttendanceModels
+                                        model: _model.courseAttendanceModels1
                                             .getModel(
                                           courseItem.courseID,
                                           courseIndex,
@@ -392,7 +394,191 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                           ),
                         ),
                       ),
-                    ],
+                      if (valueOrDefault<bool>(
+                        FFAppState().customClassesAlldays.isNotEmpty,
+                        false,
+                      ))
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 8.0, 0.0, 0.0),
+                          child: StreamBuilder<List<CustomClassesRecord>>(
+                            stream: FFAppState().customClasses(
+                              uniqueQueryKey: 'customclasses',
+                              requestFn: () => queryCustomClassesRecord(
+                                parent: currentUserReference,
+                                queryBuilder: (customClassesRecord) =>
+                                    customClassesRecord.where(
+                                  'startDate',
+                                  isLessThanOrEqualTo: getCurrentTimestamp,
+                                ),
+                                limit: 8,
+                              ),
+                            ),
+                            builder: (context, snapshot) {
+                              // Customize what your widget looks like when it's loading.
+                              if (!snapshot.hasData) {
+                                return Center(
+                                  child: SizedBox(
+                                    width: 25.0,
+                                    height: 25.0,
+                                    child: SpinKitFadingCube(
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
+                                      size: 25.0,
+                                    ),
+                                  ),
+                                );
+                              }
+                              List<CustomClassesRecord>
+                                  listViewCustomClassesRecordList =
+                                  snapshot.data!;
+
+                              return ListView.separated(
+                                padding: EdgeInsets.fromLTRB(
+                                  0,
+                                  0,
+                                  0,
+                                  20.0,
+                                ),
+                                primary: false,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                itemCount:
+                                    listViewCustomClassesRecordList.length,
+                                separatorBuilder: (_, __) =>
+                                    SizedBox(height: 4.0),
+                                itemBuilder: (context, listViewIndex) {
+                                  final listViewCustomClassesRecord =
+                                      listViewCustomClassesRecordList[
+                                          listViewIndex];
+                                  return Builder(
+                                    builder: (context) => InkWell(
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () async {
+                                        logFirebaseEvent(
+                                            'ATTENDANCE_Container_aznmuv1u_ON_TAP');
+                                        logFirebaseEvent(
+                                            'courseAttendance_alert_dialog');
+                                        await showDialog(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return Dialog(
+                                              elevation: 0,
+                                              insetPadding: EdgeInsets.zero,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              alignment:
+                                                  AlignmentDirectional(0.0, 0.0)
+                                                      .resolve(
+                                                          Directionality.of(
+                                                              context)),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  FocusScope.of(dialogContext)
+                                                      .unfocus();
+                                                  FocusManager
+                                                      .instance.primaryFocus
+                                                      ?.unfocus();
+                                                },
+                                                child:
+                                                    AttendanceCalculatorWidget(
+                                                  courseRecord:
+                                                      CoursesEnrolledStruct(
+                                                    courseID:
+                                                        listViewCustomClassesRecord
+                                                            .courseID,
+                                                    courseName:
+                                                        listViewCustomClassesRecord
+                                                            .courseName,
+                                                    courseType:
+                                                        CourseTypeStruct(
+                                                      courseType: 'custom',
+                                                      isLab: false,
+                                                    ),
+                                                    attendedClasses:
+                                                        valueOrDefault<int>(
+                                                      listViewCustomClassesRecord
+                                                          .attendedClasses
+                                                          .length,
+                                                      0,
+                                                    ),
+                                                    totalClasses:
+                                                        valueOrDefault<int>(
+                                                      functions.calculateTotalCustomClasses(
+                                                          listViewCustomClassesRecord
+                                                              .startDate!,
+                                                          listViewCustomClassesRecord
+                                                              .slotData
+                                                              .slotMetadata
+                                                              .toList()),
+                                                      0,
+                                                    ),
+                                                    isEditable: true,
+                                                    credits: 3,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: wrapWithModel(
+                                        model: _model.courseAttendanceModels2
+                                            .getModel(
+                                          listViewCustomClassesRecord
+                                              .reference.id,
+                                          listViewIndex,
+                                        ),
+                                        updateCallback: () =>
+                                            safeSetState(() {}),
+                                        updateOnChange: true,
+                                        child: CourseAttendanceWidget(
+                                          key: Key(
+                                            'Keyazn_${listViewCustomClassesRecord.reference.id}',
+                                          ),
+                                          courseData: CoursesEnrolledStruct(
+                                            courseID:
+                                                listViewCustomClassesRecord
+                                                    .courseID,
+                                            courseName:
+                                                listViewCustomClassesRecord
+                                                    .courseName,
+                                            courseType: CourseTypeStruct(
+                                              courseType: 'custom',
+                                              isLab: false,
+                                            ),
+                                            attendedClasses:
+                                                valueOrDefault<int>(
+                                              listViewCustomClassesRecord
+                                                  .attendedClasses.length,
+                                              0,
+                                            ),
+                                            totalClasses: valueOrDefault<int>(
+                                              functions
+                                                  .calculateTotalCustomClasses(
+                                                      listViewCustomClassesRecord
+                                                          .startDate!,
+                                                      listViewCustomClassesRecord
+                                                          .slotData.slotMetadata
+                                                          .toList()),
+                                              0,
+                                            ),
+                                            isEditable: true,
+                                            credits: 3,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                    ].addToEnd(SizedBox(height: 20.0)),
                   ),
                 ),
               ),

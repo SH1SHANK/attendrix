@@ -2,7 +2,7 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
 import '/components/mime_image_icon_widget.dart';
-import '/components/pick_file_alert_dialog_widget.dart';
+import '/components/pick_file_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -495,12 +495,11 @@ class _QuickNotesWidgetState extends State<QuickNotesWidget> {
                                     backgroundColor: Colors.transparent,
                                     alignment: AlignmentDirectional(0.0, 0.0)
                                         .resolve(Directionality.of(context)),
-                                    child: PickFileAlertDialogWidget(
+                                    child: PickFileWidget(
                                       returnParameter: (fileInfo) async {
                                         logFirebaseEvent(
                                             '_update_component_state');
                                         _model.fileInfo = fileInfo;
-                                        _model.attachmentAdded = true;
                                         safeSetState(() {});
                                       },
                                     ),

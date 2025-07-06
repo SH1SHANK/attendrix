@@ -58,40 +58,20 @@ class StudyMaterialsRecord extends FirestoreRecord {
   DateTime? get createdAt => _createdAt;
   bool hasCreatedAt() => _createdAt != null;
 
-  // "isDeleted" field.
-  bool? _isDeleted;
-  bool get isDeleted => _isDeleted ?? false;
-  bool hasIsDeleted() => _isDeleted != null;
-
-  // "deleted_at" field.
-  DateTime? _deletedAt;
-  DateTime? get deletedAt => _deletedAt;
-  bool hasDeletedAt() => _deletedAt != null;
-
-  // "ownerID" field.
-  String? _ownerID;
-  String get ownerID => _ownerID ?? '';
-  bool hasOwnerID() => _ownerID != null;
-
-  // "material_id" field.
-  String? _materialId;
-  String get materialId => _materialId ?? '';
-  bool hasMaterialId() => _materialId != null;
-
   // "material_type" field.
   StudyMaterialType? _materialType;
   StudyMaterialType? get materialType => _materialType;
   bool hasMaterialType() => _materialType != null;
 
-  // "preview_url" field.
-  String? _previewUrl;
-  String get previewUrl => _previewUrl ?? '';
-  bool hasPreviewUrl() => _previewUrl != null;
-
   // "fileSize_Bytes" field.
   int? _fileSizeBytes;
   int get fileSizeBytes => _fileSizeBytes ?? 0;
   bool hasFileSizeBytes() => _fileSizeBytes != null;
+
+  // "nestedPath" field.
+  String? _nestedPath;
+  String get nestedPath => _nestedPath ?? '';
+  bool hasNestedPath() => _nestedPath != null;
 
   void _initializeFields() {
     _fileName = snapshotData['fileName'] as String?;
@@ -100,15 +80,11 @@ class StudyMaterialsRecord extends FirestoreRecord {
     _mimeType = snapshotData['mimeType'] as String?;
     _parentPath = snapshotData['parentPath'] as String?;
     _createdAt = snapshotData['created_at'] as DateTime?;
-    _isDeleted = snapshotData['isDeleted'] as bool?;
-    _deletedAt = snapshotData['deleted_at'] as DateTime?;
-    _ownerID = snapshotData['ownerID'] as String?;
-    _materialId = snapshotData['material_id'] as String?;
     _materialType = snapshotData['material_type'] is StudyMaterialType
         ? snapshotData['material_type']
         : deserializeEnum<StudyMaterialType>(snapshotData['material_type']);
-    _previewUrl = snapshotData['preview_url'] as String?;
     _fileSizeBytes = castToType<int>(snapshotData['fileSize_Bytes']);
+    _nestedPath = snapshotData['nestedPath'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -147,25 +123,17 @@ class StudyMaterialsRecord extends FirestoreRecord {
             ParamType.DateTime,
             false,
           ),
-          'isDeleted': snapshot.data['isDeleted'],
-          'deleted_at': convertAlgoliaParam(
-            snapshot.data['deleted_at'],
-            ParamType.DateTime,
-            false,
-          ),
-          'ownerID': snapshot.data['ownerID'],
-          'material_id': snapshot.data['material_id'],
           'material_type': convertAlgoliaParam<StudyMaterialType>(
             snapshot.data['material_type'],
             ParamType.Enum,
             false,
           ),
-          'preview_url': snapshot.data['preview_url'],
           'fileSize_Bytes': convertAlgoliaParam(
             snapshot.data['fileSize_Bytes'],
             ParamType.int,
             false,
           ),
+          'nestedPath': snapshot.data['nestedPath'],
         },
         StudyMaterialsRecord.collection.doc(snapshot.objectID),
       );
@@ -207,13 +175,9 @@ Map<String, dynamic> createStudyMaterialsRecordData({
   String? mimeType,
   String? parentPath,
   DateTime? createdAt,
-  bool? isDeleted,
-  DateTime? deletedAt,
-  String? ownerID,
-  String? materialId,
   StudyMaterialType? materialType,
-  String? previewUrl,
   int? fileSizeBytes,
+  String? nestedPath,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -222,13 +186,9 @@ Map<String, dynamic> createStudyMaterialsRecordData({
       'mimeType': mimeType,
       'parentPath': parentPath,
       'created_at': createdAt,
-      'isDeleted': isDeleted,
-      'deleted_at': deletedAt,
-      'ownerID': ownerID,
-      'material_id': materialId,
       'material_type': materialType,
-      'preview_url': previewUrl,
       'fileSize_Bytes': fileSizeBytes,
+      'nestedPath': nestedPath,
     }.withoutNulls,
   );
 
@@ -248,13 +208,9 @@ class StudyMaterialsRecordDocumentEquality
         e1?.mimeType == e2?.mimeType &&
         e1?.parentPath == e2?.parentPath &&
         e1?.createdAt == e2?.createdAt &&
-        e1?.isDeleted == e2?.isDeleted &&
-        e1?.deletedAt == e2?.deletedAt &&
-        e1?.ownerID == e2?.ownerID &&
-        e1?.materialId == e2?.materialId &&
         e1?.materialType == e2?.materialType &&
-        e1?.previewUrl == e2?.previewUrl &&
-        e1?.fileSizeBytes == e2?.fileSizeBytes;
+        e1?.fileSizeBytes == e2?.fileSizeBytes &&
+        e1?.nestedPath == e2?.nestedPath;
   }
 
   @override
@@ -265,13 +221,9 @@ class StudyMaterialsRecordDocumentEquality
         e?.mimeType,
         e?.parentPath,
         e?.createdAt,
-        e?.isDeleted,
-        e?.deletedAt,
-        e?.ownerID,
-        e?.materialId,
         e?.materialType,
-        e?.previewUrl,
-        e?.fileSizeBytes
+        e?.fileSizeBytes,
+        e?.nestedPath
       ]);
 
   @override

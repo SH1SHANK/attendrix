@@ -63,438 +63,209 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<UserPersonalVaultRecord>>(
-      future: FFAppState().userPersonalFiles(
-        uniqueQueryKey: '${currentUserUid}_${dateTimeFormat(
-          "d/M/y",
-          getCurrentTimestamp,
-          locale: FFLocalizations.of(context).languageCode,
-        )}',
-        requestFn: () => queryUserPersonalVaultRecordOnce(
-          parent: currentUserReference,
-          queryBuilder: (userPersonalVaultRecord) => userPersonalVaultRecord
-              .where(
-                'isDeleted',
-                isEqualTo: false,
-              )
-              .orderBy('open_count', descending: true),
-          limit: 10,
-        ),
-      ),
-      builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
-        if (!snapshot.hasData) {
-          return Scaffold(
+    return Title(
+        title: 'studyMaterials',
+        color: FlutterFlowTheme.of(context).primary.withAlpha(0XFF),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Scaffold(
+            key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            body: Center(
-              child: SizedBox(
-                width: 25.0,
-                height: 25.0,
-                child: SpinKitFadingCube(
-                  color: FlutterFlowTheme.of(context).primary,
-                  size: 25.0,
+            floatingActionButton: Visibility(
+              visible: (_model.tabBarCurrentIndex == 0) &&
+                  (valueOrDefault(currentUserDocument?.userRole, '') ==
+                      'admin'),
+              child: AuthUserStreamWidget(
+                builder: (context) => FloatingActionButton.extended(
+                  onPressed: () async {
+                    logFirebaseEvent(
+                        'STUDY_MATERIALS_FloatingActionButton_aqm');
+                    logFirebaseEvent('FloatingActionButton_bottom_sheet');
+                    await showModalBottomSheet(
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      context: context,
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          },
+                          child: Padding(
+                            padding: MediaQuery.viewInsetsOf(context),
+                            child: AddStudyMaterialsWidget(
+                              parentPath: 'home/',
+                            ),
+                          ),
+                        );
+                      },
+                    ).then((value) => safeSetState(() {}));
+                  },
+                  backgroundColor: FlutterFlowTheme.of(context).primary,
+                  icon: Icon(
+                    Icons.add_rounded,
+                    color: FlutterFlowTheme.of(context).info,
+                    size: 24.0,
+                  ),
+                  elevation: 8.0,
+                  label: AutoSizeText(
+                    'Add Resourses',
+                    minFontSize: 10.0,
+                    style: FlutterFlowTheme.of(context).labelSmall.override(
+                          fontFamily:
+                              FlutterFlowTheme.of(context).labelSmallFamily,
+                          color: FlutterFlowTheme.of(context).info,
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.w600,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).labelSmallIsCustom,
+                        ),
+                  ),
                 ),
               ),
             ),
-          );
-        }
-        List<UserPersonalVaultRecord>
-            studyMaterialsUserPersonalVaultRecordList = snapshot.data!;
-
-        return Title(
-            title: 'studyMaterials',
-            color: FlutterFlowTheme.of(context).primary.withAlpha(0XFF),
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              child: Scaffold(
-                key: scaffoldKey,
-                backgroundColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
-                floatingActionButton: Visibility(
-                  visible: (_model.tabBarCurrentIndex == 0) &&
-                      (valueOrDefault(currentUserDocument?.userRole, '') ==
-                          'admin'),
-                  child: AuthUserStreamWidget(
-                    builder: (context) => FloatingActionButton.extended(
-                      onPressed: () async {
-                        logFirebaseEvent(
-                            'STUDY_MATERIALS_FloatingActionButton_aqm');
-                        logFirebaseEvent('FloatingActionButton_bottom_sheet');
-                        await showModalBottomSheet(
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (context) {
-                            return GestureDetector(
-                              onTap: () {
-                                FocusScope.of(context).unfocus();
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              child: Padding(
-                                padding: MediaQuery.viewInsetsOf(context),
-                                child: AddStudyMaterialsWidget(
-                                  parentPath: 'home/',
-                                ),
-                              ),
-                            );
-                          },
-                        ).then((value) => safeSetState(() {}));
+            appBar: AppBar(
+              backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+              automaticallyImplyLeading: false,
+              leading: FlutterFlowIconButton(
+                borderColor: Colors.transparent,
+                borderRadius: 30.0,
+                borderWidth: 1.0,
+                buttonSize: 60.0,
+                icon: Icon(
+                  FFIcons.karrowLeft,
+                  color: FlutterFlowTheme.of(context).primary,
+                  size: 30.0,
+                ),
+                onPressed: () async {
+                  logFirebaseEvent('STUDY_MATERIALS_arrowLeft_ICN_ON_TAP');
+                  logFirebaseEvent('IconButton_navigate_back');
+                  context.pop();
+                },
+              ),
+              title: Text(
+                'Academic Resources',
+                style: FlutterFlowTheme.of(context).headlineMedium.override(
+                      fontFamily:
+                          FlutterFlowTheme.of(context).headlineMediumFamily,
+                      color: FlutterFlowTheme.of(context).primaryText,
+                      fontSize: 22.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.bold,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).headlineMediumIsCustom,
+                    ),
+              ),
+              actions: [],
+              centerTitle: false,
+              elevation: 0.0,
+            ),
+            body: SafeArea(
+              top: true,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment(0.0, 0),
+                    child: FlutterFlowButtonTabBar(
+                      useToggleButtonStyle: true,
+                      labelStyle: FlutterFlowTheme.of(context)
+                          .labelLarge
+                          .override(
+                            fontFamily:
+                                FlutterFlowTheme.of(context).labelLargeFamily,
+                            fontSize: 17.0,
+                            letterSpacing: 0.0,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .labelLargeIsCustom,
+                          ),
+                      unselectedLabelStyle: FlutterFlowTheme.of(context)
+                          .labelLarge
+                          .override(
+                            fontFamily:
+                                FlutterFlowTheme.of(context).labelLargeFamily,
+                            letterSpacing: 0.0,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .labelLargeIsCustom,
+                          ),
+                      labelColor: FlutterFlowTheme.of(context).primaryText,
+                      unselectedLabelColor:
+                          FlutterFlowTheme.of(context).primaryText,
+                      backgroundColor: FlutterFlowTheme.of(context).accent1,
+                      unselectedBackgroundColor:
+                          FlutterFlowTheme.of(context).accent4,
+                      unselectedBorderColor:
+                          FlutterFlowTheme.of(context).alternate,
+                      borderWidth: 2.0,
+                      borderRadius: 8.0,
+                      elevation: 0.0,
+                      buttonMargin:
+                          EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
+                      tabs: [
+                        Tab(
+                          text: 'Study Repository',
+                        ),
+                        Tab(
+                          text: 'Personal Repository',
+                        ),
+                      ],
+                      controller: _model.tabBarController,
+                      onTap: (i) async {
+                        [() async {}, () async {}][i]();
                       },
-                      backgroundColor: FlutterFlowTheme.of(context).primary,
-                      icon: Icon(
-                        Icons.add_rounded,
-                        color: FlutterFlowTheme.of(context).info,
-                        size: 24.0,
-                      ),
-                      elevation: 8.0,
-                      label: AutoSizeText(
-                        'Add Resourses',
-                        minFontSize: 10.0,
-                        style: FlutterFlowTheme.of(context).labelSmall.override(
-                              fontFamily:
-                                  FlutterFlowTheme.of(context).labelSmallFamily,
-                              color: FlutterFlowTheme.of(context).info,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w600,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .labelSmallIsCustom,
-                            ),
-                      ),
                     ),
                   ),
-                ),
-                appBar: AppBar(
-                  backgroundColor:
-                      FlutterFlowTheme.of(context).secondaryBackground,
-                  automaticallyImplyLeading: false,
-                  leading: FlutterFlowIconButton(
-                    borderColor: Colors.transparent,
-                    borderRadius: 30.0,
-                    borderWidth: 1.0,
-                    buttonSize: 60.0,
-                    icon: Icon(
-                      FFIcons.karrowLeft,
-                      color: FlutterFlowTheme.of(context).primary,
-                      size: 30.0,
-                    ),
-                    onPressed: () async {
-                      logFirebaseEvent('STUDY_MATERIALS_arrowLeft_ICN_ON_TAP');
-                      logFirebaseEvent('IconButton_navigate_back');
-                      context.pop();
-                    },
-                  ),
-                  title: Text(
-                    'Academic Resources',
-                    style: FlutterFlowTheme.of(context).headlineMedium.override(
-                          fontFamily:
-                              FlutterFlowTheme.of(context).headlineMediumFamily,
-                          color: FlutterFlowTheme.of(context).primaryText,
-                          fontSize: 22.0,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.bold,
-                          useGoogleFonts: !FlutterFlowTheme.of(context)
-                              .headlineMediumIsCustom,
-                        ),
-                  ),
-                  actions: [],
-                  centerTitle: false,
-                  elevation: 0.0,
-                ),
-                body: SafeArea(
-                  top: true,
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment(0.0, 0),
-                        child: FlutterFlowButtonTabBar(
-                          useToggleButtonStyle: true,
-                          labelStyle: FlutterFlowTheme.of(context)
-                              .labelLarge
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelLargeFamily,
-                                fontSize: 17.0,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelLargeIsCustom,
-                              ),
-                          unselectedLabelStyle: FlutterFlowTheme.of(context)
-                              .labelLarge
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .labelLargeFamily,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .labelLargeIsCustom,
-                              ),
-                          labelColor: FlutterFlowTheme.of(context).primaryText,
-                          unselectedLabelColor:
-                              FlutterFlowTheme.of(context).primaryText,
-                          backgroundColor: FlutterFlowTheme.of(context).accent1,
-                          unselectedBackgroundColor:
-                              FlutterFlowTheme.of(context).accent4,
-                          unselectedBorderColor:
-                              FlutterFlowTheme.of(context).alternate,
-                          borderWidth: 2.0,
-                          borderRadius: 8.0,
-                          elevation: 0.0,
-                          buttonMargin: EdgeInsetsDirectional.fromSTEB(
-                              8.0, 0.0, 8.0, 0.0),
-                          tabs: [
-                            Tab(
-                              text: 'Study Repository',
-                            ),
-                            Tab(
-                              text: 'Personal Repository',
-                            ),
-                          ],
-                          controller: _model.tabBarController,
-                          onTap: (i) async {
-                            [() async {}, () async {}][i]();
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _model.tabBarController,
-                          children: [
-                            SingleChildScrollView(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 10.0, 0.0, 0.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Expanded(
-                                          flex: 7,
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    8.0, 0.0, 4.0, 0.0),
-                                            child: Container(
-                                              width: 330.0,
-                                              child: TextFormField(
-                                                controller:
-                                                    _model.textController,
-                                                focusNode:
-                                                    _model.textFieldFocusNode,
-                                                onFieldSubmitted: (_) async {
-                                                  logFirebaseEvent(
-                                                      'STUDY_MATERIALS_TextField_8z0xb4dy_ON_TE');
-                                                  if (_model.textController
-                                                              .text !=
-                                                          '') {
-                                                    logFirebaseEvent(
-                                                        'TextField_update_page_state');
-                                                    _model.searchQuery = _model
-                                                        .textController.text;
-                                                    _model.searchActiveGlobal =
-                                                        true;
-                                                    safeSetState(() {});
-                                                  } else {
-                                                    logFirebaseEvent(
-                                                        'TextField_show_snack_bar');
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'No query entered! Type keywords to find lecture notes, assignments, or slides.',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .labelSmall
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelSmallFamily,
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .info,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                useGoogleFonts:
-                                                                    !FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelSmallIsCustom,
-                                                              ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .error,
-                                                      ),
-                                                    );
-                                                  }
-                                                },
-                                                autofocus: false,
-                                                obscureText: false,
-                                                decoration: InputDecoration(
-                                                  hintText:
-                                                      'Search through materials',
-                                                  hintStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelLarge
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelLargeFamily,
-                                                            letterSpacing: 0.0,
-                                                            useGoogleFonts:
-                                                                !FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelLargeIsCustom,
-                                                          ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color:
+                  Expanded(
+                    child: TabBarView(
+                      controller: _model.tabBarController,
+                      children: [
+                        SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0.0, 10.0, 0.0, 0.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Expanded(
+                                      flex: 7,
+                                      child: Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            8.0, 0.0, 4.0, 0.0),
+                                        child: Container(
+                                          width: 330.0,
+                                          child: TextFormField(
+                                            controller: _model.textController,
+                                            focusNode:
+                                                _model.textFieldFocusNode,
+                                            onFieldSubmitted: (_) async {
+                                              logFirebaseEvent(
+                                                  'STUDY_MATERIALS_TextField_8z0xb4dy_ON_TE');
+                                              if (_model.textController.text !=
+                                                      '') {
+                                                logFirebaseEvent(
+                                                    'TextField_update_page_state');
+                                                _model.searchQuery =
+                                                    _model.textController.text;
+                                                _model.searchActiveGlobal =
+                                                    true;
+                                                safeSetState(() {});
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'TextField_show_snack_bar');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'No query entered! Type keywords to find lecture notes, assignments, or slides.',
+                                                      style:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .alternate,
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Color(0x00000000),
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                  ),
-                                                  errorBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Color(0x00000000),
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                  ),
-                                                  focusedErrorBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Color(0x00000000),
-                                                      width: 1.0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12.0),
-                                                  ),
-                                                  filled: true,
-                                                  fillColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .secondaryBackground,
-                                                  prefixIcon: Icon(
-                                                    Icons.search,
-                                                  ),
-                                                ),
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelLarge
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelLargeFamily,
-                                                          letterSpacing: 0.0,
-                                                          useGoogleFonts:
-                                                              !FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .labelLargeIsCustom,
-                                                        ),
-                                                validator: _model
-                                                    .textControllerValidator
-                                                    .asValidator(context),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        if (_model.searchActiveGlobal)
-                                          Flexible(
-                                            flex: 1,
-                                            child: Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(0.0, 0.0, 4.0, 0.0),
-                                              child: InkWell(
-                                                splashColor: Colors.transparent,
-                                                focusColor: Colors.transparent,
-                                                hoverColor: Colors.transparent,
-                                                highlightColor:
-                                                    Colors.transparent,
-                                                onTap: () async {
-                                                  logFirebaseEvent(
-                                                      'STUDY_MATERIALS_Icon_iahx504o_ON_TAP');
-                                                  logFirebaseEvent(
-                                                      'Icon_update_page_state');
-                                                  _model.searchActiveGlobal =
-                                                      false;
-                                                  safeSetState(() {});
-                                                },
-                                                child: Icon(
-                                                  Icons.close_rounded,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryText,
-                                                  size: 46.0,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        if (!_model.searchActiveGlobal)
-                                          Flexible(
-                                            flex: 1,
-                                            child: Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(0.0, 0.0, 4.0, 0.0),
-                                              child: InkWell(
-                                                splashColor: Colors.transparent,
-                                                focusColor: Colors.transparent,
-                                                hoverColor: Colors.transparent,
-                                                highlightColor:
-                                                    Colors.transparent,
-                                                onTap: () async {
-                                                  logFirebaseEvent(
-                                                      'STUDY_MATERIALS_Icon_dvtomllq_ON_TAP');
-                                                  if (_model.textController
-                                                              .text !=
-                                                          '') {
-                                                    logFirebaseEvent(
-                                                        'Icon_update_page_state');
-                                                    _model.searchQuery = _model
-                                                        .textController.text;
-                                                    _model.searchActiveGlobal =
-                                                        true;
-                                                    safeSetState(() {});
-                                                  } else {
-                                                    logFirebaseEvent(
-                                                        'Icon_show_snack_bar');
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'No query entered! Type keywords to find lecture notes, assignments, or slides.',
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
                                                               .labelSmall
                                                               .override(
                                                                 fontFamily: FlutterFlowTheme.of(
@@ -510,360 +281,519 @@ class _StudyMaterialsWidgetState extends State<StudyMaterialsWidget>
                                                                             context)
                                                                         .labelSmallIsCustom,
                                                               ),
-                                                        ),
-                                                        duration: Duration(
-                                                            milliseconds: 4000),
-                                                        backgroundColor:
+                                                    ),
+                                                    duration: Duration(
+                                                        milliseconds: 4000),
+                                                    backgroundColor:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .error,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            autofocus: false,
+                                            obscureText: false,
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  'Search through materials',
+                                              hintStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .labelLarge
+                                                      .override(
+                                                        fontFamily:
                                                             FlutterFlowTheme.of(
                                                                     context)
-                                                                .error,
+                                                                .labelLargeFamily,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .labelLargeIsCustom,
                                                       ),
-                                                    );
-                                                  }
-                                                },
-                                                child: Icon(
-                                                  FFIcons.ksearch,
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
                                                   color: FlutterFlowTheme.of(
                                                           context)
-                                                      .secondaryText,
-                                                  size: 38.0,
+                                                      .alternate,
+                                                  width: 1.0,
                                                 ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: Color(0x00000000),
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              errorBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: Color(0x00000000),
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              focusedErrorBorder:
+                                                  OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: Color(0x00000000),
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              filled: true,
+                                              fillColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryBackground,
+                                              prefixIcon: Icon(
+                                                Icons.search,
                                               ),
                                             ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .labelLarge
+                                                .override(
+                                                  fontFamily:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .labelLargeFamily,
+                                                  letterSpacing: 0.0,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .labelLargeIsCustom,
+                                                ),
+                                            validator: _model
+                                                .textControllerValidator
+                                                .asValidator(context),
                                           ),
-                                      ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  if (!_model.searchActiveGlobal)
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          12.0, 8.0, 0.0, 0.0),
-                                      child: Text(
-                                        'Global Resourses',
-                                        style: FlutterFlowTheme.of(context)
-                                            .labelLarge
-                                            .override(
-                                              fontFamily:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelLargeFamily,
+                                    if (_model.searchActiveGlobal)
+                                      Flexible(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 4.0, 0.0),
+                                          child: InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              logFirebaseEvent(
+                                                  'STUDY_MATERIALS_Icon_iahx504o_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Icon_update_page_state');
+                                              _model.searchActiveGlobal = false;
+                                              safeSetState(() {});
+                                            },
+                                            child: Icon(
+                                              Icons.close_rounded,
                                               color:
                                                   FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              fontSize: 18.0,
-                                              letterSpacing: 0.0,
-                                              useGoogleFonts:
-                                                  !FlutterFlowTheme.of(context)
-                                                      .labelLargeIsCustom,
+                                                      .secondaryText,
+                                              size: 46.0,
                                             ),
-                                      ),
-                                    ),
-                                  if (!_model.searchActiveGlobal)
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          12.0, 4.0, 12.0, 0.0),
-                                      child: FutureBuilder<
-                                          List<StudyMaterialsRecord>>(
-                                        future: queryStudyMaterialsRecordOnce(
-                                          queryBuilder:
-                                              (studyMaterialsRecord) =>
-                                                  studyMaterialsRecord
-                                                      .where(
-                                                        'material_type',
-                                                        isEqualTo:
-                                                            StudyMaterialType
-                                                                .folder
-                                                                .serialize(),
-                                                      )
-                                                      .where(
-                                                        'isDeleted',
-                                                        isEqualTo: false,
-                                                      )
-                                                      .where(
-                                                        'parentPath',
-                                                        isEqualTo: 'home/',
-                                                      )
-                                                      .orderBy('fileName'),
-                                          limit: 9,
+                                          ),
                                         ),
-                                        builder: (context, snapshot) {
-                                          // Customize what your widget looks like when it's loading.
-                                          if (!snapshot.hasData) {
-                                            return Center(
-                                              child: SizedBox(
-                                                width: 25.0,
-                                                height: 25.0,
-                                                child: SpinKitFadingCube(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 25.0,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                          List<StudyMaterialsRecord>
-                                              globalFoldersStudyMaterialsRecordList =
-                                              snapshot.data!;
-                                          if (globalFoldersStudyMaterialsRecordList
-                                              .isEmpty) {
-                                            return EmptyStateDynamicWidget(
-                                              icon: Icon(
-                                                FFIcons.kfilesOff,
-                                              ),
-                                              title:
-                                                  'The Repository is currently Empty!',
-                                              body:
-                                                  'It seems like we haven\'t added any resoureses yet! stay tuned for more resoures will be added soon!',
-                                              buttonText: 'Refresh',
-                                              buttonAction: () async {},
-                                            );
-                                          }
-
-                                          return GridView.builder(
-                                            padding: EdgeInsets.zero,
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 3,
-                                              crossAxisSpacing: 4.0,
-                                              mainAxisSpacing: 4.0,
-                                              childAspectRatio: 1.0,
-                                            ),
-                                            primary: false,
-                                            shrinkWrap: true,
-                                            scrollDirection: Axis.vertical,
-                                            itemCount:
-                                                globalFoldersStudyMaterialsRecordList
-                                                    .length,
-                                            itemBuilder:
-                                                (context, globalFoldersIndex) {
-                                              final globalFoldersStudyMaterialsRecord =
-                                                  globalFoldersStudyMaterialsRecordList[
-                                                      globalFoldersIndex];
-                                              return wrapWithModel(
-                                                model: _model.folderBlockModels
-                                                    .getModel(
-                                                  globalFoldersStudyMaterialsRecord
-                                                      .reference.id,
-                                                  globalFoldersIndex,
-                                                ),
-                                                updateCallback: () =>
-                                                    safeSetState(() {}),
-                                                child: FolderBlockWidget(
-                                                  key: Key(
-                                                    'Keymkt_${globalFoldersStudyMaterialsRecord.reference.id}',
-                                                  ),
-                                                  folderRef:
-                                                      globalFoldersStudyMaterialsRecord,
-                                                  onTap: (parentPath) async {
-                                                    logFirebaseEvent(
-                                                        'STUDY_MATERIALS_Container_mktcrw9p_CALLB');
-                                                    logFirebaseEvent(
-                                                        'folderBlock_navigate_to');
-
-                                                    context.goNamed(
-                                                      FileManagerWidget
-                                                          .routeName,
-                                                      queryParameters: {
-                                                        'parentPath':
-                                                            serializeParam(
-                                                          parentPath,
-                                                          ParamType.String,
-                                                        ),
-                                                      }.withoutNulls,
-                                                    );
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
                                       ),
-                                    ),
-                                  if (_model.searchActiveGlobal)
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 10.0, 0.0, 0.0),
-                                      child: FutureBuilder<
-                                          List<StudyMaterialsRecord>>(
-                                        future: (_model
-                                                    .algoliaRequestCompleter ??=
-                                                Completer<
-                                                    List<
-                                                        StudyMaterialsRecord>>()
-                                                  ..complete(
-                                                      StudyMaterialsRecord
-                                                          .search(
-                                                    term: _model.searchQuery,
-                                                    maxResults: 20,
-                                                  )))
-                                            .future,
-                                        builder: (context, snapshot) {
-                                          // Customize what your widget looks like when it's loading.
-                                          if (!snapshot.hasData) {
-                                            return Center(
-                                              child: SizedBox(
-                                                width: 25.0,
-                                                height: 25.0,
-                                                child: SpinKitFadingCube(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  size: 25.0,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                          List<StudyMaterialsRecord>
-                                              listViewStudyMaterialsRecordList =
-                                              snapshot.data!;
-                                          // Customize what your widget looks like with no search results.
-                                          if (snapshot.data!.isEmpty) {
-                                            return Container(
-                                              height: 100,
-                                              child: Center(
-                                                child: Text('No results.'),
-                                              ),
-                                            );
-                                          }
-                                          return RefreshIndicator(
-                                            color: FlutterFlowTheme.of(context)
-                                                .velvetSky,
-                                            backgroundColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .accent4,
-                                            strokeWidth: 3.5,
-                                            onRefresh: () async {
+                                    if (!_model.searchActiveGlobal)
+                                      Flexible(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 4.0, 0.0),
+                                          child: InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
                                               logFirebaseEvent(
-                                                  'STUDY_MATERIALS_ListView_jx77xpco_ON_PUL');
-                                              logFirebaseEvent(
-                                                  'ListView_refresh_database_request');
-                                              safeSetState(() => _model
-                                                      .algoliaRequestCompleter =
-                                                  null);
-                                              await _model
-                                                  .waitForAlgoliaRequestCompleted();
-                                            },
-                                            child: ListView.builder(
-                                              padding: EdgeInsets.zero,
-                                              primary: false,
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.vertical,
-                                              itemCount:
-                                                  listViewStudyMaterialsRecordList
-                                                      .length,
-                                              itemBuilder:
-                                                  (context, listViewIndex) {
-                                                final listViewStudyMaterialsRecord =
-                                                    listViewStudyMaterialsRecordList[
-                                                        listViewIndex];
-                                                return Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          6.0, 0.0, 6.0, 4.0),
-                                                  child: InkWell(
-                                                    splashColor:
-                                                        Colors.transparent,
-                                                    focusColor:
-                                                        Colors.transparent,
-                                                    hoverColor:
-                                                        Colors.transparent,
-                                                    highlightColor:
-                                                        Colors.transparent,
-                                                    onTap: () async {
-                                                      logFirebaseEvent(
-                                                          'STUDY_MATERIALS_Container_e7dc1aoj_ON_TA');
-                                                      if (listViewStudyMaterialsRecord
-                                                              .materialType ==
-                                                          StudyMaterialType
-                                                              .folder) {
-                                                        logFirebaseEvent(
-                                                            'taskManager_block_navigate_to');
-
-                                                        context.pushNamed(
-                                                          FileManagerWidget
-                                                              .routeName,
-                                                          queryParameters: {
-                                                            'parentPath':
-                                                                serializeParam(
-                                                              '${listViewStudyMaterialsRecord.parentPath}${listViewStudyMaterialsRecord.fileName}/',
-                                                              ParamType.String,
-                                                            ),
-                                                          }.withoutNulls,
-                                                        );
-                                                      } else {
-                                                        logFirebaseEvent(
-                                                            'taskManager_block_custom_action');
-                                                        _model.fileStatus =
-                                                            await actions
-                                                                .fileViewer(
-                                                          listViewStudyMaterialsRecord
-                                                              .filePath,
-                                                        );
-                                                      }
-
-                                                      safeSetState(() {});
-                                                    },
-                                                    child: wrapWithModel(
-                                                      model: _model
-                                                          .taskManagerBlockModels
-                                                          .getModel(
-                                                        listViewStudyMaterialsRecord
-                                                            .reference.id,
-                                                        listViewIndex,
-                                                      ),
-                                                      updateCallback: () =>
-                                                          safeSetState(() {}),
-                                                      updateOnChange: true,
-                                                      child:
-                                                          TaskManagerBlockWidget(
-                                                        key: Key(
-                                                          'Keye7d_${listViewStudyMaterialsRecord.reference.id}',
-                                                        ),
-                                                        materialReference:
-                                                            listViewStudyMaterialsRecord,
-                                                      ),
+                                                  'STUDY_MATERIALS_Icon_dvtomllq_ON_TAP');
+                                              if (_model.textController.text !=
+                                                      '') {
+                                                logFirebaseEvent(
+                                                    'Icon_update_page_state');
+                                                _model.searchQuery =
+                                                    _model.textController.text;
+                                                _model.searchActiveGlobal =
+                                                    true;
+                                                safeSetState(() {});
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Icon_show_snack_bar');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'No query entered! Type keywords to find lecture notes, assignments, or slides.',
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .labelSmall
+                                                              .override(
+                                                                fontFamily: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .labelSmallFamily,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .info,
+                                                                letterSpacing:
+                                                                    0.0,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelSmallIsCustom,
+                                                              ),
                                                     ),
+                                                    duration: Duration(
+                                                        milliseconds: 4000),
+                                                    backgroundColor:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .error,
                                                   ),
+                                                );
+                                              }
+                                            },
+                                            child: Icon(
+                                              FFIcons.ksearch,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              size: 38.0,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (!_model.searchActiveGlobal)
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      12.0, 8.0, 0.0, 0.0),
+                                  child: Text(
+                                    'Global Resourses',
+                                    style: FlutterFlowTheme.of(context)
+                                        .labelLarge
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelLargeFamily,
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                          fontSize: 18.0,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelLargeIsCustom,
+                                        ),
+                                  ),
+                                ),
+                              if (!_model.searchActiveGlobal)
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      12.0, 4.0, 12.0, 0.0),
+                                  child:
+                                      StreamBuilder<List<StudyMaterialsRecord>>(
+                                    stream: queryStudyMaterialsRecord(
+                                      queryBuilder: (studyMaterialsRecord) =>
+                                          studyMaterialsRecord
+                                              .where(
+                                                'material_type',
+                                                isEqualTo: StudyMaterialType
+                                                    .folder
+                                                    .serialize(),
+                                              )
+                                              .where(
+                                                'parentPath',
+                                                isEqualTo:
+                                                    valueOrDefault<String>(
+                                                  "home/",
+                                                  'home/',
+                                                ),
+                                              )
+                                              .orderBy('fileName'),
+                                      limit: 9,
+                                    ),
+                                    builder: (context, snapshot) {
+                                      // Customize what your widget looks like when it's loading.
+                                      if (!snapshot.hasData) {
+                                        return Center(
+                                          child: SizedBox(
+                                            width: 25.0,
+                                            height: 25.0,
+                                            child: SpinKitFadingCube(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              size: 25.0,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      List<StudyMaterialsRecord>
+                                          globalFoldersStudyMaterialsRecordList =
+                                          snapshot.data!;
+                                      if (globalFoldersStudyMaterialsRecordList
+                                          .isEmpty) {
+                                        return EmptyStateDynamicWidget(
+                                          icon: Icon(
+                                            FFIcons.kfilesOff,
+                                          ),
+                                          title:
+                                              'The Repository is currently Empty!',
+                                          body:
+                                              'It seems like we haven\'t added any resoureses yet! stay tuned for more resoures will be added soon!',
+                                          buttonText: 'Refresh',
+                                          buttonAction: () async {},
+                                        );
+                                      }
+
+                                      return GridView.builder(
+                                        padding: EdgeInsets.zero,
+                                        gridDelegate:
+                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          crossAxisSpacing: 4.0,
+                                          mainAxisSpacing: 4.0,
+                                          childAspectRatio: 1.0,
+                                        ),
+                                        primary: false,
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        itemCount:
+                                            globalFoldersStudyMaterialsRecordList
+                                                .length,
+                                        itemBuilder:
+                                            (context, globalFoldersIndex) {
+                                          final globalFoldersStudyMaterialsRecord =
+                                              globalFoldersStudyMaterialsRecordList[
+                                                  globalFoldersIndex];
+                                          return wrapWithModel(
+                                            model: _model.folderBlockModels
+                                                .getModel(
+                                              globalFoldersStudyMaterialsRecord
+                                                  .reference.id,
+                                              globalFoldersIndex,
+                                            ),
+                                            updateCallback: () =>
+                                                safeSetState(() {}),
+                                            child: FolderBlockWidget(
+                                              key: Key(
+                                                'Keymkt_${globalFoldersStudyMaterialsRecord.reference.id}',
+                                              ),
+                                              folderRef:
+                                                  globalFoldersStudyMaterialsRecord,
+                                              onTap: (parentPath) async {
+                                                logFirebaseEvent(
+                                                    'STUDY_MATERIALS_Container_mktcrw9p_CALLB');
+                                                logFirebaseEvent(
+                                                    'folderBlock_navigate_to');
+
+                                                context.goNamed(
+                                                  FileManagerWidget.routeName,
+                                                  queryParameters: {
+                                                    'parentPath':
+                                                        serializeParam(
+                                                      parentPath,
+                                                      ParamType.String,
+                                                    ),
+                                                  }.withoutNulls,
                                                 );
                                               },
                                             ),
                                           );
                                         },
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 100.0),
-                                  child: wrapWithModel(
-                                    model: _model.emptyClassModel,
-                                    updateCallback: () => safeSetState(() {}),
-                                    child: EmptyClassWidget(
-                                      imageUrl:
-                                          'https://cdn-icons-gif.flaticon.com/15586/15586080.gif',
-                                      title: 'Your Study Den is Coming!',
-                                      description:
-                                          'Personal Repository is under construction.\nSoon, you’ll have your own space to store notes, docs & genius ideas.',
-                                    ),
+                                      );
+                                    },
                                   ),
                                 ),
-                              ],
+                              if (_model.searchActiveGlobal)
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 10.0, 0.0, 0.0),
+                                  child:
+                                      FutureBuilder<List<StudyMaterialsRecord>>(
+                                    future: (_model.algoliaRequestCompleter ??=
+                                            Completer<
+                                                List<StudyMaterialsRecord>>()
+                                              ..complete(
+                                                  StudyMaterialsRecord.search(
+                                                term: _model.searchQuery,
+                                                maxResults: 20,
+                                              )))
+                                        .future,
+                                    builder: (context, snapshot) {
+                                      // Customize what your widget looks like when it's loading.
+                                      if (!snapshot.hasData) {
+                                        return Center(
+                                          child: SizedBox(
+                                            width: 25.0,
+                                            height: 25.0,
+                                            child: SpinKitFadingCube(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              size: 25.0,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      List<StudyMaterialsRecord>
+                                          listViewStudyMaterialsRecordList =
+                                          snapshot.data!;
+                                      // Customize what your widget looks like with no search results.
+                                      if (snapshot.data!.isEmpty) {
+                                        return Container(
+                                          height: 100,
+                                          child: Center(
+                                            child: Text('No results.'),
+                                          ),
+                                        );
+                                      }
+                                      return RefreshIndicator(
+                                        color: FlutterFlowTheme.of(context)
+                                            .velvetSky,
+                                        backgroundColor:
+                                            FlutterFlowTheme.of(context)
+                                                .accent4,
+                                        strokeWidth: 3.5,
+                                        onRefresh: () async {
+                                          logFirebaseEvent(
+                                              'STUDY_MATERIALS_ListView_jx77xpco_ON_PUL');
+                                          logFirebaseEvent(
+                                              'ListView_refresh_database_request');
+                                          safeSetState(() => _model
+                                              .algoliaRequestCompleter = null);
+                                          await _model
+                                              .waitForAlgoliaRequestCompleted();
+                                        },
+                                        child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          primary: false,
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.vertical,
+                                          itemCount:
+                                              listViewStudyMaterialsRecordList
+                                                  .length,
+                                          itemBuilder:
+                                              (context, listViewIndex) {
+                                            final listViewStudyMaterialsRecord =
+                                                listViewStudyMaterialsRecordList[
+                                                    listViewIndex];
+                                            return Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(6.0, 0.0, 6.0, 4.0),
+                                              child: InkWell(
+                                                splashColor: Colors.transparent,
+                                                focusColor: Colors.transparent,
+                                                hoverColor: Colors.transparent,
+                                                highlightColor:
+                                                    Colors.transparent,
+                                                onTap: () async {
+                                                  logFirebaseEvent(
+                                                      'STUDY_MATERIALS_Container_e7dc1aoj_ON_TA');
+                                                  if (listViewStudyMaterialsRecord
+                                                          .materialType ==
+                                                      StudyMaterialType
+                                                          .folder) {
+                                                    logFirebaseEvent(
+                                                        'taskManager_block_navigate_to');
+
+                                                    context.pushNamed(
+                                                      FileManagerWidget
+                                                          .routeName,
+                                                      queryParameters: {
+                                                        'parentPath':
+                                                            serializeParam(
+                                                          '${listViewStudyMaterialsRecord.parentPath}${listViewStudyMaterialsRecord.fileName}/',
+                                                          ParamType.String,
+                                                        ),
+                                                      }.withoutNulls,
+                                                    );
+                                                  } else {
+                                                    logFirebaseEvent(
+                                                        'taskManager_block_custom_action');
+                                                    _model.fileStatus =
+                                                        await actions
+                                                            .fileViewer(
+                                                      listViewStudyMaterialsRecord
+                                                          .filePath,
+                                                    );
+                                                  }
+
+                                                  safeSetState(() {});
+                                                },
+                                                child: wrapWithModel(
+                                                  model: _model
+                                                      .taskManagerBlockModels
+                                                      .getModel(
+                                                    listViewStudyMaterialsRecord
+                                                        .reference.id,
+                                                    listViewIndex,
+                                                  ),
+                                                  updateCallback: () =>
+                                                      safeSetState(() {}),
+                                                  updateOnChange: true,
+                                                  child: TaskManagerBlockWidget(
+                                                    key: Key(
+                                                      'Keye7d_${listViewStudyMaterialsRecord.reference.id}',
+                                                    ),
+                                                    materialReference:
+                                                        listViewStudyMaterialsRecord,
+                                                    onTap: () async {},
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 0.0, 0.0, 100.0),
+                              child: wrapWithModel(
+                                model: _model.emptyClassModel,
+                                updateCallback: () => safeSetState(() {}),
+                                child: EmptyClassWidget(
+                                  imageUrl:
+                                      'https://cdn-icons-gif.flaticon.com/15586/15586080.gif',
+                                  title: 'Your Study Den is Coming!',
+                                  description:
+                                      'Personal Repository is under construction.\nSoon, you’ll have your own space to store notes, docs & genius ideas.',
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ));
-      },
-    );
+            ),
+          ),
+        ));
   }
 }

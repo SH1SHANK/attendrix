@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 
 class AddFolderBottomSheetModel
     extends FlutterFlowModel<AddFolderBottomSheetWidget> {
+  ///  Local state fields for this component.
+
+  String nestedPath = 'home/';
+
   ///  State fields for stateful widgets in this component.
 
   // State field(s) for TextField widget.
@@ -15,8 +19,6 @@ class AddFolderBottomSheetModel
   // State field(s) for DropDown widget.
   String? dropDownValue;
   FormFieldController<String>? dropDownValueController;
-  // Stores action output result for [Firestore Query - Query a collection] action in DropDown widget.
-  StudyMaterialsRecord? selectedFolder;
   // Stores action output result for [Backend Call - Create Document] action in Button widget.
   StudyMaterialsRecord? createdFolder;
 

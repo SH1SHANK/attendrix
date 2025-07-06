@@ -65,20 +65,15 @@ class CustomClassesRecord extends FirestoreRecord {
   String get courseID => _courseID ?? '';
   bool hasCourseID() => _courseID != null;
 
-  // "isActive" field.
-  bool? _isActive;
-  bool get isActive => _isActive ?? false;
-  bool hasIsActive() => _isActive != null;
-
   // "lastNotified" field.
   DateTime? _lastNotified;
   DateTime? get lastNotified => _lastNotified;
   bool hasLastNotified() => _lastNotified != null;
 
-  // "createdAt" field.
-  DateTime? _createdAt;
-  DateTime? get createdAt => _createdAt;
-  bool hasCreatedAt() => _createdAt != null;
+  // "startDate" field.
+  DateTime? _startDate;
+  DateTime? get startDate => _startDate;
+  bool hasStartDate() => _startDate != null;
 
   DocumentReference get parentReference => reference.parent.parent!;
 
@@ -96,9 +91,8 @@ class CustomClassesRecord extends FirestoreRecord {
     _cancelledClasses = getDataList(snapshotData['cancelledClasses']);
     _classAssets = snapshotData['classAssets'] as String?;
     _courseID = snapshotData['courseID'] as String?;
-    _isActive = snapshotData['isActive'] as bool?;
     _lastNotified = snapshotData['lastNotified'] as DateTime?;
-    _createdAt = snapshotData['createdAt'] as DateTime?;
+    _startDate = snapshotData['startDate'] as DateTime?;
   }
 
   static Query<Map<String, dynamic>> collection([DocumentReference? parent]) =>
@@ -149,9 +143,8 @@ Map<String, dynamic> createCustomClassesRecordData({
   int? notificationMinutesBefore,
   String? classAssets,
   String? courseID,
-  bool? isActive,
   DateTime? lastNotified,
-  DateTime? createdAt,
+  DateTime? startDate,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -163,9 +156,8 @@ Map<String, dynamic> createCustomClassesRecordData({
       'notificationMinutesBefore': notificationMinutesBefore,
       'classAssets': classAssets,
       'courseID': courseID,
-      'isActive': isActive,
       'lastNotified': lastNotified,
-      'createdAt': createdAt,
+      'startDate': startDate,
     }.withoutNulls,
   );
 
@@ -192,9 +184,8 @@ class CustomClassesRecordDocumentEquality
         listEquality.equals(e1?.cancelledClasses, e2?.cancelledClasses) &&
         e1?.classAssets == e2?.classAssets &&
         e1?.courseID == e2?.courseID &&
-        e1?.isActive == e2?.isActive &&
         e1?.lastNotified == e2?.lastNotified &&
-        e1?.createdAt == e2?.createdAt;
+        e1?.startDate == e2?.startDate;
   }
 
   @override
@@ -209,9 +200,8 @@ class CustomClassesRecordDocumentEquality
         e?.cancelledClasses,
         e?.classAssets,
         e?.courseID,
-        e?.isActive,
         e?.lastNotified,
-        e?.createdAt
+        e?.startDate
       ]);
 
   @override

@@ -461,7 +461,9 @@ class _CGPACalculatorWidgetState extends State<CGPACalculatorWidget> {
                       children: [
                         TextSpan(
                           text: 'Calculated SGPA: ',
-                          style: TextStyle(),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
                         ),
                         TextSpan(
                           text: valueOrDefault<String>(
@@ -474,7 +476,7 @@ class _CGPACalculatorWidgetState extends State<CGPACalculatorWidget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .titleLargeFamily,
                                 color: FlutterFlowTheme.of(context).tertiary,
-                                fontSize: 16.0,
+                                fontSize: 20.0,
                                 letterSpacing: 0.0,
                                 useGoogleFonts: !FlutterFlowTheme.of(context)
                                     .titleLargeIsCustom,
@@ -491,20 +493,23 @@ class _CGPACalculatorWidgetState extends State<CGPACalculatorWidget> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
-                  child: Text(
-                    _model.calculatedSGPA,
-                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          fontFamily:
-                              FlutterFlowTheme.of(context).bodyMediumFamily,
-                          fontSize: 12.0,
-                          letterSpacing: 0.0,
-                          useGoogleFonts:
-                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                        ),
+                if (_model.calculatedGrades?.error != null &&
+                    _model.calculatedGrades?.error != '')
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
+                    child: Text(
+                      _model.calculatedSGPA,
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            fontFamily:
+                                FlutterFlowTheme.of(context).bodyMediumFamily,
+                            fontSize: 14.0,
+                            letterSpacing: 0.0,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
+                          ),
+                    ),
                   ),
-                ),
                 if (valueOrDefault<bool>(
                   _model.calculatedGrades?.hasError(),
                   false,
@@ -527,7 +532,8 @@ class _CGPACalculatorWidgetState extends State<CGPACalculatorWidget> {
                           ),
                     ),
                   ),
-                if (_model.calculatedGrades?.hasDetails() ?? true)
+                if (_model.calculatedGrades?.error != null &&
+                    _model.calculatedGrades?.error != '')
                   Padding(
                     padding:
                         EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 0.0, 0.0),
@@ -539,7 +545,7 @@ class _CGPACalculatorWidgetState extends State<CGPACalculatorWidget> {
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             fontFamily:
                                 FlutterFlowTheme.of(context).bodyMediumFamily,
-                            fontSize: 12.0,
+                            fontSize: 14.0,
                             letterSpacing: 0.0,
                             useGoogleFonts: !FlutterFlowTheme.of(context)
                                 .bodyMediumIsCustom,

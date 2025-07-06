@@ -5,6 +5,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'class_block_secondary_model.dart';
@@ -46,6 +47,23 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ClassBlockSecondaryModel());
+
+    // On component load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('CLASS_BLOCK_SECONDARY_classBlock_seconda');
+      logFirebaseEvent('classBlock_secondary_custom_action');
+      _model.isAttended = await actions.checkAttendance(
+        widget.courseID!,
+        widget.courseID!,
+        currentUserUid,
+        true,
+        functions.parseDateTime(getCurrentTimestamp,
+            functions.convertToDateTime(widget.classStartTime!)),
+      );
+      logFirebaseEvent('classBlock_secondary_update_component_st');
+      _model.attendanceMarked = _model.isAttended!;
+      safeSetState(() {});
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -307,8 +325,10 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
                                           await actions.checkInToCustomClasses(
                                         widget.courseID!,
                                         currentUserReference!,
-                                        functions.convertToDateTime(
-                                            widget.classStartTime!),
+                                        functions.parseDateTime(
+                                            getCurrentTimestamp,
+                                            functions.convertToDateTime(
+                                                widget.classStartTime!)),
                                       );
                                       logFirebaseEvent(
                                           'Checkbox_update_component_state');
@@ -342,22 +362,20 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
                                       logFirebaseEvent(
                                           'CLASS_BLOCK_SECONDARY_Checkbox_htwgpqv1_');
                                       logFirebaseEvent(
-                                          'Checkbox_update_component_state');
-                                      _model.attendanceMarked = false;
-                                      safeSetState(() {});
-                                      logFirebaseEvent(
                                           'Checkbox_custom_action');
                                       _model.removeAttendanceFeedback =
                                           await actions
                                               .removeCustomClassAttendance(
                                         widget.courseID!,
                                         currentUserReference!,
-                                        functions.convertToDateTime(
-                                            widget.classStartTime!),
+                                        functions.parseDateTime(
+                                            getCurrentTimestamp,
+                                            functions.convertToDateTime(
+                                                widget.classStartTime!)),
                                       );
                                       logFirebaseEvent(
                                           'Checkbox_update_component_state');
-                                      _model.attendanceMarked = true;
+                                      _model.attendanceMarked = false;
                                       safeSetState(() {});
                                       logFirebaseEvent(
                                           'Checkbox_show_snack_bar');
@@ -413,7 +431,12 @@ class _ClassBlockSecondaryWidgetState extends State<ClassBlockSecondaryWidget> {
                                 decoration: BoxDecoration(),
                                 child: Text(
                                   valueOrDefault<String>(
-                                    _model.attendanceMarked
+                                    containerCustomClassesRecord
+                                                ?.attendedClasses
+                                                .contains(functions
+                                                    .convertToDateTime(widget
+                                                        .classStartTime!)) !=
+                                            null
                                         ? 'Marked Attendance'
                                         : 'Mark Attendance',
                                     'Mark Attendance',

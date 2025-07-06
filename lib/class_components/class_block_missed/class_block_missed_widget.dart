@@ -1,3 +1,4 @@
+import '/backend/schema/structs/index.dart';
 import '/components/class_check_in_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -18,6 +19,7 @@ class ClassBlockMissedWidget extends StatefulWidget {
     bool? multiSelectMode,
     this.msCallbackAddToList,
     this.msCallbackRemoveFromList,
+    this.classRow,
   })  : this.isCustomClass = isCustomClass ?? false,
         this.multiSelectMode = multiSelectMode ?? false;
 
@@ -28,9 +30,9 @@ class ClassBlockMissedWidget extends StatefulWidget {
   final DateTime? classEndTime;
   final bool isCustomClass;
   final bool multiSelectMode;
-  final Future Function(String classID, String courseID)? msCallbackAddToList;
-  final Future Function(String classID, String courseID)?
-      msCallbackRemoveFromList;
+  final Future Function(ClassRowStruct classRow)? msCallbackAddToList;
+  final Future Function(ClassRowStruct classRow)? msCallbackRemoveFromList;
+  final ClassRowStruct? classRow;
 
   @override
   State<ClassBlockMissedWidget> createState() => _ClassBlockMissedWidgetState();
@@ -91,16 +93,14 @@ class _ClassBlockMissedWidgetState extends State<ClassBlockMissedWidget> {
                         'CLASS_BLOCK_MISSED_Checkbox_ta30gnnh_ON_');
                     logFirebaseEvent('Checkbox_execute_callback');
                     await widget.msCallbackAddToList?.call(
-                      widget.classID!,
-                      widget.courseID!,
+                      widget.classRow!,
                     );
                   } else {
                     logFirebaseEvent(
                         'CLASS_BLOCK_MISSED_Checkbox_ta30gnnh_ON_');
                     logFirebaseEvent('Checkbox_execute_callback');
                     await widget.msCallbackRemoveFromList?.call(
-                      widget.classID!,
-                      widget.courseID!,
+                      widget.classRow!,
                     );
                   }
                 },
@@ -124,26 +124,36 @@ class _ClassBlockMissedWidgetState extends State<ClassBlockMissedWidget> {
               highlightColor: Colors.transparent,
               onTap: () async {
                 logFirebaseEvent('CLASS_BLOCK_MISSED_Container_wrl6wrcz_ON');
-                logFirebaseEvent('Container_alert_dialog');
-                await showDialog(
-                  context: context,
-                  builder: (dialogContext) {
-                    return Dialog(
-                      elevation: 0,
-                      insetPadding: EdgeInsets.zero,
-                      backgroundColor: Colors.transparent,
-                      alignment: AlignmentDirectional(0.0, 0.0)
-                          .resolve(Directionality.of(context)),
-                      child: ClassCheckInDialogWidget(
-                        courseID: widget.courseID!,
-                        className: widget.courseName!,
-                        classStartTime: widget.classStartTime!,
-                        classID: widget.classID!,
-                        isCustomClass: false,
-                      ),
-                    );
-                  },
-                );
+                if (!widget.multiSelectMode) {
+                  logFirebaseEvent('Container_alert_dialog');
+                  await showDialog(
+                    context: context,
+                    builder: (dialogContext) {
+                      return Dialog(
+                        elevation: 0,
+                        insetPadding: EdgeInsets.zero,
+                        backgroundColor: Colors.transparent,
+                        alignment: AlignmentDirectional(0.0, 0.0)
+                            .resolve(Directionality.of(context)),
+                        child: ClassCheckInDialogWidget(
+                          courseID: widget.courseID!,
+                          className: widget.courseName!,
+                          classStartTime: widget.classStartTime!,
+                          classID: widget.classID!,
+                          isCustomClass: false,
+                          isAttendedCall: (isAttendedparameter) async {
+                            if (!isAttendedparameter) {
+                              logFirebaseEvent('_update_app_state');
+                              FFAppState()
+                                  .removeFromMissedClasses(widget.classRow!);
+                              _model.updatePage(() {});
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  );
+                }
               },
               child: AnimatedContainer(
                 duration: Duration(milliseconds: 400),

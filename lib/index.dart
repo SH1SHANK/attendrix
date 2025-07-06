@@ -20,12 +20,6 @@ export '/class_components/nav_pages/attendance/attendance_widget.dart'
 export '/auth_pages/reset_password_sent/reset_password_sent_widget.dart'
     show ResetPasswordSentWidget;
 export '/additional_pages/profile/profile_widget.dart' show ProfileWidget;
-export '/user_support_system/support_ticket_list/support_ticket_list_widget.dart'
-    show SupportTicketListWidget;
-export '/user_support_system/support_submit_ticket/support_submit_ticket_widget.dart'
-    show SupportSubmitTicketWidget;
-export '/user_support_system/support_ticket_details/support_ticket_details_widget.dart'
-    show SupportTicketDetailsWidget;
 export '/class_components/nav_pages/calender/calender_widget.dart'
     show CalenderWidget;
 export '/class_components/nav_pages/classes/classes_widget.dart'
@@ -45,3 +39,5 @@ export '/request_admin_access/request_admin_access_widget.dart'
 export '/request_access_follow_up/request_access_follow_up_widget.dart'
     show RequestAccessFollowUpWidget;
 export '/admin_page/admin_page_widget.dart' show AdminPageWidget;
+export '/create_custom_class/create_custom_class_widget.dart'
+    show CreateCustomClassWidget;

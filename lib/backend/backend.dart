@@ -6,10 +6,8 @@ import '../flutter_flow/flutter_flow_util.dart';
 import 'schema/util/firestore_util.dart';
 
 import 'schema/users_record.dart';
-import 'schema/support_tickets_record.dart';
 import 'schema/study_materials_record.dart';
 import 'schema/user_files_metadata_record.dart';
-import 'schema/user_personal_vault_record.dart';
 import 'schema/custom_classes_record.dart';
 import 'schema/class_notes_record.dart';
 import 'schema/task_notes_record.dart';
@@ -24,10 +22,8 @@ export 'schema/util/firestore_util.dart';
 export 'schema/util/schema_util.dart';
 
 export 'schema/users_record.dart';
-export 'schema/support_tickets_record.dart';
 export 'schema/study_materials_record.dart';
 export 'schema/user_files_metadata_record.dart';
-export 'schema/user_personal_vault_record.dart';
 export 'schema/custom_classes_record.dart';
 export 'schema/class_notes_record.dart';
 export 'schema/task_notes_record.dart';
@@ -91,84 +87,6 @@ Future<FFFirestorePage<UsersRecord>> queryUsersRecordPage({
       if (isStream) {
         final streamSubscription =
             (page.dataStream)?.listen((List<UsersRecord> data) {
-          data.forEach((item) {
-            final itemIndexes = controller.itemList!
-                .asMap()
-                .map((k, v) => MapEntry(v.reference.id, k));
-            final index = itemIndexes[item.reference.id];
-            final items = controller.itemList!;
-            if (index != null) {
-              items.replaceRange(index, index + 1, [item]);
-              controller.itemList = {
-                for (var item in items) item.reference: item
-              }.values.toList();
-            }
-          });
-        });
-        streamSubscriptions?.add(streamSubscription);
-      }
-      return page;
-    });
-
-/// Functions to query SupportTicketsRecords (as a Stream and as a Future).
-Future<int> querySupportTicketsRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
-    queryCollectionCount(
-      SupportTicketsRecord.collection,
-      queryBuilder: queryBuilder,
-      limit: limit,
-    );
-
-Stream<List<SupportTicketsRecord>> querySupportTicketsRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollection(
-      SupportTicketsRecord.collection,
-      SupportTicketsRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-Future<List<SupportTicketsRecord>> querySupportTicketsRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollectionOnce(
-      SupportTicketsRecord.collection,
-      SupportTicketsRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-Future<FFFirestorePage<SupportTicketsRecord>> querySupportTicketsRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-  required PagingController<DocumentSnapshot?, SupportTicketsRecord> controller,
-  List<StreamSubscription?>? streamSubscriptions,
-}) =>
-    queryCollectionPage(
-      SupportTicketsRecord.collection,
-      SupportTicketsRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
-    ).then((page) {
-      controller.appendPage(
-        page.data,
-        page.nextPageMarker,
-      );
-      if (isStream) {
-        final streamSubscription =
-            (page.dataStream)?.listen((List<SupportTicketsRecord> data) {
           data.forEach((item) {
             final itemIndexes = controller.itemList!
                 .asMap()
@@ -331,90 +249,6 @@ Future<FFFirestorePage<UserFilesMetadataRecord>>
           if (isStream) {
             final streamSubscription =
                 (page.dataStream)?.listen((List<UserFilesMetadataRecord> data) {
-              data.forEach((item) {
-                final itemIndexes = controller.itemList!
-                    .asMap()
-                    .map((k, v) => MapEntry(v.reference.id, k));
-                final index = itemIndexes[item.reference.id];
-                final items = controller.itemList!;
-                if (index != null) {
-                  items.replaceRange(index, index + 1, [item]);
-                  controller.itemList = {
-                    for (var item in items) item.reference: item
-                  }.values.toList();
-                }
-              });
-            });
-            streamSubscriptions?.add(streamSubscription);
-          }
-          return page;
-        });
-
-/// Functions to query UserPersonalVaultRecords (as a Stream and as a Future).
-Future<int> queryUserPersonalVaultRecordCount({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
-    queryCollectionCount(
-      UserPersonalVaultRecord.collection(parent),
-      queryBuilder: queryBuilder,
-      limit: limit,
-    );
-
-Stream<List<UserPersonalVaultRecord>> queryUserPersonalVaultRecord({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollection(
-      UserPersonalVaultRecord.collection(parent),
-      UserPersonalVaultRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-Future<List<UserPersonalVaultRecord>> queryUserPersonalVaultRecordOnce({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollectionOnce(
-      UserPersonalVaultRecord.collection(parent),
-      UserPersonalVaultRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-Future<FFFirestorePage<UserPersonalVaultRecord>>
-    queryUserPersonalVaultRecordPage({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-  required PagingController<DocumentSnapshot?, UserPersonalVaultRecord>
-      controller,
-  List<StreamSubscription?>? streamSubscriptions,
-}) =>
-        queryCollectionPage(
-          UserPersonalVaultRecord.collection(parent),
-          UserPersonalVaultRecord.fromSnapshot,
-          queryBuilder: queryBuilder,
-          nextPageMarker: nextPageMarker,
-          pageSize: pageSize,
-          isStream: isStream,
-        ).then((page) {
-          controller.appendPage(
-            page.data,
-            page.nextPageMarker,
-          );
-          if (isStream) {
-            final streamSubscription =
-                (page.dataStream)?.listen((List<UserPersonalVaultRecord> data) {
               data.forEach((item) {
                 final itemIndexes = controller.itemList!
                     .asMap()

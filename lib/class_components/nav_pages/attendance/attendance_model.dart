@@ -8,16 +8,21 @@ class AttendanceModel extends FlutterFlowModel<AttendanceWidget> {
   ///  State fields for stateful widgets in this page.
 
   // Models for courseAttendance dynamic component.
-  late FlutterFlowDynamicModels<CourseAttendanceModel> courseAttendanceModels;
+  late FlutterFlowDynamicModels<CourseAttendanceModel> courseAttendanceModels1;
+  // Models for courseAttendance dynamic component.
+  late FlutterFlowDynamicModels<CourseAttendanceModel> courseAttendanceModels2;
 
   @override
   void initState(BuildContext context) {
-    courseAttendanceModels =
+    courseAttendanceModels1 =
+        FlutterFlowDynamicModels(() => CourseAttendanceModel());
+    courseAttendanceModels2 =
         FlutterFlowDynamicModels(() => CourseAttendanceModel());
   }
 
   @override
   void dispose() {
-    courseAttendanceModels.dispose();
+    courseAttendanceModels1.dispose();
+    courseAttendanceModels2.dispose();
   }
 }

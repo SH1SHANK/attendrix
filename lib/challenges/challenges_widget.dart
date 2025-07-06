@@ -66,7 +66,7 @@ class _ChallengesWidgetState extends State<ChallengesWidget>
                 image: DecorationImage(
                   fit: BoxFit.cover,
                   image: Image.asset(
-                    'assets/images/Red_Moon_Skyline_(1).jpeg',
+                    'assets/images/Abstract_Gradient_Background_4K.jpg',
                   ).image,
                 ),
               ),
@@ -79,7 +79,7 @@ class _ChallengesWidgetState extends State<ChallengesWidget>
                         EdgeInsetsDirectional.fromSTEB(0.0, 30.0, 0.0, 0.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
@@ -96,19 +96,27 @@ class _ChallengesWidgetState extends State<ChallengesWidget>
                               context.safePop();
                             },
                             child: Icon(
-                              Icons.arrow_back_ios_rounded,
-                              color: FlutterFlowTheme.of(context).info,
-                              size: 36.0,
+                              FFIcons.karrowLeft,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              size: 32.0,
                             ),
                           ),
                         ),
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 12.0, 0.0),
-                          child: Icon(
-                            Icons.settings_sharp,
-                            color: FlutterFlowTheme.of(context).info,
-                            size: 28.0,
+                              6.0, 0.0, 0.0, 0.0),
+                          child: Text(
+                            'Back',
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .bodyMediumFamily,
+                                  fontSize: 18.0,
+                                  letterSpacing: 0.0,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
+                                ),
                           ),
                         ),
                       ],
@@ -125,7 +133,7 @@ class _ChallengesWidgetState extends State<ChallengesWidget>
                       ),
                       child: Container(
                         width: MediaQuery.sizeOf(context).width * 0.95,
-                        height: MediaQuery.sizeOf(context).height * 0.65,
+                        height: 430.0,
                         decoration: BoxDecoration(
                           color:
                               FlutterFlowTheme.of(context).secondaryBackground,
@@ -197,11 +205,11 @@ class _ChallengesWidgetState extends State<ChallengesWidget>
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             0.0, 8.0, 40.0, 0.0),
                                         child: Container(
-                                          width: 120.0,
+                                          width: 140.0,
                                           height: 30.0,
                                           child: custom_widgets
                                               .CountdownTimerWidget(
-                                            width: 120.0,
+                                            width: 140.0,
                                             height: 30.0,
                                             isWeekly: false,
                                             textColor:

@@ -22,28 +22,8 @@ Future<void> initializeOneSignal() async {
     // Initialize OneSignal
     OneSignal.initialize(oneSignalAppId);
 
-    // Optional: Enable debug logging (remove in production)
-    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-
     // Optional: Request notification permissions
     OneSignal.Notifications.requestPermission(true);
-
-    // Optional: Set notification will show in foreground handler
-    OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      // Display notification or handle it as needed
-      event.notification.display();
-    });
-
-    // Optional: Set notification opened handler
-    OneSignal.Notifications.addClickListener((event) {
-      // Handle notification tap
-      print('Notification opened: ${event.notification.title}');
-    });
-
-    // Optional: Set permission observer
-    OneSignal.Notifications.addPermissionObserver((state) {
-      print("Permission state changed: ${state}");
-    });
 
     print('OneSignal initialized successfully');
   } catch (e) {

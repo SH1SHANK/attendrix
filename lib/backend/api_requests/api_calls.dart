@@ -9,31 +9,6 @@ export 'api_manager.dart' show ApiCallResponse;
 
 const _kPrivateApiFunctionName = 'ffPrivateApiCall';
 
-class NPTELCoursesQueryCall {
-  static Future<ApiCallResponse> call() async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'NPTELCoursesQuery',
-      apiUrl:
-          'https://ifazfjkpmeqgovitgkwb.supabase.co/storage/v1/object/public/nptel-courses/nptel_course_records_filtered.json',
-      callType: ApiCallType.GET,
-      headers: {},
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: true,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  static List? allCourses(dynamic response) => getJsonField(
-        response,
-        r'''$''',
-        true,
-      ) as List?;
-}
-
 class InstituteSlotsCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(

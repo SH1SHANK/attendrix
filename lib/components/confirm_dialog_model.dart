@@ -1,9 +1,8 @@
 import '/flutter_flow/flutter_flow_util.dart';
-import 'folder_block_user_vault_widget.dart' show FolderBlockUserVaultWidget;
+import 'confirm_dialog_widget.dart' show ConfirmDialogWidget;
 import 'package:flutter/material.dart';
 
-class FolderBlockUserVaultModel
-    extends FlutterFlowModel<FolderBlockUserVaultWidget> {
+class ConfirmDialogModel extends FlutterFlowModel<ConfirmDialogWidget> {
   @override
   void initState(BuildContext context) {}
 

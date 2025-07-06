@@ -89,15 +89,10 @@ Future<String?> checkInAttendanceProtocal(
         .toList()
         .toList(),
   );
-  logFirebaseEvent('CheckInAttendanceProtocal_custom_action');
-  await actions.removeMissedClass(
-    currentUserUid,
-    classID,
-  );
   return userFeedbackForAttendance.message;
 }
 
-Future checkOutAttendanceProtocol(
+Future<String?> checkOutAttendanceProtocol(
   BuildContext context, {
   required String? userID,
   required List<String>? enrolledCourses,
@@ -121,37 +116,17 @@ Future checkOutAttendanceProtocol(
     classStartTime,
   );
   logFirebaseEvent('CheckOutAttendanceProtocol_custom_action');
-  await actions.addMissedClass(
+  await actions.evaluateAndUpdateChallenges(
     currentUserUid,
-    classID,
-    courseID!,
-    courseName!,
-    classStartTime!.toString(),
-    classEndTime!.toString(),
-    false,
+    (currentUserDocument?.challengesAllotted.toList() ?? [])
+        .map((e) => e.progressID)
+        .toList()
+        .toList(),
+    valueOrDefault(currentUserDocument?.currentStreak, 0),
+    (currentUserDocument?.coursesEnrolled.toList() ?? [])
+        .map((e) => e.courseID)
+        .toList()
+        .toList(),
   );
-  logFirebaseEvent('CheckOutAttendanceProtocol_show_snack_ba');
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        checkOutUserFeedback.message,
-        style: GoogleFonts.outfit(
-          color: FlutterFlowTheme.of(context).info,
-          fontWeight: FontWeight.w500,
-          fontSize: 12.0,
-        ),
-      ),
-      duration: Duration(milliseconds: 4000),
-      backgroundColor: () {
-        if (checkOutUserFeedback?.status == 'error') {
-          return FlutterFlowTheme.of(context).error;
-        } else if (checkOutUserFeedback?.status == 'info') {
-          return FlutterFlowTheme.of(context).velvetSky;
-        } else {
-          return FlutterFlowTheme.of(context).success;
-        }
-      }(),
-    ),
-  );
+  return checkOutUserFeedback.message;
 }

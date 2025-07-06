@@ -2,14 +2,12 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
-import '/bottom_sheets/subscription_check_out/subscription_check_out_widget.dart';
 import '/class_components/class_block_primary/class_block_primary_widget.dart';
 import '/class_components/class_block_secondary/class_block_secondary_widget.dart';
 import '/class_components/class_block_upcoming/class_block_upcoming_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/flutter_flow/permissions_util.dart';
@@ -53,9 +51,42 @@ class _DashboardWidgetState extends State<DashboardWidget>
         return;
       }
       logFirebaseEvent('DASHBOARD_PAGE_dashboard_ON_INIT_STATE');
-      if (!(await getPermissionStatus(notificationsPermission))) {
+      if (!((await getPermissionStatus(notificationsPermission)) || isWeb)) {
         logFirebaseEvent('dashboard_request_permissions');
         await requestPermission(notificationsPermission);
+      }
+      if (!(FFAppState().greetingMessageForUser != '')) {
+        logFirebaseEvent('dashboard_custom_action');
+        _model.greetingMessage = await actions.generateGreetingMessage(
+          currentUserDisplayName,
+          FFAppState().weatherForecastForMessages,
+        );
+        logFirebaseEvent('dashboard_update_app_state');
+        FFAppState().greetingMessageForUser =
+            _model.greetingMessage!.primaryMessage;
+        FFAppState().shortGreetingMessageForUser =
+            _model.greetingMessage!.secondaryMessage;
+        safeSetState(() {});
+      }
+      if ((dateTimeFormat(
+            "EEEE",
+            getCurrentTimestamp,
+            locale: FFLocalizations.of(context).languageCode,
+          ).toLowerCase()) !=
+          FFAppState().customClassesCurrentDay.firstOrNull?.weekday) {
+        logFirebaseEvent('dashboard_custom_action');
+        _model.customClassesQuery = await actions.fetchCustomClasses(
+          currentUserReference!,
+          dateTimeFormat(
+            "EEEE",
+            getCurrentTimestamp,
+            locale: FFLocalizations.of(context).languageCode,
+          ).toLowerCase(),
+        );
+        logFirebaseEvent('dashboard_update_app_state');
+        FFAppState().customClassesCurrentDay =
+            _model.customClassesQuery!.toList().cast<ClassRowStruct>();
+        safeSetState(() {});
       }
       logFirebaseEvent('dashboard_custom_action');
       _model.updateFeedback = await actions.updateAttendanceCounts(
@@ -72,40 +103,6 @@ class _DashboardWidgetState extends State<DashboardWidget>
         ),
         (currentUserDocument?.challengesAllotted.toList() ?? []).toList(),
       );
-      logFirebaseEvent('dashboard_custom_action');
-      _model.customClasses = await actions.fetchTodaysClasses(
-        currentUserReference!,
-      );
-      logFirebaseEvent('dashboard_update_page_state');
-      _model.customClassesList =
-          _model.customClasses!.toList().cast<ClassRowStruct>();
-      safeSetState(() {});
-      logFirebaseEvent('dashboard_show_snack_bar');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _model.updateFeedback!,
-            style: GoogleFonts.outfit(
-              color: FlutterFlowTheme.of(context).info,
-            ),
-          ),
-          duration: Duration(milliseconds: 4000),
-          backgroundColor: FlutterFlowTheme.of(context).primary,
-        ),
-      );
-      if (!(FFAppState().greetingMessageForUser != '')) {
-        logFirebaseEvent('dashboard_custom_action');
-        _model.generatedGreetingMesages = await actions.generateGreetingMessage(
-          currentUserDisplayName,
-          true,
-        );
-        logFirebaseEvent('dashboard_update_app_state');
-        FFAppState().greetingMessageForUser =
-            _model.generatedGreetingMesages!.secondaryMessage;
-        FFAppState().shortGreetingMessageForUser =
-            _model.generatedGreetingMesages!.primaryMessage;
-        safeSetState(() {});
-      }
     });
 
     _model.tabBarController = TabController(
@@ -179,7 +176,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                         ),
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
-                              12.0, 8.0, 12.0, 8.0),
+                              12.0, 0.0, 12.0, 0.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
@@ -500,18 +497,9 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           onTap: () async {
                             logFirebaseEvent(
                                 'DASHBOARD_PAGE_convertComponent_ON_TAP');
-                            logFirebaseEvent('convertComponent_navigate_to');
-
-                            context.goNamed(
-                              SupportTicketListWidget.routeName,
-                              extra: <String, dynamic>{
-                                kTransitionInfoKey: TransitionInfo(
-                                  hasTransition: true,
-                                  transitionType:
-                                      PageTransitionType.leftToRight,
-                                ),
-                              },
-                            );
+                            logFirebaseEvent('convertComponent_launch_u_r_l');
+                            await launchURL(
+                                'https://github.com/SH1SHANK/attendrix/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D');
                           },
                           child: Container(
                             width: double.infinity,
@@ -942,143 +930,6 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           thickness: 1.0,
                           color: FlutterFlowTheme.of(context).alternate,
                         ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              12.0, 2.0, 12.0, 2.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    4.0, 0.0, 0.0, 0.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Current Plan',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.outfit(
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.bold,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                          ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 2.0, 0.0, 0.0),
-                                      child: Text(
-                                        'Last Billed: 01/05/2025',
-                                        style: FlutterFlowTheme.of(context)
-                                            .labelSmall
-                                            .override(
-                                              fontFamily:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmallFamily,
-                                              letterSpacing: 0.0,
-                                              useGoogleFonts:
-                                                  !FlutterFlowTheme.of(context)
-                                                      .labelSmallIsCustom,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              FFButtonWidget(
-                                onPressed: () async {
-                                  logFirebaseEvent(
-                                      'DASHBOARD_PAGE_PREMIUM_BTN_ON_TAP');
-                                  await Future.wait([
-                                    Future(() async {
-                                      logFirebaseEvent('Button_drawer');
-                                      if (scaffoldKey
-                                              .currentState!.isDrawerOpen ||
-                                          scaffoldKey
-                                              .currentState!.isEndDrawerOpen) {
-                                        Navigator.pop(context);
-                                      }
-                                    }),
-                                    Future(() async {
-                                      logFirebaseEvent('Button_bottom_sheet');
-                                      await showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        enableDrag: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              FocusScope.of(context).unfocus();
-                                              FocusManager.instance.primaryFocus
-                                                  ?.unfocus();
-                                            },
-                                            child: Padding(
-                                              padding: MediaQuery.viewInsetsOf(
-                                                  context),
-                                              child:
-                                                  SubscriptionCheckOutWidget(),
-                                            ),
-                                          );
-                                        },
-                                      ).then((value) => safeSetState(() {}));
-                                    }),
-                                  ]);
-                                },
-                                text: 'Premium',
-                                options: FFButtonOptions(
-                                  height: 30.0,
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 0.0, 16.0, 0.0),
-                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 0.0),
-                                  color: FlutterFlowTheme.of(context).accent1,
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .titleSmall
-                                      .override(
-                                        font: GoogleFonts.outfit(
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleSmall
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .fontStyle,
-                                      ),
-                                  elevation: 0.0,
-                                  borderSide: BorderSide(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    width: 2.0,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Divider(
-                          thickness: 1.0,
-                          color: FlutterFlowTheme.of(context).alternate,
-                        ),
                       ].addToStart(SizedBox(height: 20.0)),
                     ),
                     Column(
@@ -1113,7 +964,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           padding: EdgeInsetsDirectional.fromSTEB(
                               0.0, 0.0, 0.0, 10.0),
                           child: Text(
-                            'App Version: 0.0.5 | Build Number: 3',
+                            'App Version: 0.8.5 | Build Number: 13',
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
@@ -1430,11 +1281,11 @@ class _DashboardWidgetState extends State<DashboardWidget>
                     builder: (context) =>
                         FutureBuilder<List<TimetableRecordsRow>>(
                       future: _model.currentDayTimetableRecords(
-                        uniqueQueryKey: 'timetableRecords_${dateTimeFormat(
+                        uniqueQueryKey: dateTimeFormat(
                           "d/M/y",
                           getCurrentTimestamp,
                           locale: FFLocalizations.of(context).languageCode,
-                        )}',
+                        ),
                         requestFn: () => TimetableRecordsTable().queryRows(
                           queryFn: (q) => q
                               .inFilterOrNull(
@@ -1684,50 +1535,111 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                     .transparent,
                                                             onTap: () async {
                                                               logFirebaseEvent(
-                                                                  'DASHBOARD_PAGE_Text_z421kzx1_ON_TAP');
+                                                                  'DASHBOARD_PAGE_Row_z4pblxn2_ON_TAP');
                                                               logFirebaseEvent(
-                                                                  'Text_clear_query_cache');
-                                                              FFAppState()
-                                                                  .clearTimetableRecordsQueryDayCacheKey(
-                                                                      'timetableRecords_${dateTimeFormat(
-                                                                "d/M/y",
-                                                                getCurrentTimestamp,
-                                                                locale: FFLocalizations.of(
-                                                                        context)
-                                                                    .languageCode,
-                                                              )}');
-                                                            },
-                                                            child: Text(
-                                                              'Refresh Page',
-                                                              style: FlutterFlowTheme
+                                                                  'Row_show_snack_bar');
+                                                              ScaffoldMessenger
                                                                       .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
+                                                                  .showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    'Feature Coming Soon!',
+                                                                    style: GoogleFonts
                                                                         .outfit(
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .info,
                                                                       fontWeight:
                                                                           FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
+                                                                              .w500,
                                                                     ),
+                                                                  ),
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          4000),
+                                                                  backgroundColor:
+                                                                      FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .tertiary,
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              children: [
+                                                                InkWell(
+                                                                  splashColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  focusColor: Colors
+                                                                      .transparent,
+                                                                  hoverColor: Colors
+                                                                      .transparent,
+                                                                  highlightColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  onTap:
+                                                                      () async {
+                                                                    logFirebaseEvent(
+                                                                        'DASHBOARD_PAGE_Text_z421kzx1_ON_TAP');
+                                                                    logFirebaseEvent(
+                                                                        'Text_clear_query_cache');
+                                                                    FFAppState()
+                                                                        .clearTimetableRecordsQueryDayCacheKey(
+                                                                            'timetableRecords_${dateTimeFormat(
+                                                                      "d/M/y",
+                                                                      getCurrentTimestamp,
+                                                                      locale: FFLocalizations.of(
+                                                                              context)
+                                                                          .languageCode,
+                                                                    )}');
+                                                                  },
+                                                                  child: Text(
+                                                                    'Add to Calendar',
+                                                                    style: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .override(
+                                                                          font:
+                                                                              GoogleFonts.outfit(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontStyle:
+                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                          ),
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).primary,
+                                                                          fontSize:
+                                                                              14.0,
+                                                                          letterSpacing:
+                                                                              0.5,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          5.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                                  child: Icon(
+                                                                    FFIcons
+                                                                        .kcalendarPlus,
                                                                     color: FlutterFlowTheme.of(
                                                                             context)
                                                                         .primary,
-                                                                    fontSize:
-                                                                        14.0,
-                                                                    letterSpacing:
-                                                                        0.5,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
+                                                                    size: 18.0,
                                                                   ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ),
@@ -2055,8 +1967,8 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                       child: Builder(
                                                         builder: (context) {
                                                           final customClassList =
-                                                              _model
-                                                                  .customClassesList
+                                                              FFAppState()
+                                                                  .customClassesCurrentDay
                                                                   .toList()
                                                                   .take(8)
                                                                   .toList();
@@ -2069,96 +1981,75 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                             );
                                                           }
 
-                                                          return RefreshIndicator(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .velvetSky,
-                                                            backgroundColor:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .accent4,
-                                                            strokeWidth: 3.5,
-                                                            onRefresh:
-                                                                () async {
-                                                              logFirebaseEvent(
-                                                                  'DASHBOARD_ListView_f0bu9rrr_ON_PULL_TO_R');
-                                                              logFirebaseEvent(
-                                                                  'ListView_custom_action');
-                                                              await actions
-                                                                  .clearCustomClassesCache(
-                                                                currentUserReference,
+                                                          return ListView
+                                                              .separated(
+                                                            padding:
+                                                                EdgeInsets.zero,
+                                                            primary: false,
+                                                            shrinkWrap: true,
+                                                            scrollDirection:
+                                                                Axis.vertical,
+                                                            itemCount:
+                                                                customClassList
+                                                                    .length,
+                                                            separatorBuilder:
+                                                                (_, __) =>
+                                                                    SizedBox(
+                                                                        height:
+                                                                            2.0),
+                                                            itemBuilder: (context,
+                                                                customClassListIndex) {
+                                                              final customClassListItem =
+                                                                  customClassList[
+                                                                      customClassListIndex];
+                                                              return Padding(
+                                                                padding:
+                                                                    EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            4.0,
+                                                                            0.0,
+                                                                            4.0,
+                                                                            0.0),
+                                                                child:
+                                                                    wrapWithModel(
+                                                                  model: _model
+                                                                      .classBlockSecondaryModels
+                                                                      .getModel(
+                                                                    customClassListItem
+                                                                        .classID,
+                                                                    customClassListIndex,
+                                                                  ),
+                                                                  updateCallback: () =>
+                                                                      safeSetState(
+                                                                          () {}),
+                                                                  updateOnChange:
+                                                                      true,
+                                                                  child:
+                                                                      ClassBlockSecondaryWidget(
+                                                                    key: Key(
+                                                                      'Key0vr_${customClassListItem.classID}',
+                                                                    ),
+                                                                    classID:
+                                                                        customClassListItem
+                                                                            .classID,
+                                                                    courseID:
+                                                                        customClassListItem
+                                                                            .courseID,
+                                                                    courseName:
+                                                                        customClassListItem
+                                                                            .courseName,
+                                                                    isCustomClass:
+                                                                        true,
+                                                                    classStartTime:
+                                                                        customClassListItem
+                                                                            .classStartTime,
+                                                                    classEndTime:
+                                                                        customClassListItem
+                                                                            .classEndTime,
+                                                                  ),
+                                                                ),
                                                               );
                                                             },
-                                                            child: ListView
-                                                                .separated(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .zero,
-                                                              primary: false,
-                                                              shrinkWrap: true,
-                                                              scrollDirection:
-                                                                  Axis.vertical,
-                                                              itemCount:
-                                                                  customClassList
-                                                                      .length,
-                                                              separatorBuilder: (_,
-                                                                      __) =>
-                                                                  SizedBox(
-                                                                      height:
-                                                                          2.0),
-                                                              itemBuilder: (context,
-                                                                  customClassListIndex) {
-                                                                final customClassListItem =
-                                                                    customClassList[
-                                                                        customClassListIndex];
-                                                                return Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          4.0,
-                                                                          0.0,
-                                                                          4.0,
-                                                                          0.0),
-                                                                  child:
-                                                                      wrapWithModel(
-                                                                    model: _model
-                                                                        .classBlockSecondaryModels
-                                                                        .getModel(
-                                                                      customClassListItem
-                                                                          .classID,
-                                                                      customClassListIndex,
-                                                                    ),
-                                                                    updateCallback: () =>
-                                                                        safeSetState(
-                                                                            () {}),
-                                                                    updateOnChange:
-                                                                        true,
-                                                                    child:
-                                                                        ClassBlockSecondaryWidget(
-                                                                      key: Key(
-                                                                        'Key0vr_${customClassListItem.classID}',
-                                                                      ),
-                                                                      classID:
-                                                                          customClassListItem
-                                                                              .classID,
-                                                                      courseID:
-                                                                          customClassListItem
-                                                                              .courseID,
-                                                                      courseName:
-                                                                          customClassListItem
-                                                                              .courseName,
-                                                                      isCustomClass:
-                                                                          true,
-                                                                      classStartTime:
-                                                                          customClassListItem
-                                                                              .classStartTime,
-                                                                      classEndTime:
-                                                                          customClassListItem
-                                                                              .classEndTime,
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
                                                           );
                                                         },
                                                       ),
@@ -2257,42 +2148,45 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                         EdgeInsetsDirectional
                                                             .fromSTEB(0.0, 0.0,
                                                                 16.0, 0.0),
-                                                    child: InkWell(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      focusColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      onTap: () async {
-                                                        logFirebaseEvent(
-                                                            'DASHBOARD_PAGE_Text_2ufpws39_ON_TAP');
-                                                        logFirebaseEvent(
-                                                            'Text_navigate_to');
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        InkWell(
+                                                          splashColor: Colors
+                                                              .transparent,
+                                                          focusColor: Colors
+                                                              .transparent,
+                                                          hoverColor: Colors
+                                                              .transparent,
+                                                          highlightColor: Colors
+                                                              .transparent,
+                                                          onTap: () async {
+                                                            logFirebaseEvent(
+                                                                'DASHBOARD_PAGE_Text_2ufpws39_ON_TAP');
+                                                            logFirebaseEvent(
+                                                                'Text_navigate_to');
 
-                                                        context.goNamed(
-                                                          CalenderWidget
-                                                              .routeName,
-                                                          extra: <String,
-                                                              dynamic>{
-                                                            kTransitionInfoKey:
-                                                                TransitionInfo(
-                                                              hasTransition:
-                                                                  true,
-                                                              transitionType:
-                                                                  PageTransitionType
-                                                                      .rightToLeft,
-                                                            ),
+                                                            context.goNamed(
+                                                              CalenderWidget
+                                                                  .routeName,
+                                                              extra: <String,
+                                                                  dynamic>{
+                                                                kTransitionInfoKey:
+                                                                    TransitionInfo(
+                                                                  hasTransition:
+                                                                      true,
+                                                                  transitionType:
+                                                                      PageTransitionType
+                                                                          .rightToLeft,
+                                                                ),
+                                                              },
+                                                            );
                                                           },
-                                                        );
-                                                      },
-                                                      child: Text(
-                                                        'See all',
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
+                                                          child: Text(
+                                                            'See all classes',
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
                                                                 .bodyMedium
                                                                 .override(
                                                                   font: GoogleFonts
@@ -2320,7 +2214,16 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                       .bodyMedium
                                                                       .fontStyle,
                                                                 ),
-                                                      ),
+                                                          ),
+                                                        ),
+                                                        Icon(
+                                                          FFIcons.karrowUpRight,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primary,
+                                                          size: 24.0,
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ],

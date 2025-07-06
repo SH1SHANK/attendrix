@@ -1,10 +1,9 @@
 import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'pick_file_alert_dialog_widget.dart' show PickFileAlertDialogWidget;
+import 'pick_file_widget.dart' show PickFileWidget;
 import 'package:flutter/material.dart';
 
-class PickFileAlertDialogModel
-    extends FlutterFlowModel<PickFileAlertDialogWidget> {
+class PickFileModel extends FlutterFlowModel<PickFileWidget> {
   ///  Local state fields for this component.
 
   bool fileUploaded = false;

@@ -379,6 +379,129 @@ class _CustomClassWidgetState extends State<CustomClassWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    'Classes Start Date:',
+                    style: FlutterFlowTheme.of(context).labelMedium.override(
+                          fontFamily:
+                              FlutterFlowTheme.of(context).labelMediumFamily,
+                          letterSpacing: 0.0,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).labelMediumIsCustom,
+                        ),
+                  ),
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: () async {
+                      logFirebaseEvent(
+                          'CUSTOM_CLASS_Container_luhq766a_ON_TAP');
+                      logFirebaseEvent('Container_date_time_picker');
+                      final _datePickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: getCurrentTimestamp,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2050),
+                        builder: (context, child) {
+                          return wrapInMaterialDatePickerTheme(
+                            context,
+                            child!,
+                            headerBackgroundColor:
+                                FlutterFlowTheme.of(context).primary,
+                            headerForegroundColor:
+                                FlutterFlowTheme.of(context).info,
+                            headerTextStyle: FlutterFlowTheme.of(context)
+                                .headlineLarge
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .headlineLargeFamily,
+                                  fontSize: 32.0,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .headlineLargeIsCustom,
+                                ),
+                            pickerBackgroundColor: FlutterFlowTheme.of(context)
+                                .secondaryBackground,
+                            pickerForegroundColor:
+                                FlutterFlowTheme.of(context).primaryText,
+                            selectedDateTimeBackgroundColor:
+                                FlutterFlowTheme.of(context).primary,
+                            selectedDateTimeForegroundColor:
+                                FlutterFlowTheme.of(context).info,
+                            actionButtonForegroundColor:
+                                FlutterFlowTheme.of(context).primaryText,
+                            iconSize: 24.0,
+                          );
+                        },
+                      );
+
+                      if (_datePickedDate != null) {
+                        safeSetState(() {
+                          _model.datePicked = DateTime(
+                            _datePickedDate.year,
+                            _datePickedDate.month,
+                            _datePickedDate.day,
+                          );
+                        });
+                      } else if (_model.datePicked != null) {
+                        safeSetState(() {
+                          _model.datePicked = getCurrentTimestamp;
+                        });
+                      }
+                      if (_model.datePicked != null) {
+                        logFirebaseEvent('Container_update_component_state');
+                        _model.startDate = _model.datePicked;
+                        safeSetState(() {});
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        color: FlutterFlowTheme.of(context).primaryBackground,
+                        borderRadius: BorderRadius.circular(12.0),
+                        border: Border.all(
+                          color: FlutterFlowTheme.of(context).alternate,
+                          width: 2.0,
+                        ),
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional(-1.0, 0.0),
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              12.0, 0.0, 0.0, 0.0),
+                          child: Text(
+                            valueOrDefault<String>(
+                              dateTimeFormat(
+                                "yMMMd",
+                                _model.startDate,
+                                locale:
+                                    FFLocalizations.of(context).languageCode,
+                              ),
+                              'Select A Start Date',
+                            ),
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .bodyMediumFamily,
+                                  letterSpacing: 0.0,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ].divide(SizedBox(height: 4.0)),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     'Slot Type',
                     style: FlutterFlowTheme.of(context).labelMedium.override(
                           fontFamily:
@@ -879,7 +1002,7 @@ class _CustomClassWidgetState extends State<CustomClassWidget> {
                                 getCurrentTimestamp.microsecondsSinceEpoch
                                     .toString())
                             .toString(),
-                        createdAt: getCurrentTimestamp,
+                        startDate: _model.startDate,
                       ));
                       _model.generatedCustomClass =
                           CustomClassesRecord.getDocumentFromData(
@@ -916,7 +1039,7 @@ class _CustomClassWidgetState extends State<CustomClassWidget> {
                                             .microsecondsSinceEpoch
                                             .toString())
                                     .toString(),
-                                createdAt: getCurrentTimestamp,
+                                startDate: _model.startDate,
                               ),
                               customClassesRecordReference);
                       logFirebaseEvent('Button_update_component_state');

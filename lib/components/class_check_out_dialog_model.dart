@@ -8,6 +8,10 @@ class ClassCheckOutDialogModel
 
   // Stores action output result for [Custom Action - removeCustomClassAttendance] action in Button widget.
   String? removeAttendanceFeedback;
+  // Stores action output result for [Action Block - CheckOutAttendanceProtocol] action in Button widget.
+  String? feedback;
+  // Stores action output result for [Custom Action - checkAttendance] action in Button widget.
+  bool? isAttendedQuery;
 
   @override
   void initState(BuildContext context) {}

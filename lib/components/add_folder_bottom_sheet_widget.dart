@@ -5,8 +5,6 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
-import '/flutter_flow/custom_functions.dart' as functions;
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +13,12 @@ export 'add_folder_bottom_sheet_model.dart';
 
 /// Folder Creation Interface
 class AddFolderBottomSheetWidget extends StatefulWidget {
-  const AddFolderBottomSheetWidget({super.key});
+  const AddFolderBottomSheetWidget({
+    super.key,
+    String? nestedPath,
+  }) : this.nestedPath = nestedPath ?? 'home/';
+
+  final String nestedPath;
 
   @override
   State<AddFolderBottomSheetWidget> createState() =>
@@ -108,13 +111,13 @@ class _AddFolderBottomSheetWidgetState
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
+                    padding: EdgeInsetsDirectional.fromSTEB(8.0, 8.0, 8.0, 0.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Container(
-                          width: 60.0,
-                          height: 60.0,
+                          width: 50.0,
+                          height: 50.0,
                           decoration: BoxDecoration(
                             color: FlutterFlowTheme.of(context).primary,
                             borderRadius: BorderRadius.circular(8.0),
@@ -130,7 +133,7 @@ class _AddFolderBottomSheetWidgetState
                           ),
                         ),
                         Text(
-                          'Create Folder',
+                          'Create New Folder',
                           style: FlutterFlowTheme.of(context)
                               .headlineSmall
                               .override(
@@ -269,108 +272,131 @@ class _AddFolderBottomSheetWidgetState
                             ),
                           ),
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Align(
-                              alignment: AlignmentDirectional(-1.0, -1.0),
-                              child: Text(
-                                'Parent Folder: (Defaults to root directory if left empty)',
-                                style: FlutterFlowTheme.of(context)
-                                    .labelMedium
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Align(
+                                alignment: AlignmentDirectional(-1.0, -1.0),
+                                child: Text(
+                                  'Parent Folder: (Optional)',
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelMedium
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelMediumFamily,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelMediumIsCustom,
+                                      ),
+                                ),
+                              ),
+                              Align(
+                                alignment: AlignmentDirectional(-1.0, -1.0),
+                                child: Text(
+                                  '(Defaults to root directory if left empty)',
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelMedium
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelMediumFamily,
+                                        fontSize: 12.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.normal,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelMediumIsCustom,
+                                      ),
+                                ),
+                              ),
+                              FlutterFlowDropDown<String>(
+                                controller: _model.dropDownValueController ??=
+                                    FormFieldController<String>(
+                                  _model.dropDownValue ??= 'home/',
+                                ),
+                                options: List<String>.from(
+                                    containerStudyMaterialsRecordList
+                                        .map((e) => valueOrDefault<String>(
+                                              e.nestedPath,
+                                              'home/',
+                                            ))
+                                        .toList()),
+                                optionLabels: containerStudyMaterialsRecordList
+                                    .map((e) => e.fileName)
+                                    .toList(),
+                                onChanged: (val) async {
+                                  safeSetState(
+                                      () => _model.dropDownValue = val);
+                                  logFirebaseEvent(
+                                      'ADD_FOLDER_BOTTOM_SHEET_DropDown_amu0qn8');
+                                  logFirebaseEvent(
+                                      'DropDown_update_component_state');
+                                  _model.nestedPath = valueOrDefault<String>(
+                                    _model.dropDownValue,
+                                    'home/',
+                                  );
+                                },
+                                width: double.infinity,
+                                height: 40.0,
+                                searchHintTextStyle:
+                                    FlutterFlowTheme.of(context)
+                                        .labelMedium
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMediumFamily,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .labelMediumIsCustom,
+                                        ),
+                                searchTextStyle: FlutterFlowTheme.of(context)
+                                    .bodyMedium
                                     .override(
                                       fontFamily: FlutterFlowTheme.of(context)
-                                          .labelMediumFamily,
+                                          .bodyMediumFamily,
                                       letterSpacing: 0.0,
                                       useGoogleFonts:
                                           !FlutterFlowTheme.of(context)
-                                              .labelMediumIsCustom,
+                                              .bodyMediumIsCustom,
                                     ),
+                                textStyle: FlutterFlowTheme.of(context)
+                                    .labelLarge
+                                    .override(
+                                      fontFamily: FlutterFlowTheme.of(context)
+                                          .labelLargeFamily,
+                                      letterSpacing: 0.0,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .labelLargeIsCustom,
+                                    ),
+                                hintText: 'Select A Folder..',
+                                searchHintText: 'Search For Folder...',
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryText,
+                                  size: 24.0,
+                                ),
+                                fillColor: FlutterFlowTheme.of(context)
+                                    .primaryBackground,
+                                elevation: 2.0,
+                                borderColor:
+                                    FlutterFlowTheme.of(context).alternate,
+                                borderWidth: 2.0,
+                                borderRadius: 8.0,
+                                margin: EdgeInsetsDirectional.fromSTEB(
+                                    12.0, 0.0, 12.0, 0.0),
+                                hidesUnderline: true,
+                                isOverButton: false,
+                                isSearchable: true,
+                                isMultiSelect: false,
                               ),
-                            ),
-                          ].divide(SizedBox(height: 8.0)),
-                        ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 0.0, 20.0),
-                          child: FlutterFlowDropDown<String>(
-                            controller: _model.dropDownValueController ??=
-                                FormFieldController<String>(
-                              _model.dropDownValue ??= 'home/',
-                            ),
-                            options: List<String>.from(
-                                containerStudyMaterialsRecordList
-                                    .map((e) => e.materialId)
-                                    .toList()),
-                            optionLabels: containerStudyMaterialsRecordList
-                                .map((e) => e.fileName)
-                                .toList(),
-                            onChanged: (val) async {
-                              safeSetState(() => _model.dropDownValue = val);
-                              logFirebaseEvent(
-                                  'ADD_FOLDER_BOTTOM_SHEET_DropDown_amu0qn8');
-                              logFirebaseEvent('DropDown_firestore_query');
-                              _model.selectedFolder =
-                                  await queryStudyMaterialsRecordOnce(
-                                queryBuilder: (studyMaterialsRecord) =>
-                                    studyMaterialsRecord.where(
-                                  'material_id',
-                                  isEqualTo: _model.dropDownValue,
-                                ),
-                                singleRecord: true,
-                              ).then((s) => s.firstOrNull);
-
-                              safeSetState(() {});
-                            },
-                            width: double.infinity,
-                            height: 50.0,
-                            searchHintTextStyle: FlutterFlowTheme.of(context)
-                                .labelMedium
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelMediumFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelMediumIsCustom,
-                                ),
-                            searchTextStyle: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .bodyMediumIsCustom,
-                                ),
-                            textStyle: FlutterFlowTheme.of(context)
-                                .labelLarge
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelLargeFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelLargeIsCustom,
-                                ),
-                            hintText: 'Select A Folder..',
-                            searchHintText: 'Search For Folder...',
-                            icon: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: FlutterFlowTheme.of(context).secondaryText,
-                              size: 24.0,
-                            ),
-                            fillColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                            elevation: 2.0,
-                            borderColor: FlutterFlowTheme.of(context).alternate,
-                            borderWidth: 2.0,
-                            borderRadius: 8.0,
-                            margin: EdgeInsetsDirectional.fromSTEB(
-                                12.0, 0.0, 12.0, 0.0),
-                            hidesUnderline: true,
-                            isOverButton: false,
-                            isSearchable: true,
-                            isMultiSelect: false,
+                            ],
                           ),
                         ),
                       ],
@@ -429,50 +455,32 @@ class _AddFolderBottomSheetWidgetState
                                   StudyMaterialsRecord.collection.doc();
                               await studyMaterialsRecordReference
                                   .set(createStudyMaterialsRecordData(
-                                parentPath: valueOrDefault<String>(
-                                  '${_model.selectedFolder?.parentPath}${_model.selectedFolder?.fileName}/',
-                                  'home/',
-                                ),
-                                isDeleted: false,
+                                parentPath: _model.nestedPath,
                                 createdAt: getCurrentTimestamp,
                                 mimeType: 'folder',
                                 fileName: valueOrDefault<String>(
                                   _model.textController.text,
                                   'Folder X',
                                 ),
-                                materialId: functions
-                                    .randomNumberGenerator(
-                                        1000000,
-                                        9999999,
-                                        getCurrentTimestamp
-                                            .microsecondsSinceEpoch
-                                            .toString())
-                                    .toString(),
                                 materialType: StudyMaterialType.folder,
+                                fileSizeBytes: 0,
+                                nestedPath:
+                                    '${_model.nestedPath}${_model.textController.text}/',
                               ));
                               _model.createdFolder =
                                   StudyMaterialsRecord.getDocumentFromData(
                                       createStudyMaterialsRecordData(
-                                        parentPath: valueOrDefault<String>(
-                                          '${_model.selectedFolder?.parentPath}${_model.selectedFolder?.fileName}/',
-                                          'home/',
-                                        ),
-                                        isDeleted: false,
+                                        parentPath: _model.nestedPath,
                                         createdAt: getCurrentTimestamp,
                                         mimeType: 'folder',
                                         fileName: valueOrDefault<String>(
                                           _model.textController.text,
                                           'Folder X',
                                         ),
-                                        materialId: functions
-                                            .randomNumberGenerator(
-                                                1000000,
-                                                9999999,
-                                                getCurrentTimestamp
-                                                    .microsecondsSinceEpoch
-                                                    .toString())
-                                            .toString(),
                                         materialType: StudyMaterialType.folder,
+                                        fileSizeBytes: 0,
+                                        nestedPath:
+                                            '${_model.nestedPath}${_model.textController.text}/',
                                       ),
                                       studyMaterialsRecordReference);
                               if (_model.createdFolder != null) {
@@ -551,7 +559,7 @@ class _AddFolderBottomSheetWidgetState
                       ].divide(SizedBox(width: 16.0)),
                     ),
                   ),
-                ].divide(SizedBox(height: 16.0)),
+                ],
               ),
             ),
           );

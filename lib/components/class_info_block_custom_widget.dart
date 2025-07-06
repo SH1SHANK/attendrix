@@ -1,7 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
-import '/components/edit_custom_class_widget.dart';
 import '/components/schedule_remainder_custom_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -117,39 +116,6 @@ class _ClassInfoBlockCustomWidgetState
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Builder(
-                      builder: (context) => InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          logFirebaseEvent(
-                              'CLASS_INFO_BLOCK_CUSTOM_Icon_fefno9py_ON');
-                          logFirebaseEvent('Icon_alert_dialog');
-                          await showDialog(
-                            context: context,
-                            builder: (dialogContext) {
-                              return Dialog(
-                                elevation: 0,
-                                insetPadding: EdgeInsets.zero,
-                                backgroundColor: Colors.transparent,
-                                alignment: AlignmentDirectional(0.0, 0.0)
-                                    .resolve(Directionality.of(context)),
-                                child: EditCustomClassWidget(
-                                  customClassRefDoc: widget.classRecord!,
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: Icon(
-                          FFIcons.kpenWriteEdit2,
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          size: 24.0,
-                        ),
-                      ),
-                    ),
                     InkWell(
                       splashColor: Colors.transparent,
                       focusColor: Colors.transparent,

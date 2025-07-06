@@ -31,7 +31,6 @@ void main() async {
 
   // Start initial custom actions code
   await actions.initializeOneSignal();
-  await actions.initializeHiveSystem();
   // End initial custom actions code
 
   await SupaFlow.initialize();
@@ -217,8 +216,8 @@ class _NavBarPageState extends State<NavBarPage> {
         activeColor: FlutterFlowTheme.of(context).info,
         tabBackgroundColor: FlutterFlowTheme.of(context).primary,
         tabBorderRadius: 48.0,
-        tabMargin: EdgeInsetsDirectional.fromSTEB(0.0, 6.0, 0.0, 6.0),
-        padding: EdgeInsetsDirectional.fromSTEB(6.0, 4.0, 6.0, 4.0),
+        tabMargin: EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 8.0),
+        padding: EdgeInsetsDirectional.fromSTEB(6.0, 6.0, 6.0, 6.0),
         gap: 5.0,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         duration: Duration(milliseconds: 500),

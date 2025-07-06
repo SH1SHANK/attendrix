@@ -10,6 +10,8 @@ class ClassBlockSecondaryModel
 
   ///  State fields for stateful widgets in this component.
 
+  // Stores action output result for [Custom Action - checkAttendance] action in classBlock_secondary widget.
+  bool? isAttended;
   // State field(s) for Checkbox widget.
   bool? checkboxValue;
   // Stores action output result for [Custom Action - checkInToCustomClasses] action in Checkbox widget.

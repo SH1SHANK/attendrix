@@ -5,7 +5,9 @@ import '/backend/supabase/supabase.dart';
 import '/class_components/class_block_custom/class_block_custom_widget.dart';
 import '/class_components/class_block_general/class_block_general_widget.dart';
 import '/class_components/class_block_missed/class_block_missed_widget.dart';
+import '/components/confirm_dialog_widget.dart';
 import '/components/empty_calender_widget.dart';
+import '/components/progress_bar_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_button_tabbar.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
@@ -21,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'classes_model.dart';
 export 'classes_model.dart';
 
@@ -49,25 +52,31 @@ class _ClassesWidgetState extends State<ClassesWidget>
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('CLASSES_PAGE_classes_ON_INIT_STATE');
-      logFirebaseEvent('classes_custom_action');
-      _model.missedClassesLoad = await actions.getMissedClasses(
-        currentUserUid,
-        (currentUserDocument?.coursesEnrolled.toList() ?? [])
-            .map((e) => e.courseID)
-            .toList()
-            .toList(),
-        false,
-      );
-      logFirebaseEvent('classes_custom_action');
-      _model.customClassesQuery = await actions.fetchAllClasses(
-        currentUserReference!,
-      );
-      logFirebaseEvent('classes_update_page_state');
-      _model.missedClasses =
-          _model.missedClassesLoad!.toList().cast<ClassRowStruct>();
-      _model.customClasses =
-          _model.customClassesQuery!.toList().cast<ClassRowStruct>();
-      safeSetState(() {});
+      if (!(FFAppState().missedClasses.isNotEmpty)) {
+        logFirebaseEvent('classes_custom_action');
+        _model.missedClassesLoad = await actions.getMissedClasses(
+          currentUserUid,
+          (currentUserDocument?.coursesEnrolled.toList() ?? [])
+              .map((e) => e.courseID)
+              .toList()
+              .toList(),
+        );
+        logFirebaseEvent('classes_update_app_state');
+        FFAppState().missedClasses =
+            _model.missedClassesLoad!.toList().cast<ClassRowStruct>();
+        safeSetState(() {});
+      }
+      if (!(FFAppState().customClassesAlldays.isNotEmpty)) {
+        logFirebaseEvent('classes_custom_action');
+        _model.customClassesQuery = await actions.fetchCustomClasses(
+          currentUserReference!,
+          '',
+        );
+        logFirebaseEvent('classes_update_app_state');
+        FFAppState().customClassesAlldays =
+            _model.customClassesQuery!.toList().cast<ClassRowStruct>();
+        safeSetState(() {});
+      }
     });
 
     _model.tabBarController = TabController(
@@ -88,6 +97,8 @@ class _ClassesWidgetState extends State<ClassesWidget>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Title(
         title: 'classes',
         color: FlutterFlowTheme.of(context).primary.withAlpha(0XFF),
@@ -645,14 +656,14 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                       future: FFAppState()
                                                           .timetableRecordsQueryDay(
                                                         uniqueQueryKey:
-                                                            'dayQueryTimetable_${dateTimeFormat(
+                                                            dateTimeFormat(
                                                           "d/M/y",
                                                           pastDateItem,
                                                           locale:
                                                               FFLocalizations.of(
                                                                       context)
                                                                   .languageCode,
-                                                        )}',
+                                                        ),
                                                         requestFn: () =>
                                                             TimetableRecordsTable()
                                                                 .queryRows(
@@ -811,27 +822,31 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                         .isNotEmpty)
                                                       Builder(
                                                         builder: (context) {
-                                                          final customClassesList = _model
-                                                              .customClasses
-                                                              .where((e) =>
-                                                                  (e.weekday ==
-                                                                      (dateTimeFormat(
-                                                                        "EEEE",
-                                                                        pastDateItem,
-                                                                        locale:
-                                                                            FFLocalizations.of(context).languageCode,
-                                                                      )
-                                                                          .toLowerCase())) &&
-                                                                  (e.createdAt >=
-                                                                      pastDateItem))
-                                                              .toList()
-                                                              .sortedList(
-                                                                  keyOf: (e) =>
-                                                                      e.classStartTime,
-                                                                  desc: true)
-                                                              .toList()
-                                                              .take(6)
-                                                              .toList();
+                                                          final customClassesList =
+                                                              FFAppState()
+                                                                  .customClassesAlldays
+                                                                  .where((e) =>
+                                                                      (e
+                                                                              .weekday ==
+                                                                          (dateTimeFormat(
+                                                                            "EEEE",
+                                                                            pastDateItem,
+                                                                            locale:
+                                                                                FFLocalizations.of(context).languageCode,
+                                                                          )
+                                                                              .toLowerCase())) &&
+                                                                      (e.createdAt >=
+                                                                          pastDateItem))
+                                                                  .toList()
+                                                                  .sortedList(
+                                                                      keyOf: (e) =>
+                                                                          functions.convertToDateTime(e
+                                                                              .classStartTime),
+                                                                      desc:
+                                                                          true)
+                                                                  .toList()
+                                                                  .take(8)
+                                                                  .toList();
                                                           if (customClassesList
                                                               .isEmpty) {
                                                             return Center(
@@ -921,226 +936,225 @@ class _ClassesWidgetState extends State<ClassesWidget>
                             ),
                           ),
                           KeepAliveWidgetWrapper(
-                            builder: (context) => Column(
-                              mainAxisSize: MainAxisSize.max,
+                            builder: (context) => Stack(
                               children: [
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(),
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        borderRadius:
-                                            BorderRadius.circular(0.0),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            8.0, 6.0, 8.0, 0.0),
-                                        child: SingleChildScrollView(
-                                          primary: false,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Align(
-                                                    alignment:
-                                                        AlignmentDirectional(
-                                                            -1.0, 0.0),
-                                                    child: Text(
-                                                      valueOrDefault<String>(
-                                                        'Missed Classes (${valueOrDefault<String>(
-                                                          _model.missedClasses
-                                                              .length
-                                                              .toString(),
-                                                          '0',
-                                                        )}):',
-                                                        'Missed Classes (0):',
-                                                      ),
-                                                      style: FlutterFlowTheme
-                                                              .of(context)
-                                                          .headlineSmall
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .headlineSmallFamily,
-                                                            fontSize: 16.0,
-                                                            letterSpacing: 0.0,
-                                                            useGoogleFonts:
-                                                                !FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .headlineSmallIsCustom,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  FFButtonWidget(
-                                                    onPressed: () async {
-                                                      logFirebaseEvent(
-                                                          'CLASSES_PAGE_REFRESH_BTN_ON_TAP');
-                                                      logFirebaseEvent(
-                                                          'Button_custom_action');
-                                                      await actions
-                                                          .clearMissedClassesCache(
-                                                        currentUserUid,
-                                                      );
-                                                      logFirebaseEvent(
-                                                          'Button_custom_action');
-                                                      _model.refreshedMissedClasses =
-                                                          await actions
-                                                              .getMissedClasses(
-                                                        currentUserUid,
-                                                        (currentUserDocument
-                                                                    ?.coursesEnrolled
-                                                                    .toList() ??
-                                                                [])
-                                                            .map((e) =>
-                                                                e.courseID)
-                                                            .toList(),
-                                                        true,
-                                                      );
-                                                      logFirebaseEvent(
-                                                          'Button_update_page_state');
-                                                      _model.missedClasses = _model
-                                                          .refreshedMissedClasses!
-                                                          .toList()
-                                                          .cast<
-                                                              ClassRowStruct>();
-                                                      safeSetState(() {});
-
-                                                      safeSetState(() {});
-                                                    },
-                                                    text: 'Refresh',
-                                                    icon: Icon(
-                                                      Icons.sync_rounded,
-                                                      size: 18.0,
-                                                    ),
-                                                    options: FFButtonOptions(
-                                                      width: 100.0,
-                                                      height: 25.0,
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  12.0,
-                                                                  0.0,
-                                                                  12.0,
-                                                                  0.0),
-                                                      iconPadding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      iconColor:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .info,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                      textStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmall
-                                                              .override(
-                                                                font:
-                                                                    GoogleFonts
-                                                                        .outfit(
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 14.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontWeight,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmall
-                                                                    .fontStyle,
-                                                              ),
-                                                      elevation: 0.0,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.0),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 6.0, 0.0, 0.0),
-                                                child: Row(
+                                Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryBackground,
+                                          borderRadius:
+                                              BorderRadius.circular(0.0),
+                                        ),
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  8.0, 6.0, 8.0, 0.0),
+                                          child: SingleChildScrollView(
+                                            primary: false,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Row(
                                                   mainAxisSize:
                                                       MainAxisSize.max,
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
+                                                    Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              -1.0, 0.0),
+                                                      child: Text(
+                                                        valueOrDefault<String>(
+                                                          'Missed Classes (${valueOrDefault<String>(
+                                                            _model.missedClasses
+                                                                .length
+                                                                .toString(),
+                                                            '0',
+                                                          )}):',
+                                                          'Missed Classes (0):',
+                                                        ),
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .headlineSmall
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .headlineSmallFamily,
+                                                              fontSize: 20.0,
+                                                              letterSpacing:
                                                                   0.0,
-                                                                  0.0,
-                                                                  12.0,
-                                                                  0.0),
-                                                      child: FFButtonWidget(
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .headlineSmallIsCustom,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                          0.0, 6.0, 0.0, 0.0),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    0.0,
+                                                                    12.0,
+                                                                    0.0),
+                                                        child: FFButtonWidget(
+                                                          onPressed: () async {
+                                                            logFirebaseEvent(
+                                                                'CLASSES_PAGE_Button_tcu5257z_ON_TAP');
+                                                            if (_model
+                                                                .multiSelectMode) {
+                                                              logFirebaseEvent(
+                                                                  'Button_update_page_state');
+                                                              _model.selectedclasses =
+                                                                  [];
+                                                              _model.multiSelectMode =
+                                                                  false;
+                                                              safeSetState(
+                                                                  () {});
+                                                            } else {
+                                                              logFirebaseEvent(
+                                                                  'Button_update_page_state');
+                                                              _model.multiSelectMode =
+                                                                  true;
+                                                              safeSetState(
+                                                                  () {});
+                                                            }
+                                                          },
+                                                          text: valueOrDefault<
+                                                              String>(
+                                                            _model.multiSelectMode
+                                                                ? 'Deselect All'
+                                                                : 'Multi-Select',
+                                                            'Multi-Select',
+                                                          ),
+                                                          icon: Icon(
+                                                            FFIcons
+                                                                .kselectMultiple,
+                                                            size: 12.0,
+                                                          ),
+                                                          options:
+                                                              FFButtonOptions(
+                                                            width: 110.0,
+                                                            height: 25.0,
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        12.0,
+                                                                        0.0,
+                                                                        12.0,
+                                                                        0.0),
+                                                            iconPadding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0),
+                                                            iconColor: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryBackground,
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                            textStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleSmall
+                                                                    .override(
+                                                                      font: GoogleFonts
+                                                                          .outfit(
+                                                                        fontWeight: FlutterFlowTheme.of(context)
+                                                                            .titleSmall
+                                                                            .fontWeight,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .titleSmall
+                                                                            .fontStyle,
+                                                                      ),
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      letterSpacing:
+                                                                          0.0,
+                                                                      fontWeight: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .titleSmall
+                                                                          .fontWeight,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .titleSmall
+                                                                          .fontStyle,
+                                                                    ),
+                                                            elevation: 0.0,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.0),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      FFButtonWidget(
                                                         onPressed: () async {
                                                           logFirebaseEvent(
-                                                              'CLASSES_PAGE_Button_tcu5257z_ON_TAP');
-                                                          if (_model
-                                                              .multiSelectMode) {
-                                                            logFirebaseEvent(
-                                                                'Button_update_page_state');
-                                                            _model.selectedclasses =
-                                                                [];
-                                                            _model.multiSelectMode =
-                                                                false;
-                                                            safeSetState(() {});
-                                                          } else {
-                                                            logFirebaseEvent(
-                                                                'Button_update_page_state');
-                                                            _model.multiSelectMode =
-                                                                true;
-                                                            safeSetState(() {});
-                                                          }
+                                                              'CLASSES_PAGE_REFRESH_BTN_ON_TAP');
+                                                          logFirebaseEvent(
+                                                              'Button_custom_action');
+                                                          _model.refreshedMissedClasses =
+                                                              await actions
+                                                                  .getMissedClasses(
+                                                            currentUserUid,
+                                                            (currentUserDocument
+                                                                        ?.coursesEnrolled
+                                                                        .toList() ??
+                                                                    [])
+                                                                .map((e) =>
+                                                                    e.courseID)
+                                                                .toList(),
+                                                          );
+                                                          logFirebaseEvent(
+                                                              'Button_update_app_state');
+                                                          FFAppState()
+                                                                  .missedClasses =
+                                                              _model
+                                                                  .refreshedMissedClasses!
+                                                                  .toList()
+                                                                  .cast<
+                                                                      ClassRowStruct>();
+                                                          safeSetState(() {});
+
+                                                          safeSetState(() {});
                                                         },
-                                                        text: valueOrDefault<
-                                                            String>(
-                                                          _model.multiSelectMode
-                                                              ? 'Deselect All'
-                                                              : 'Multi-Select',
-                                                          'Multi-Select',
-                                                        ),
+                                                        text: 'Refresh',
                                                         icon: Icon(
-                                                          FFIcons
-                                                              .kselectMultiple,
-                                                          size: 12.0,
+                                                          Icons.sync_rounded,
+                                                          size: 18.0,
                                                         ),
                                                         options:
                                                             FFButtonOptions(
-                                                          width: 110.0,
+                                                          width: 100.0,
                                                           height: 25.0,
                                                           padding:
                                                               EdgeInsetsDirectional
@@ -1156,9 +1170,10 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                       0.0,
                                                                       0.0,
                                                                       0.0),
-                                                          iconColor: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primaryBackground,
+                                                          iconColor:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .info,
                                                           color: FlutterFlowTheme
                                                                   .of(context)
                                                               .primaryText,
@@ -1181,7 +1196,7 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                     color: Colors
                                                                         .white,
                                                                     fontSize:
-                                                                        12.0,
+                                                                        14.0,
                                                                     letterSpacing:
                                                                         0.0,
                                                                     fontWeight: FlutterFlowTheme.of(
@@ -1199,421 +1214,310 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                                   .circular(
                                                                       8.0),
                                                         ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                          0.0, 5.0, 0.0, 0.0),
+                                                  child: Builder(
+                                                    builder: (context) {
+                                                      final missedClassesList =
+                                                          _model.missedClasses
+                                                              .toList();
+                                                      if (missedClassesList
+                                                          .isEmpty) {
+                                                        return EmptyClassWidget(
+                                                          imageUrl:
+                                                              'https://cdn-icons-gif.flaticon.com/16768/16768698.gif',
+                                                          title:
+                                                              'Flawless Attendance! 🔥',
+                                                          description:
+                                                              'You’ve shown up for every class. Nicely done.',
+                                                        );
+                                                      }
+
+                                                      return ListView.separated(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        primary: false,
+                                                        shrinkWrap: true,
+                                                        scrollDirection:
+                                                            Axis.vertical,
+                                                        itemCount:
+                                                            missedClassesList
+                                                                .length,
+                                                        separatorBuilder:
+                                                            (_, __) => SizedBox(
+                                                                height: 2.0),
+                                                        itemBuilder: (context,
+                                                            missedClassesListIndex) {
+                                                          final missedClassesListItem =
+                                                              missedClassesList[
+                                                                  missedClassesListIndex];
+                                                          return Padding(
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        2.0),
+                                                            child:
+                                                                wrapWithModel(
+                                                              model: _model
+                                                                  .classBlockMissedModels
+                                                                  .getModel(
+                                                                missedClassesListItem
+                                                                    .classID,
+                                                                missedClassesListIndex,
+                                                              ),
+                                                              updateCallback: () =>
+                                                                  safeSetState(
+                                                                      () {}),
+                                                              updateOnChange:
+                                                                  true,
+                                                              child:
+                                                                  ClassBlockMissedWidget(
+                                                                key: Key(
+                                                                  'Keyrzs_${missedClassesListItem.classID}',
+                                                                ),
+                                                                classID:
+                                                                    missedClassesListItem
+                                                                        .classID,
+                                                                courseID:
+                                                                    missedClassesListItem
+                                                                        .courseID,
+                                                                courseName:
+                                                                    missedClassesListItem
+                                                                        .courseName,
+                                                                isCustomClass:
+                                                                    false,
+                                                                classStartTime:
+                                                                    functions.convertToDateTime(
+                                                                        missedClassesListItem
+                                                                            .classStartTime),
+                                                                classEndTime: functions
+                                                                    .convertToDateTime(
+                                                                        missedClassesListItem
+                                                                            .classEndTime),
+                                                                multiSelectMode:
+                                                                    _model
+                                                                        .multiSelectMode,
+                                                                classRow:
+                                                                    missedClassesListItem,
+                                                                msCallbackAddToList:
+                                                                    (classRow) async {
+                                                                  logFirebaseEvent(
+                                                                      'CLASSES_PAGE_Container_rzs3zwdc_CALLBACK');
+                                                                  logFirebaseEvent(
+                                                                      'classBlock_missed_update_page_state');
+                                                                  _model.addToSelectedclasses(
+                                                                      classRow);
+                                                                },
+                                                                msCallbackRemoveFromList:
+                                                                    (classRow) async {
+                                                                  logFirebaseEvent(
+                                                                      'CLASSES_PAGE_Container_rzs3zwdc_CALLBACK');
+                                                                  logFirebaseEvent(
+                                                                      'classBlock_missed_update_page_state');
+                                                                  _model.removeFromSelectedclasses(
+                                                                      classRow);
+                                                                },
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if ((_model.multiSelectMode == true) &&
+                                    (_model.selectedclasses.length > 0))
+                                  Align(
+                                    alignment: AlignmentDirectional(0.0, 1.0),
+                                    child: Builder(
+                                      builder: (context) => Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            12.0, 0.0, 12.0, 0.0),
+                                        child: FFButtonWidget(
+                                          onPressed: () async {
+                                            logFirebaseEvent(
+                                                'CLASSES_PAGE_Button_m6trmvat_ON_TAP');
+                                            if (_model.selectedclasses.length >
+                                                0) {
+                                              logFirebaseEvent(
+                                                  'Button_alert_dialog');
+                                              await showDialog(
+                                                context: context,
+                                                builder: (dialogContext) {
+                                                  return Dialog(
+                                                    elevation: 0,
+                                                    insetPadding:
+                                                        EdgeInsets.zero,
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    alignment:
+                                                        AlignmentDirectional(
+                                                                0.0, 0.0)
+                                                            .resolve(
+                                                                Directionality.of(
+                                                                    context)),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(
+                                                                dialogContext)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child:
+                                                          ConfirmDialogWidget(
+                                                        title:
+                                                            'Confirm Check-In',
+                                                        description:
+                                                            'Confirm Check-In',
                                                       ),
                                                     ),
-                                                    if (_model.multiSelectMode)
-                                                      FFButtonWidget(
-                                                        onPressed: () async {
-                                                          logFirebaseEvent(
-                                                              'CLASSES_PAGE_CHECK_IN_BTN_ON_TAP');
-                                                          if (_model
-                                                              .selectedclasses
-                                                              .isNotEmpty) {
-                                                            logFirebaseEvent(
-                                                                'Button_alert_dialog');
-                                                            var confirmDialogResponse =
-                                                                await showDialog<
-                                                                        bool>(
-                                                                      context:
-                                                                          context,
-                                                                      builder:
-                                                                          (alertDialogContext) {
-                                                                        return AlertDialog(
-                                                                          title:
-                                                                              Text('Confirm Check-In'),
-                                                                          content:
-                                                                              Text('Are you sure you want to check into ${valueOrDefault<String>(
-                                                                            _model.selectedclasses.length.toString(),
-                                                                            '0',
-                                                                          )} classes at once?   This action cannot be undone.'),
-                                                                          actions: [
-                                                                            TextButton(
-                                                                              onPressed: () => Navigator.pop(alertDialogContext, false),
-                                                                              child: Text('No, Go Back'),
-                                                                            ),
-                                                                            TextButton(
-                                                                              onPressed: () => Navigator.pop(alertDialogContext, true),
-                                                                              child: Text('Yes, Check In'),
-                                                                            ),
-                                                                          ],
-                                                                        );
-                                                                      },
-                                                                    ) ??
-                                                                    false;
-                                                            if (confirmDialogResponse) {
-                                                              logFirebaseEvent(
-                                                                  'Button_show_snack_bar');
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .clearSnackBars();
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text(
-                                                                    'Checking you into ${valueOrDefault<String>(
-                                                                      _model
-                                                                          .selectedclasses
-                                                                          .length
-                                                                          .toString(),
-                                                                      '0',
-                                                                    )} classes — this may take a moment.',
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelSmall
-                                                                        .override(
-                                                                          fontFamily:
-                                                                              FlutterFlowTheme.of(context).labelSmallFamily,
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).info,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          useGoogleFonts:
-                                                                              !FlutterFlowTheme.of(context).labelSmallIsCustom,
-                                                                        ),
-                                                                  ),
-                                                                  duration: Duration(
-                                                                      milliseconds:
-                                                                          10000),
-                                                                  backgroundColor:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primary,
-                                                                ),
-                                                              );
-                                                              logFirebaseEvent(
-                                                                  'Button_update_page_state');
-                                                              _model.multiSelectMode =
-                                                                  false;
-                                                              safeSetState(
-                                                                  () {});
-                                                              for (int loop1Index =
-                                                                      0;
-                                                                  loop1Index <
-                                                                      _model
-                                                                          .selectedclasses
-                                                                          .length;
-                                                                  loop1Index++) {
-                                                                final currentLoop1Item =
-                                                                    _model.selectedclasses[
-                                                                        loop1Index];
-                                                                logFirebaseEvent(
-                                                                    'Button_action_block');
-                                                                await action_blocks
-                                                                    .checkInAttendanceProtocal(
-                                                                  context,
-                                                                  classID:
-                                                                      currentLoop1Item
-                                                                          .classID,
-                                                                  courseID:
-                                                                      currentLoop1Item
-                                                                          .courseID,
-                                                                  classStartTime:
-                                                                      currentLoop1Item
-                                                                          .classStartTime,
-                                                                );
-                                                                logFirebaseEvent(
-                                                                    'Button_custom_action');
-                                                                await actions
-                                                                    .removeMissedClass(
-                                                                  currentUserUid,
-                                                                  currentLoop1Item
-                                                                      .classID,
-                                                                );
-                                                                logFirebaseEvent(
-                                                                    'Button_update_app_state');
-                                                                FFAppState().addToUpdateCacheFor(
-                                                                    currentLoop1Item
-                                                                        .classID);
-                                                                safeSetState(
-                                                                    () {});
-                                                              }
-                                                              logFirebaseEvent(
-                                                                  'Button_show_snack_bar');
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .clearSnackBars();
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text(
-                                                                    'Checked into ${valueOrDefault<String>(
-                                                                      _model
-                                                                          .selectedclasses
-                                                                          .length
-                                                                          .toString(),
-                                                                      '0',
-                                                                    )} classes successfully! 🎉',
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelSmall
-                                                                        .override(
-                                                                          fontFamily:
-                                                                              FlutterFlowTheme.of(context).labelSmallFamily,
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).info,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          useGoogleFonts:
-                                                                              !FlutterFlowTheme.of(context).labelSmallIsCustom,
-                                                                        ),
-                                                                  ),
-                                                                  duration: Duration(
-                                                                      milliseconds:
-                                                                          4000),
-                                                                  backgroundColor:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .presentGreen,
-                                                                ),
-                                                              );
-                                                              logFirebaseEvent(
-                                                                  'Button_custom_action');
-                                                              _model.newMissedClasses =
-                                                                  await actions
-                                                                      .getMissedClasses(
-                                                                currentUserUid,
-                                                                (currentUserDocument
-                                                                            ?.coursesEnrolled
-                                                                            .toList() ??
-                                                                        [])
-                                                                    .map((e) =>
-                                                                        e.courseID)
-                                                                    .toList(),
-                                                                true,
-                                                              );
-                                                              logFirebaseEvent(
-                                                                  'Button_update_page_state');
-                                                              _model.selectedclasses =
-                                                                  [];
-                                                              _model.missedClasses = _model
-                                                                  .newMissedClasses!
-                                                                  .toList()
-                                                                  .cast<
-                                                                      ClassRowStruct>();
-                                                              safeSetState(
-                                                                  () {});
-                                                            }
-                                                          }
+                                                  );
+                                                },
+                                              ).then((value) => safeSetState(() =>
+                                                  _model.confirmDialogResponse =
+                                                      value));
 
-                                                          safeSetState(() {});
-                                                        },
-                                                        text: 'Check In',
-                                                        icon: Icon(
-                                                          FFIcons.kchecks,
-                                                          size: 16.0,
-                                                        ),
-                                                        options:
-                                                            FFButtonOptions(
-                                                          width: 90.0,
-                                                          height: 25.0,
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      6.0,
-                                                                      0.0,
-                                                                      6.0,
-                                                                      0.0),
-                                                          iconPadding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0),
-                                                          iconColor: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primaryBackground,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .velvetSky,
-                                                          textStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .outfit(
-                                                                      fontWeight: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleSmall
-                                                                          .fontWeight,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleSmall
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        12.0,
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmall
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmall
-                                                                        .fontStyle,
-                                                                  ),
-                                                          elevation: 0.0,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      8.0),
-                                                        ),
-                                                        showLoadingIndicator:
-                                                            false,
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 5.0, 0.0, 0.0),
-                                                child: Builder(
+                                              if (_model
+                                                  .confirmDialogResponse!) {
+                                                logFirebaseEvent(
+                                                    'Button_update_page_state');
+                                                _model.multiSelectMode = false;
+                                                safeSetState(() {});
+                                                logFirebaseEvent(
+                                                    'Button_bottom_sheet');
+                                                await showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  isDismissible: false,
+                                                  enableDrag: false,
+                                                  context: context,
                                                   builder: (context) {
-                                                    final missedClassesList =
-                                                        _model.missedClasses
-                                                            .toList();
-                                                    if (missedClassesList
-                                                        .isEmpty) {
-                                                      return EmptyClassWidget(
-                                                        imageUrl:
-                                                            'https://cdn-icons-gif.flaticon.com/16768/16768698.gif',
-                                                        title:
-                                                            'Flawless Attendance! 🔥',
-                                                        description:
-                                                            'You’ve shown up for every class. Nicely done.',
-                                                      );
-                                                    }
-
-                                                    return ListView.separated(
-                                                      padding: EdgeInsets.zero,
-                                                      primary: false,
-                                                      shrinkWrap: true,
-                                                      scrollDirection:
-                                                          Axis.vertical,
-                                                      itemCount:
-                                                          missedClassesList
-                                                              .length,
-                                                      separatorBuilder: (_,
-                                                              __) =>
-                                                          SizedBox(height: 2.0),
-                                                      itemBuilder: (context,
-                                                          missedClassesListIndex) {
-                                                        final missedClassesListItem =
-                                                            missedClassesList[
-                                                                missedClassesListIndex];
-                                                        return Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0,
-                                                                      2.0),
-                                                          child: wrapWithModel(
-                                                            model: _model
-                                                                .classBlockMissedModels
-                                                                .getModel(
-                                                              missedClassesListItem
-                                                                  .classID,
-                                                              missedClassesListIndex,
-                                                            ),
-                                                            updateCallback: () =>
-                                                                safeSetState(
-                                                                    () {}),
-                                                            updateOnChange:
-                                                                true,
-                                                            child:
-                                                                ClassBlockMissedWidget(
-                                                              key: Key(
-                                                                'Keyrzs_${missedClassesListItem.classID}',
-                                                              ),
-                                                              classID:
-                                                                  missedClassesListItem
-                                                                      .classID,
-                                                              courseID:
-                                                                  missedClassesListItem
-                                                                      .courseID,
-                                                              courseName:
-                                                                  missedClassesListItem
-                                                                      .courseName,
-                                                              isCustomClass:
-                                                                  false,
-                                                              classStartTime: functions
-                                                                  .convertToDateTime(
-                                                                      missedClassesListItem
-                                                                          .classStartTime),
-                                                              classEndTime: functions
-                                                                  .convertToDateTime(
-                                                                      missedClassesListItem
-                                                                          .classEndTime),
-                                                              multiSelectMode:
-                                                                  _model
-                                                                      .multiSelectMode,
-                                                              msCallbackAddToList:
-                                                                  (classID,
-                                                                      courseID) async {
-                                                                logFirebaseEvent(
-                                                                    'CLASSES_PAGE_Container_rzs3zwdc_CALLBACK');
-                                                                logFirebaseEvent(
-                                                                    'classBlock_missed_update_page_state');
-                                                                _model.addToSelectedclasses(
-                                                                    MissedClassDetailsStruct(
-                                                                  classID:
-                                                                      classID,
-                                                                  courseID:
-                                                                      courseID,
-                                                                  classStartTime:
-                                                                      functions.convertToDateTime(
-                                                                          missedClassesListItem
-                                                                              .classStartTime),
-                                                                ));
-                                                                safeSetState(
-                                                                    () {});
-                                                              },
-                                                              msCallbackRemoveFromList:
-                                                                  (classID,
-                                                                      courseID) async {
-                                                                logFirebaseEvent(
-                                                                    'CLASSES_PAGE_Container_rzs3zwdc_CALLBACK');
-                                                                logFirebaseEvent(
-                                                                    'classBlock_missed_update_page_state');
-                                                                _model.removeFromSelectedclasses(
-                                                                    MissedClassDetailsStruct(
-                                                                  classID:
-                                                                      classID,
-                                                                  courseID:
-                                                                      courseID,
-                                                                  classStartTime:
-                                                                      functions.convertToDateTime(
-                                                                          missedClassesListItem
-                                                                              .classStartTime),
-                                                                ));
-                                                                safeSetState(
-                                                                    () {});
-                                                              },
-                                                            ),
-                                                          ),
-                                                        );
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
                                                       },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            ProgressBarWidget(
+                                                          title: '',
+                                                          description: '',
+                                                          current: 0,
+                                                          total: _model
+                                                              .selectedclasses
+                                                              .length,
+                                                        ),
+                                                      ),
                                                     );
                                                   },
-                                                ),
-                                              ),
-                                            ],
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+
+                                                for (int loop1Index = 0;
+                                                    loop1Index <
+                                                        _model.selectedclasses
+                                                            .length;
+                                                    loop1Index++) {
+                                                  final currentLoop1Item =
+                                                      _model.selectedclasses[
+                                                          loop1Index];
+                                                  logFirebaseEvent(
+                                                      'Button_action_block');
+                                                  await action_blocks
+                                                      .checkInAttendanceProtocal(
+                                                    context,
+                                                    classID: currentLoop1Item
+                                                        .classID,
+                                                    courseID: currentLoop1Item
+                                                        .courseID,
+                                                    classStartTime: functions
+                                                        .convertToDateTime(
+                                                            currentLoop1Item
+                                                                .classStartTime),
+                                                  );
+                                                  logFirebaseEvent(
+                                                      'Button_update_app_state');
+                                                  FFAppState()
+                                                      .removeFromMissedClasses(
+                                                          currentLoop1Item);
+                                                }
+                                                logFirebaseEvent(
+                                                    'Button_bottom_sheet');
+                                                Navigator.pop(context);
+                                                logFirebaseEvent(
+                                                    'Button_update_page_state');
+                                                _model.selectedclasses = [];
+                                                safeSetState(() {});
+                                              }
+                                            }
+
+                                            safeSetState(() {});
+                                          },
+                                          text:
+                                              'Check-in (${valueOrDefault<String>(
+                                            _model.selectedclasses.length
+                                                .toString(),
+                                            '0',
+                                          )})',
+                                          options: FFButtonOptions(
+                                            width: double.infinity,
+                                            height: 40.0,
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    16.0, 0.0, 16.0, 0.0),
+                                            iconPadding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            color: Color(0xFF0C7FF2),
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .titleSmallFamily,
+                                                      color: Colors.white,
+                                                      letterSpacing: 0.0,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .titleSmallIsCustom,
+                                                    ),
+                                            elevation: 0.0,
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

@@ -29,14 +29,14 @@ class DashboardModel extends FlutterFlowModel<DashboardWidget> {
 
   ///  State fields for stateful widgets in this page.
 
+  // Stores action output result for [Custom Action - generateGreetingMessage] action in dashboard widget.
+  UserGreetingMessageStruct? greetingMessage;
+  // Stores action output result for [Custom Action - fetchCustomClasses] action in dashboard widget.
+  List<ClassRowStruct>? customClassesQuery;
   // Stores action output result for [Custom Action - updateAttendanceCounts] action in dashboard widget.
   String? updateFeedback;
   // Stores action output result for [Custom Action - manageUserChallenges] action in dashboard widget.
   String? newChallengesFeedback;
-  // Stores action output result for [Custom Action - fetchTodaysClasses] action in dashboard widget.
-  List<ClassRowStruct>? customClasses;
-  // Stores action output result for [Custom Action - generateGreetingMessage] action in dashboard widget.
-  UserGreetingMessageStruct? generatedGreetingMesages;
   // State field(s) for TabBar widget.
   TabController? tabBarController;
   int get tabBarCurrentIndex =>

@@ -5,6 +5,7 @@ import '/components/add_study_materials_widget.dart';
 import '/components/task_manager_block_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
@@ -12,6 +13,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'file_manager_model.dart';
 export 'file_manager_model.dart';
 
@@ -166,7 +168,7 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
                               ),
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
-                                    6.0, 0.0, 0.0, 4.0),
+                                    6.0, 0.0, 0.0, 0.0),
                                 child: Text(
                                   'File Manager',
                                   style: FlutterFlowTheme.of(context)
@@ -174,6 +176,7 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
                                       .override(
                                         fontFamily: FlutterFlowTheme.of(context)
                                             .headlineSmallFamily,
+                                        fontSize: 22.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w600,
                                         useGoogleFonts:
@@ -212,7 +215,10 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
                                     logFirebaseEvent(
                                         'FILE_MANAGER_Icon_3elvuj2l_ON_DOUBLE_TAP');
                                     logFirebaseEvent('Icon_update_page_state');
-                                    _model.parentPath = widget.parentPath;
+                                    _model.parentPath = valueOrDefault<String>(
+                                      widget.parentPath,
+                                      'home/',
+                                    );
                                     safeSetState(() {});
                                   },
                                   child: Icon(
@@ -367,24 +373,67 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
                           ),
                         ),
                       ),
+                      Align(
+                        alignment: AlignmentDirectional(1.0, 0.0),
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 12.0, 0.0),
+                          child: FFButtonWidget(
+                            onPressed: () {
+                              print('Button pressed ...');
+                            },
+                            text: 'Refresh',
+                            icon: Icon(
+                              Icons.sync_sharp,
+                              size: 16.0,
+                            ),
+                            options: FFButtonOptions(
+                              width: 100.0,
+                              height: 24.0,
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 0.0, 16.0, 0.0),
+                              iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 0.0, 0.0, 0.0),
+                              iconColor: FlutterFlowTheme.of(context).info,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              textStyle: FlutterFlowTheme.of(context)
+                                  .titleSmall
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .titleSmallFamily,
+                                    color: Colors.white,
+                                    fontSize: 14.0,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
+                                  ),
+                              elevation: 0.0,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
                         child: StreamBuilder<List<StudyMaterialsRecord>>(
-                          stream: queryStudyMaterialsRecord(
-                            queryBuilder: (studyMaterialsRecord) =>
-                                studyMaterialsRecord
-                                    .where(
-                                      'parentPath',
-                                      isEqualTo: _model.parentPath != ''
-                                          ? _model.parentPath
-                                          : null,
-                                    )
-                                    .where(
-                                      'isDeleted',
-                                      isEqualTo: false,
-                                    ),
-                            limit: 20,
+                          stream: FFAppState().studyMaterials(
+                            uniqueQueryKey: valueOrDefault<String>(
+                              _model.parentPath,
+                              'home/',
+                            ),
+                            requestFn: () => queryStudyMaterialsRecord(
+                              queryBuilder: (studyMaterialsRecord) =>
+                                  studyMaterialsRecord.where(
+                                'parentPath',
+                                isEqualTo: valueOrDefault<String>(
+                                  _model.parentPath,
+                                  'home/',
+                                ),
+                              ),
+                              limit: 20,
+                            ),
                           ),
                           builder: (context, snapshot) {
                             // Customize what your widget looks like when it's loading.
@@ -417,63 +466,71 @@ class _FileManagerWidgetState extends State<FileManagerWidget> {
                                 return Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       6.0, 0.0, 6.0, 4.0),
-                                  child: InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      logFirebaseEvent(
-                                          'FILE_MANAGER_Container_xm5z74jo_ON_TAP');
-                                      if (listViewStudyMaterialsRecord
-                                              .materialType ==
-                                          StudyMaterialType.folder) {
+                                  child: wrapWithModel(
+                                    model:
+                                        _model.taskManagerBlockModels.getModel(
+                                      listViewStudyMaterialsRecord.reference.id,
+                                      listViewIndex,
+                                    ),
+                                    updateCallback: () => safeSetState(() {}),
+                                    child: TaskManagerBlockWidget(
+                                      key: Key(
+                                        'Keyxm5_${listViewStudyMaterialsRecord.reference.id}',
+                                      ),
+                                      materialReference:
+                                          listViewStudyMaterialsRecord,
+                                      onTap: () async {
                                         logFirebaseEvent(
-                                            'taskManager_block_update_page_state');
-                                        _model.parentPath =
-                                            '${_model.parentPath}${listViewStudyMaterialsRecord.fileName}/';
-                                        safeSetState(() {});
-                                      } else {
-                                        logFirebaseEvent(
-                                            'taskManager_block_custom_action');
-                                        _model.fileStatus =
-                                            await actions.fileViewer(
-                                          listViewStudyMaterialsRecord.filePath,
-                                        );
-                                      }
+                                            'FILE_MANAGER_Container_xm5z74jo_CALLBACK');
+                                        if (listViewStudyMaterialsRecord
+                                                .materialType ==
+                                            StudyMaterialType.folder) {
+                                          logFirebaseEvent(
+                                              'taskManager_block_update_page_state');
+                                          _model.parentPath =
+                                              listViewStudyMaterialsRecord
+                                                  .nestedPath;
+                                          safeSetState(() {});
+                                        } else {
+                                          logFirebaseEvent(
+                                              'taskManager_block_custom_action');
+                                          _model.fileStatus =
+                                              await actions.fileViewer(
+                                            listViewStudyMaterialsRecord
+                                                .filePath,
+                                          );
+                                          logFirebaseEvent(
+                                              'taskManager_block_show_snack_bar');
+                                          ScaffoldMessenger.of(context)
+                                              .clearSnackBars();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                _model.fileStatus!,
+                                                style: GoogleFonts.outfit(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .info,
+                                                ),
+                                              ),
+                                              duration:
+                                                  Duration(milliseconds: 4000),
+                                              backgroundColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                            ),
+                                          );
+                                        }
 
-                                      safeSetState(() {});
-                                    },
-                                    child: wrapWithModel(
-                                      model: _model.taskManagerBlockModels
-                                          .getModel(
-                                        listViewStudyMaterialsRecord
-                                            .reference.id,
-                                        listViewIndex,
-                                      ),
-                                      updateCallback: () => safeSetState(() {}),
-                                      child: TaskManagerBlockWidget(
-                                        key: Key(
-                                          'Keyxm5_${listViewStudyMaterialsRecord.reference.id}',
-                                        ),
-                                        materialReference:
-                                            listViewStudyMaterialsRecord,
-                                      ),
+                                        safeSetState(() {});
+                                      },
                                     ),
                                   ),
                                 );
                               },
                             );
                           },
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 12.0),
-                        child: Container(
-                          width: double.infinity,
-                          height: 30.0,
-                          decoration: BoxDecoration(),
                         ),
                       ),
                     ],

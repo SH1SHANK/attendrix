@@ -1,29 +1,11 @@
 {
   "indexes": [
     {
-      "collectionGroup": "userPersonalVault",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "isDeleted",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "open_count",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "studyMaterials",
       "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "material_type",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "isDeleted",
           "order": "ASCENDING"
         },
         {

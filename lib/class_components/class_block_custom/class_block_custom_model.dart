@@ -9,10 +9,14 @@ class ClassBlockCustomModel extends FlutterFlowModel<ClassBlockCustomWidget> {
 
   bool hasChanges = false;
 
+  bool isAttended = false;
+
   ///  State fields for stateful widgets in this component.
 
   // Stores action output result for [Custom Action - checkClassCancellation] action in classBlock_custom widget.
   bool? isCancelledQuery;
+  // Stores action output result for [Custom Action - checkAttendance] action in classBlock_custom widget.
+  bool? isAttendedQuery;
   // Stores action output result for [Custom Action - checkClassCancellation] action in Container widget.
   bool? isCancelledRefreshed;
 

@@ -7,11 +7,11 @@ import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
-import 'pick_file_alert_dialog_model.dart';
-export 'pick_file_alert_dialog_model.dart';
+import 'pick_file_model.dart';
+export 'pick_file_model.dart';
 
-class PickFileAlertDialogWidget extends StatefulWidget {
-  const PickFileAlertDialogWidget({
+class PickFileWidget extends StatefulWidget {
+  const PickFileWidget({
     super.key,
     required this.returnParameter,
   });
@@ -19,13 +19,12 @@ class PickFileAlertDialogWidget extends StatefulWidget {
   final Future Function(FileInfoStruct fileInfo)? returnParameter;
 
   @override
-  State<PickFileAlertDialogWidget> createState() =>
-      _PickFileAlertDialogWidgetState();
+  State<PickFileWidget> createState() => _PickFileWidgetState();
 }
 
-class _PickFileAlertDialogWidgetState extends State<PickFileAlertDialogWidget>
+class _PickFileWidgetState extends State<PickFileWidget>
     with TickerProviderStateMixin {
-  late PickFileAlertDialogModel _model;
+  late PickFileModel _model;
 
   @override
   void setState(VoidCallback callback) {
@@ -36,7 +35,7 @@ class _PickFileAlertDialogWidgetState extends State<PickFileAlertDialogWidget>
   @override
   void initState() {
     super.initState();
-    _model = createModel(context, () => PickFileAlertDialogModel());
+    _model = createModel(context, () => PickFileModel());
 
     _model.tabBarController = TabController(
       vsync: this,
@@ -132,7 +131,7 @@ class _PickFileAlertDialogWidgetState extends State<PickFileAlertDialogWidget>
                           highlightColor: Colors.transparent,
                           onTap: () async {
                             logFirebaseEvent(
-                                'PICK_FILE_ALERT_DIALOG_Icon_0o6wx9xg_ON_');
+                                'PICK_FILE_COMP_Icon_fb82scu6_ON_TAP');
                             logFirebaseEvent('Icon_dismiss_dialog');
                             Navigator.pop(context);
                           },
@@ -239,7 +238,7 @@ class _PickFileAlertDialogWidgetState extends State<PickFileAlertDialogWidget>
                                             highlightColor: Colors.transparent,
                                             onTap: () async {
                                               logFirebaseEvent(
-                                                  'PICK_FILE_ALERT_DIALOG_Container_15squfq');
+                                                  'PICK_FILE_COMP_Container_ywjxzpcq_ON_TAP');
                                               logFirebaseEvent(
                                                   'Container_custom_action');
                                               _model.fileMetadata =
@@ -470,7 +469,7 @@ class _PickFileAlertDialogWidgetState extends State<PickFileAlertDialogWidget>
                                       ),
                                       onFieldSubmitted: (_) async {
                                         logFirebaseEvent(
-                                            'PICK_FILE_ALERT_DIALOG_TextField_0j4qj80');
+                                            'PICK_FILE_TextField_ccg55j70_ON_TEXTFIEL');
                                         logFirebaseEvent(
                                             'TextField_custom_action');
                                         _model.fileMetadata2 =
@@ -631,8 +630,7 @@ class _PickFileAlertDialogWidgetState extends State<PickFileAlertDialogWidget>
                         EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 10.0),
                     child: FFButtonWidget(
                       onPressed: () async {
-                        logFirebaseEvent(
-                            'PICK_FILE_ALERT_DIALOG_ADD_FILE_BTN_ON_T');
+                        logFirebaseEvent('PICK_FILE_COMP_ADD_FILE_BTN_ON_TAP');
                         if ((_model.fileMetadata?.status == 'success') ||
                             (_model.fileMetadata2?.status == 'success')) {
                           logFirebaseEvent('Button_execute_callback');

@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'class_check_in_dialog_model.dart';
@@ -17,6 +18,7 @@ class ClassCheckInDialogWidget extends StatefulWidget {
     required this.classStartTime,
     required this.classID,
     bool? isCustomClass,
+    required this.isAttendedCall,
   }) : this.isCustomClass = isCustomClass ?? false;
 
   final String? courseID;
@@ -24,6 +26,7 @@ class ClassCheckInDialogWidget extends StatefulWidget {
   final DateTime? classStartTime;
   final String? classID;
   final bool isCustomClass;
+  final Future Function(bool isAttendedparameter)? isAttendedCall;
 
   @override
   State<ClassCheckInDialogWidget> createState() =>
@@ -181,14 +184,14 @@ class _ClassCheckInDialogWidgetState extends State<ClassCheckInDialogWidget> {
                       ],
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
                             font: GoogleFonts.outfit(
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               fontStyle: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .fontStyle,
                             ),
                             fontSize: 16.0,
                             letterSpacing: 0.0,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             fontStyle: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .fontStyle,
@@ -216,19 +219,81 @@ class _ClassCheckInDialogWidgetState extends State<ClassCheckInDialogWidget> {
                                 await actions.checkInToCustomClasses(
                               widget.courseID!,
                               currentUserReference!,
-                              widget.classStartTime!,
+                              functions.parseDateTime(
+                                  getCurrentTimestamp, widget.classStartTime!),
+                            );
+                            logFirebaseEvent('Button_show_snack_bar');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  _model.checkInStatus!,
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelSmallFamily,
+                                        color:
+                                            FlutterFlowTheme.of(context).info,
+                                        fontSize: 13.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelSmallIsCustom,
+                                      ),
+                                ),
+                                duration: Duration(milliseconds: 4000),
+                                backgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
+                              ),
                             );
                           } else {
                             logFirebaseEvent('Button_action_block');
-                            await action_blocks.checkInAttendanceProtocal(
+                            _model.feedbackMessage =
+                                await action_blocks.checkInAttendanceProtocal(
                               context,
                               classID: widget.classID,
                               courseID: widget.courseID,
                               classStartTime: widget.classStartTime,
                             );
-                            safeSetState(() {});
+                            logFirebaseEvent('Button_show_snack_bar');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  _model.feedbackMessage!,
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelSmallFamily,
+                                        color:
+                                            FlutterFlowTheme.of(context).info,
+                                        fontSize: 13.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelSmallIsCustom,
+                                      ),
+                                ),
+                                duration: Duration(milliseconds: 4000),
+                                backgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
+                              ),
+                            );
                           }
 
+                          logFirebaseEvent('Button_custom_action');
+                          _model.isAttendedCallBack =
+                              await actions.checkAttendance(
+                            widget.classID!,
+                            widget.courseID!,
+                            currentUserUid,
+                            widget.isCustomClass,
+                            widget.classStartTime,
+                          );
+                          logFirebaseEvent('Button_execute_callback');
+                          await widget.isAttendedCall?.call(
+                            _model.isAttendedCallBack!,
+                          );
                           logFirebaseEvent('Button_dismiss_dialog');
                           Navigator.pop(context);
 

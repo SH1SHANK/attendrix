@@ -3,37 +3,39 @@ import '/backend/backend.dart';
 import '/components/time_slot_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
-import 'custom_class_widget.dart' show CustomClassWidget;
+import '/index.dart';
+import 'create_custom_class_widget.dart' show CreateCustomClassWidget;
 import 'package:flutter/material.dart';
 
-class CustomClassModel extends FlutterFlowModel<CustomClassWidget> {
-  ///  Local state fields for this component.
+class CreateCustomClassModel extends FlutterFlowModel<CreateCustomClassWidget> {
+  ///  Local state fields for this page.
 
-  bool createCustomClass = false;
-
-  List<SlotMetadataStruct> classSlots = [];
-  void addToClassSlots(SlotMetadataStruct item) => classSlots.add(item);
-  void removeFromClassSlots(SlotMetadataStruct item) => classSlots.remove(item);
-  void removeAtIndexFromClassSlots(int index) => classSlots.removeAt(index);
-  void insertAtIndexInClassSlots(int index, SlotMetadataStruct item) =>
-      classSlots.insert(index, item);
-  void updateClassSlotsAtIndex(
-          int index, Function(SlotMetadataStruct) updateFn) =>
-      classSlots[index] = updateFn(classSlots[index]);
-
-  String? instituteSlotSelected = 'A';
-
-  List<SlotInfoStruct> instituteSlots = [];
-  void addToInstituteSlots(SlotInfoStruct item) => instituteSlots.add(item);
-  void removeFromInstituteSlots(SlotInfoStruct item) =>
-      instituteSlots.remove(item);
-  void removeAtIndexFromInstituteSlots(int index) =>
-      instituteSlots.removeAt(index);
-  void insertAtIndexInInstituteSlots(int index, SlotInfoStruct item) =>
-      instituteSlots.insert(index, item);
-  void updateInstituteSlotsAtIndex(
+  List<SlotInfoStruct> instituteSlotsCall = [];
+  void addToInstituteSlotsCall(SlotInfoStruct item) =>
+      instituteSlotsCall.add(item);
+  void removeFromInstituteSlotsCall(SlotInfoStruct item) =>
+      instituteSlotsCall.remove(item);
+  void removeAtIndexFromInstituteSlotsCall(int index) =>
+      instituteSlotsCall.removeAt(index);
+  void insertAtIndexInInstituteSlotsCall(int index, SlotInfoStruct item) =>
+      instituteSlotsCall.insert(index, item);
+  void updateInstituteSlotsCallAtIndex(
           int index, Function(SlotInfoStruct) updateFn) =>
-      instituteSlots[index] = updateFn(instituteSlots[index]);
+      instituteSlotsCall[index] = updateFn(instituteSlotsCall[index]);
+
+  bool isCustomSlot = false;
+
+  List<SlotMetadataStruct> addedSlots = [];
+  void addToAddedSlots(SlotMetadataStruct item) => addedSlots.add(item);
+  void removeFromAddedSlots(SlotMetadataStruct item) => addedSlots.remove(item);
+  void removeAtIndexFromAddedSlots(int index) => addedSlots.removeAt(index);
+  void insertAtIndexInAddedSlots(int index, SlotMetadataStruct item) =>
+      addedSlots.insert(index, item);
+  void updateAddedSlotsAtIndex(
+          int index, Function(SlotMetadataStruct) updateFn) =>
+      addedSlots[index] = updateFn(addedSlots[index]);
+
+  String? selectedInstituteSlot;
 
   SlotsListStruct? slotsList;
   void updateSlotsListStruct(Function(SlotsListStruct) updateFn) {
@@ -42,10 +44,10 @@ class CustomClassModel extends FlutterFlowModel<CustomClassWidget> {
 
   DateTime? startDate;
 
-  ///  State fields for stateful widgets in this component.
+  ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (Institute Slots)] action in customClass widget.
-  ApiCallResponse? initituteSlotsAPICall;
+  // Stores action output result for [Backend Call - API (Institute Slots)] action in createCustomClass widget.
+  ApiCallResponse? instituteSlots;
   // State field(s) for TextField widget.
   FocusNode? textFieldFocusNode1;
   TextEditingController? textController1;

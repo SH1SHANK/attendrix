@@ -119,7 +119,10 @@ class _FolderBlockWidgetState extends State<FolderBlockWidget> {
 
               logFirebaseEvent('Container_execute_callback');
               await widget.onTap?.call(
-                '${widget.folderRef?.parentPath}${widget.folderRef?.fileName}/',
+                valueOrDefault<String>(
+                  widget.folderRef?.nestedPath,
+                  'home/',
+                ),
               );
             },
             child: Container(

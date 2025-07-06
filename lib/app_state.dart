@@ -39,6 +39,58 @@ class FFAppState extends ChangeNotifier {
           await secureStorage.getBool('ff_weatherForecastForMessages') ??
               _weatherForecastForMessages;
     });
+    await _safeInitAsync(() async {
+      _missedClasses = (await secureStorage.getStringList('ff_missedClasses'))
+              ?.map((x) {
+                try {
+                  return ClassRowStruct.fromSerializableMap(jsonDecode(x));
+                } catch (e) {
+                  print("Can't decode persisted data type. Error: $e.");
+                  return null;
+                }
+              })
+              .withoutNulls
+              .toList() ??
+          _missedClasses;
+    });
+    await _safeInitAsync(() async {
+      _customClassesCurrentDay =
+          (await secureStorage.getStringList('ff_customClassesCurrentDay'))
+                  ?.map((x) {
+                    try {
+                      return ClassRowStruct.fromSerializableMap(jsonDecode(x));
+                    } catch (e) {
+                      print("Can't decode persisted data type. Error: $e.");
+                      return null;
+                    }
+                  })
+                  .withoutNulls
+                  .toList() ??
+              _customClassesCurrentDay;
+    });
+    await _safeInitAsync(() async {
+      _customClassesAlldays =
+          (await secureStorage.getStringList('ff_customClassesAlldays'))
+                  ?.map((x) {
+                    try {
+                      return ClassRowStruct.fromSerializableMap(jsonDecode(x));
+                    } catch (e) {
+                      print("Can't decode persisted data type. Error: $e.");
+                      return null;
+                    }
+                  })
+                  .withoutNulls
+                  .toList() ??
+              _customClassesAlldays;
+    });
+    await _safeInitAsync(() async {
+      _customClassesLastUpdatedAt = await secureStorage.read(
+                  key: 'ff_customClassesLastUpdatedAt') !=
+              null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              (await secureStorage.getInt('ff_customClassesLastUpdatedAt'))!)
+          : _customClassesLastUpdatedAt;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -75,13 +127,7 @@ class FFAppState extends ChangeNotifier {
     secureStorage.delete(key: 'ff_semesterStartDate');
   }
 
-  bool _isDownloading = false;
-  bool get isDownloading => _isDownloading;
-  set isDownloading(bool value) {
-    _isDownloading = value;
-  }
-
-  String _GOOGLEDRIVEAPIKEY = '';
+  String _GOOGLEDRIVEAPIKEY = 'AIzaSyC_5H7NooWPBIZOe8XOwkwxieUF6yXNOT0';
   String get GOOGLEDRIVEAPIKEY => _GOOGLEDRIVEAPIKEY;
   set GOOGLEDRIVEAPIKEY(String value) {
     _GOOGLEDRIVEAPIKEY = value;
@@ -90,35 +136,6 @@ class FFAppState extends ChangeNotifier {
 
   void deleteGOOGLEDRIVEAPIKEY() {
     secureStorage.delete(key: 'ff_GOOGLEDRIVEAPIKEY');
-  }
-
-  List<ClassRowStruct> _customClasses = [];
-  List<ClassRowStruct> get customClasses => _customClasses;
-  set customClasses(List<ClassRowStruct> value) {
-    _customClasses = value;
-  }
-
-  void addToCustomClasses(ClassRowStruct value) {
-    customClasses.add(value);
-  }
-
-  void removeFromCustomClasses(ClassRowStruct value) {
-    customClasses.remove(value);
-  }
-
-  void removeAtIndexFromCustomClasses(int index) {
-    customClasses.removeAt(index);
-  }
-
-  void updateCustomClassesAtIndex(
-    int index,
-    ClassRowStruct Function(ClassRowStruct) updateFn,
-  ) {
-    customClasses[index] = updateFn(_customClasses[index]);
-  }
-
-  void insertAtIndexInCustomClasses(int index, ClassRowStruct value) {
-    customClasses.insert(index, value);
   }
 
   bool _weatherForecastForMessages = true;
@@ -132,33 +149,153 @@ class FFAppState extends ChangeNotifier {
     secureStorage.delete(key: 'ff_weatherForecastForMessages');
   }
 
-  List<String> _updateCacheFor = [];
-  List<String> get updateCacheFor => _updateCacheFor;
-  set updateCacheFor(List<String> value) {
-    _updateCacheFor = value;
+  List<ClassRowStruct> _missedClasses = [];
+  List<ClassRowStruct> get missedClasses => _missedClasses;
+  set missedClasses(List<ClassRowStruct> value) {
+    _missedClasses = value;
+    secureStorage.setStringList(
+        'ff_missedClasses', value.map((x) => x.serialize()).toList());
   }
 
-  void addToUpdateCacheFor(String value) {
-    updateCacheFor.add(value);
+  void deleteMissedClasses() {
+    secureStorage.delete(key: 'ff_missedClasses');
   }
 
-  void removeFromUpdateCacheFor(String value) {
-    updateCacheFor.remove(value);
+  void addToMissedClasses(ClassRowStruct value) {
+    missedClasses.add(value);
+    secureStorage.setStringList(
+        'ff_missedClasses', _missedClasses.map((x) => x.serialize()).toList());
   }
 
-  void removeAtIndexFromUpdateCacheFor(int index) {
-    updateCacheFor.removeAt(index);
+  void removeFromMissedClasses(ClassRowStruct value) {
+    missedClasses.remove(value);
+    secureStorage.setStringList(
+        'ff_missedClasses', _missedClasses.map((x) => x.serialize()).toList());
   }
 
-  void updateUpdateCacheForAtIndex(
+  void removeAtIndexFromMissedClasses(int index) {
+    missedClasses.removeAt(index);
+    secureStorage.setStringList(
+        'ff_missedClasses', _missedClasses.map((x) => x.serialize()).toList());
+  }
+
+  void updateMissedClassesAtIndex(
     int index,
-    String Function(String) updateFn,
+    ClassRowStruct Function(ClassRowStruct) updateFn,
   ) {
-    updateCacheFor[index] = updateFn(_updateCacheFor[index]);
+    missedClasses[index] = updateFn(_missedClasses[index]);
+    secureStorage.setStringList(
+        'ff_missedClasses', _missedClasses.map((x) => x.serialize()).toList());
   }
 
-  void insertAtIndexInUpdateCacheFor(int index, String value) {
-    updateCacheFor.insert(index, value);
+  void insertAtIndexInMissedClasses(int index, ClassRowStruct value) {
+    missedClasses.insert(index, value);
+    secureStorage.setStringList(
+        'ff_missedClasses', _missedClasses.map((x) => x.serialize()).toList());
+  }
+
+  List<ClassRowStruct> _customClassesCurrentDay = [];
+  List<ClassRowStruct> get customClassesCurrentDay => _customClassesCurrentDay;
+  set customClassesCurrentDay(List<ClassRowStruct> value) {
+    _customClassesCurrentDay = value;
+    secureStorage.setStringList(
+        'ff_customClassesCurrentDay', value.map((x) => x.serialize()).toList());
+  }
+
+  void deleteCustomClassesCurrentDay() {
+    secureStorage.delete(key: 'ff_customClassesCurrentDay');
+  }
+
+  void addToCustomClassesCurrentDay(ClassRowStruct value) {
+    customClassesCurrentDay.add(value);
+    secureStorage.setStringList('ff_customClassesCurrentDay',
+        _customClassesCurrentDay.map((x) => x.serialize()).toList());
+  }
+
+  void removeFromCustomClassesCurrentDay(ClassRowStruct value) {
+    customClassesCurrentDay.remove(value);
+    secureStorage.setStringList('ff_customClassesCurrentDay',
+        _customClassesCurrentDay.map((x) => x.serialize()).toList());
+  }
+
+  void removeAtIndexFromCustomClassesCurrentDay(int index) {
+    customClassesCurrentDay.removeAt(index);
+    secureStorage.setStringList('ff_customClassesCurrentDay',
+        _customClassesCurrentDay.map((x) => x.serialize()).toList());
+  }
+
+  void updateCustomClassesCurrentDayAtIndex(
+    int index,
+    ClassRowStruct Function(ClassRowStruct) updateFn,
+  ) {
+    customClassesCurrentDay[index] = updateFn(_customClassesCurrentDay[index]);
+    secureStorage.setStringList('ff_customClassesCurrentDay',
+        _customClassesCurrentDay.map((x) => x.serialize()).toList());
+  }
+
+  void insertAtIndexInCustomClassesCurrentDay(int index, ClassRowStruct value) {
+    customClassesCurrentDay.insert(index, value);
+    secureStorage.setStringList('ff_customClassesCurrentDay',
+        _customClassesCurrentDay.map((x) => x.serialize()).toList());
+  }
+
+  List<ClassRowStruct> _customClassesAlldays = [];
+  List<ClassRowStruct> get customClassesAlldays => _customClassesAlldays;
+  set customClassesAlldays(List<ClassRowStruct> value) {
+    _customClassesAlldays = value;
+    secureStorage.setStringList(
+        'ff_customClassesAlldays', value.map((x) => x.serialize()).toList());
+  }
+
+  void deleteCustomClassesAlldays() {
+    secureStorage.delete(key: 'ff_customClassesAlldays');
+  }
+
+  void addToCustomClassesAlldays(ClassRowStruct value) {
+    customClassesAlldays.add(value);
+    secureStorage.setStringList('ff_customClassesAlldays',
+        _customClassesAlldays.map((x) => x.serialize()).toList());
+  }
+
+  void removeFromCustomClassesAlldays(ClassRowStruct value) {
+    customClassesAlldays.remove(value);
+    secureStorage.setStringList('ff_customClassesAlldays',
+        _customClassesAlldays.map((x) => x.serialize()).toList());
+  }
+
+  void removeAtIndexFromCustomClassesAlldays(int index) {
+    customClassesAlldays.removeAt(index);
+    secureStorage.setStringList('ff_customClassesAlldays',
+        _customClassesAlldays.map((x) => x.serialize()).toList());
+  }
+
+  void updateCustomClassesAlldaysAtIndex(
+    int index,
+    ClassRowStruct Function(ClassRowStruct) updateFn,
+  ) {
+    customClassesAlldays[index] = updateFn(_customClassesAlldays[index]);
+    secureStorage.setStringList('ff_customClassesAlldays',
+        _customClassesAlldays.map((x) => x.serialize()).toList());
+  }
+
+  void insertAtIndexInCustomClassesAlldays(int index, ClassRowStruct value) {
+    customClassesAlldays.insert(index, value);
+    secureStorage.setStringList('ff_customClassesAlldays',
+        _customClassesAlldays.map((x) => x.serialize()).toList());
+  }
+
+  DateTime? _customClassesLastUpdatedAt;
+  DateTime? get customClassesLastUpdatedAt => _customClassesLastUpdatedAt;
+  set customClassesLastUpdatedAt(DateTime? value) {
+    _customClassesLastUpdatedAt = value;
+    value != null
+        ? secureStorage.setInt(
+            'ff_customClassesLastUpdatedAt', value.millisecondsSinceEpoch)
+        : secureStorage.remove('ff_customClassesLastUpdatedAt');
+  }
+
+  void deleteCustomClassesLastUpdatedAt() {
+    secureStorage.delete(key: 'ff_customClassesLastUpdatedAt');
   }
 
   final _timetableRecordsQueryDayManager =
@@ -177,22 +314,6 @@ class FFAppState extends ChangeNotifier {
       _timetableRecordsQueryDayManager.clear();
   void clearTimetableRecordsQueryDayCacheKey(String? uniqueKey) =>
       _timetableRecordsQueryDayManager.clearRequest(uniqueKey);
-
-  final _userPersonalFilesManager =
-      FutureRequestManager<List<UserPersonalVaultRecord>>();
-  Future<List<UserPersonalVaultRecord>> userPersonalFiles({
-    String? uniqueQueryKey,
-    bool? overrideCache,
-    required Future<List<UserPersonalVaultRecord>> Function() requestFn,
-  }) =>
-      _userPersonalFilesManager.performRequest(
-        uniqueQueryKey: uniqueQueryKey,
-        overrideCache: overrideCache,
-        requestFn: requestFn,
-      );
-  void clearUserPersonalFilesCache() => _userPersonalFilesManager.clear();
-  void clearUserPersonalFilesCacheKey(String? uniqueKey) =>
-      _userPersonalFilesManager.clearRequest(uniqueKey);
 
   final _individualCustomClassViaCourseIDManager =
       StreamRequestManager<List<CustomClassesRecord>>();
@@ -226,22 +347,37 @@ class FFAppState extends ChangeNotifier {
   void clearTasksQueryCacheKey(String? uniqueKey) =>
       _tasksQueryManager.clearRequest(uniqueKey);
 
-  final _individualAttendanceRecordManager =
-      FutureRequestManager<List<AttendanceRecordsRow>>();
-  Future<List<AttendanceRecordsRow>> individualAttendanceRecord({
+  final _customClassesManager =
+      StreamRequestManager<List<CustomClassesRecord>>();
+  Stream<List<CustomClassesRecord>> customClasses({
     String? uniqueQueryKey,
     bool? overrideCache,
-    required Future<List<AttendanceRecordsRow>> Function() requestFn,
+    required Stream<List<CustomClassesRecord>> Function() requestFn,
   }) =>
-      _individualAttendanceRecordManager.performRequest(
+      _customClassesManager.performRequest(
         uniqueQueryKey: uniqueQueryKey,
         overrideCache: overrideCache,
         requestFn: requestFn,
       );
-  void clearIndividualAttendanceRecordCache() =>
-      _individualAttendanceRecordManager.clear();
-  void clearIndividualAttendanceRecordCacheKey(String? uniqueKey) =>
-      _individualAttendanceRecordManager.clearRequest(uniqueKey);
+  void clearCustomClassesCache() => _customClassesManager.clear();
+  void clearCustomClassesCacheKey(String? uniqueKey) =>
+      _customClassesManager.clearRequest(uniqueKey);
+
+  final _studyMaterialsManager =
+      StreamRequestManager<List<StudyMaterialsRecord>>();
+  Stream<List<StudyMaterialsRecord>> studyMaterials({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Stream<List<StudyMaterialsRecord>> Function() requestFn,
+  }) =>
+      _studyMaterialsManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearStudyMaterialsCache() => _studyMaterialsManager.clear();
+  void clearStudyMaterialsCacheKey(String? uniqueKey) =>
+      _studyMaterialsManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {

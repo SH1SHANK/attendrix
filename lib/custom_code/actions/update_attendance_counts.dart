@@ -12,13 +12,14 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-// Box name constants
-const String COURSE_ATTENDANCE_BOX = 'course_attendance_cache';
+// Cache constants
+const String ATTENDANCE_CACHE_KEY = 'attendance_cache_';
+const int CACHE_DURATION_MINUTES = 5;
 
-/// Updates attendance counts for enrolled courses with Hive caching
+/// Updates attendance counts for enrolled courses with simple caching
 Future<String> updateAttendanceCounts(DocumentReference userDocRef) async {
   try {
     // Get user data
@@ -29,7 +30,7 @@ Future<String> updateAttendanceCounts(DocumentReference userDocRef) async {
     final userID = userData['uid']?.toString();
     final coursesRaw = userData['coursesEnrolled'] as List?;
 
-    // Validate input parameters first
+    // Validate input parameters
     if (userID == null ||
         userID.isEmpty ||
         coursesRaw == null ||
@@ -43,41 +44,15 @@ Future<String> updateAttendanceCounts(DocumentReference userDocRef) async {
         .map((e) => CoursesEnrolledStruct.fromMap(e))
         .toList();
 
-    // Initialize Hive system using the separate action
-    await initializeHiveSystem();
+    // Check cache first
+    final cacheKey = '$ATTENDANCE_CACHE_KEY$userID';
+    final shouldUpdate = await _shouldUpdateCache(cacheKey, enrolledCourses);
 
-    // Create optimized cache key
-    final String cacheKey = 'user_$userID';
-
-    // Use dynamic type for the box instead of Map<String, dynamic>
-    Box? cacheBox;
-
-    try {
-      cacheBox = Hive.isBoxOpen(COURSE_ATTENDANCE_BOX)
-          ? Hive.box(COURSE_ATTENDANCE_BOX)
-          : await Hive.openBox(COURSE_ATTENDANCE_BOX);
-    } catch (hiveError) {
-      debugPrint('FlutterFlow: Hive box error: $hiveError');
-      // Continue without cache if Hive fails - force update
-      return await _forceUpdateAttendanceCounts(
-          userDocRef, userID, enrolledCourses);
-    }
-
-    final cachedData = cacheBox?.get(cacheKey);
-    final currentHash = _computeHash(enrolledCourses);
-
-    // Skip if data unchanged and recent (only if cache is available)
-    if (cacheBox != null && cachedData != null) {
-      final cachedHash = cachedData['hash'];
-      final lastUpdate = cachedData['timestamp'] ?? 0;
-      final timeDiff = DateTime.now().millisecondsSinceEpoch - lastUpdate;
-
-      if (cachedHash == currentHash && timeDiff < 300000) {
-        // 5 minutes
-        await userDocRef
-            .update({'lastDataFetchTime': FieldValue.serverTimestamp()});
-        return 'Data is current';
-      }
+    if (!shouldUpdate) {
+      // Update only the timestamp to show we checked
+      await userDocRef
+          .update({'lastDataFetchTime': FieldValue.serverTimestamp()});
+      return 'Data is current (cached)';
     }
 
     // Get course IDs
@@ -126,6 +101,8 @@ Future<String> updateAttendanceCounts(DocumentReference userDocRef) async {
         totalClasses: data['total'],
         attendedClasses: data['attended'],
         courseType: course.courseType,
+        isEditable: course.isEditable,
+        credits: course.credits,
       );
     }).toList();
 
@@ -143,18 +120,8 @@ Future<String> updateAttendanceCounts(DocumentReference userDocRef) async {
 
     await userDocRef.update(updateData);
 
-    // Update cache (only if cache is available)
-    if (cacheBox != null) {
-      try {
-        await cacheBox.put(cacheKey, {
-          'hash': _computeHash(updatedCourses),
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-        });
-      } catch (cacheError) {
-        debugPrint('FlutterFlow: Cache update failed: $cacheError');
-        // Continue without caching if cache fails
-      }
-    }
+    // Update cache
+    await _updateCache(cacheKey, updatedCourses);
 
     return hasChanges
         ? 'Updated ${updatedCourses.length} courses'
@@ -165,81 +132,51 @@ Future<String> updateAttendanceCounts(DocumentReference userDocRef) async {
   }
 }
 
-/// Force updates attendance counts without caching when Hive fails
-Future<String> _forceUpdateAttendanceCounts(DocumentReference userDocRef,
-    String userID, List<CoursesEnrolledStruct> enrolledCourses) async {
+/// Check if cache should be updated based on time and data changes
+Future<bool> _shouldUpdateCache(
+    String cacheKey, List<CoursesEnrolledStruct> currentCourses) async {
   try {
-    debugPrint('FlutterFlow: Force updating attendance counts without cache');
+    final prefs = await SharedPreferences.getInstance();
+    final cacheData = prefs.getString(cacheKey);
 
-    // Get course IDs
-    final courseIDs = enrolledCourses
-        .map((c) => c.courseID)
-        .where((id) => id != null && id.isNotEmpty)
-        .cast<String>()
-        .toList();
+    if (cacheData == null) return true; // No cache, need to update
 
-    if (courseIDs.isEmpty) return 'No valid courses found';
+    final cached = jsonDecode(cacheData);
+    final cacheTimestamp = cached['timestamp'] as int? ?? 0;
+    final cachedHash = cached['hash'] as String? ?? '';
 
-    // Fetch from Supabase
-    final response =
-        await SupaFlow.client.rpc('batch_attendance_counts', params: {
-      'course_ids': courseIDs,
-      'user_id': userID,
-    });
+    // Check if cache is expired (older than CACHE_DURATION_MINUTES)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final cacheAge = now - cacheTimestamp;
+    final maxAge =
+        CACHE_DURATION_MINUTES * 60 * 1000; // Convert to milliseconds
 
-    if (response == null) return 'Failed to fetch attendance data';
+    if (cacheAge > maxAge) return true; // Cache expired
 
-    // Process response
-    final attendanceMap = <String, Map<String, int>>{};
-    for (final entry in response as List) {
-      if (entry is Map<String, dynamic>) {
-        final courseID = entry['course_id'] as String?;
-        final total = entry['total_classes'] as int? ?? 0;
-        final attended = entry['attended_classes'] as int? ?? 0;
-
-        if (courseID != null) {
-          attendanceMap[courseID] = {'total': total, 'attended': attended};
-        }
-      }
-    }
-
-    // Update courses
-    final updatedCourses = enrolledCourses.map((course) {
-      final courseID = course.courseID;
-      if (courseID == null || !attendanceMap.containsKey(courseID)) {
-        return course;
-      }
-
-      final data = attendanceMap[courseID]!;
-      return CoursesEnrolledStruct(
-        courseID: course.courseID,
-        courseName: course.courseName,
-        totalClasses: data['total'],
-        attendedClasses: data['attended'],
-        courseType: course.courseType,
-      );
-    }).toList();
-
-    // Check for changes
-    final hasChanges = _hasAttendanceChanges(enrolledCourses, updatedCourses);
-
-    // Update Firestore
-    final Map<String, dynamic> updateData = {
-      'lastDataFetchTime': FieldValue.serverTimestamp()
-    };
-    if (hasChanges) {
-      updateData['coursesEnrolled'] =
-          updatedCourses.map((c) => c.toMap()).toList();
-    }
-
-    await userDocRef.update(updateData);
-
-    return hasChanges
-        ? 'Force updated ${updatedCourses.length} courses (no cache)'
-        : 'No changes detected (no cache)';
+    // Check if data has changed
+    final currentHash = _computeHash(currentCourses);
+    return cachedHash != currentHash; // Update if data changed
   } catch (e) {
-    debugPrint('FlutterFlow: Force update failed: $e');
-    return 'Force update failed: $e';
+    debugPrint('FlutterFlow: Cache check failed: $e');
+    return true; // On error, update to be safe
+  }
+}
+
+/// Update cache with new data
+Future<void> _updateCache(
+    String cacheKey, List<CoursesEnrolledStruct> courses) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final cacheData = {
+      'hash': _computeHash(courses),
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    };
+
+    await prefs.setString(cacheKey, jsonEncode(cacheData));
+    debugPrint('FlutterFlow: Cache updated successfully');
+  } catch (e) {
+    debugPrint('FlutterFlow: Cache update failed: $e');
+    // Continue without caching if it fails
   }
 }
 

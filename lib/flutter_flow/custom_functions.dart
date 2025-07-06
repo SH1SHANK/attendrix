@@ -709,78 +709,6 @@ String byteFormatter(int bytes) {
   return "${size.toStringAsFixed(2)} ${units[unitIndex]}";
 }
 
-List<String> uniqueTagsGenerator(List<UserPersonalVaultRecord> userFiles) {
-  final Set<String> uniqueTags = {};
-
-  // Emoji remover
-  final emojiRegex = RegExp(
-    r'[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]',
-    unicode: true,
-  );
-
-  for (final file in userFiles) {
-    final tags = file.tags;
-    if (tags == null || tags.isEmpty) continue;
-
-    for (final tag in tags) {
-      final cleaned = tag.replaceAll(emojiRegex, '').trim().toLowerCase();
-      if (cleaned.isNotEmpty) {
-        uniqueTags.add(cleaned);
-      }
-    }
-  }
-
-  final result = uniqueTags.toList();
-  result.sort();
-  return result;
-}
-
-bool isTagSimilar(
-  List<UserPersonalVaultRecord> userFiles,
-  String newTag,
-) {
-  final emojiRegex = RegExp(
-    r'[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]',
-    unicode: true,
-  );
-
-  // Reuse the existing cleaned and deduplicated tag list
-  final existingTags = uniqueTagsGenerator(userFiles);
-
-  // Clean the new tag
-  final cleanedNewTag = newTag.replaceAll(emojiRegex, '').trim().toLowerCase();
-
-  for (final tag in existingTags) {
-    if (tag == cleanedNewTag) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-List<String> listMerger(
-  List<String> list1,
-  List<String> list2,
-) {
-  // Emoji & symbol cleaner regex
-  final emojiRegex = RegExp(
-    r'[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]',
-    unicode: true,
-  );
-
-  final Map<String, String> cleanedToOriginal = {};
-
-  for (final tag in [...list1, ...list2]) {
-    final cleaned = tag.replaceAll(emojiRegex, '').trim().toLowerCase();
-    if (cleaned.isNotEmpty && !cleanedToOriginal.containsKey(cleaned)) {
-      cleanedToOriginal[cleaned] = tag.trim();
-    }
-  }
-
-  return cleanedToOriginal.values.toList()..sort();
-}
-
 UserLevelMetadataStruct getUserLevel(int currentAmplix) {
   final List<Map<String, dynamic>> levelConfigs = [
     {
@@ -1303,136 +1231,6 @@ bool checkForSlotConflicts(
   return false; // No conflict
 }
 
-String dateTimeParser(
-  String inputString,
-  String? requiredFormat,
-) {
-  try {
-    // Handle null or empty input
-    if (inputString.trim().isEmpty) {
-      return 'Invalid input';
-    }
-
-    // Default format if none provided
-    String outputFormat = requiredFormat ?? 'hh:mm a';
-
-    DateTime parsedDateTime;
-    String cleanInput = inputString.trim();
-
-    // Try to parse as timestamp first
-    int? timestamp = int.tryParse(cleanInput);
-    if (timestamp != null) {
-      // Handle both seconds and milliseconds timestamps
-      if (timestamp > 1000000000000) {
-        // Milliseconds timestamp
-        parsedDateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
-      } else {
-        // Seconds timestamp
-        parsedDateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-      }
-    } else {
-      // Parse as date/time string using common formats
-      parsedDateTime = _parseStringDateTime(cleanInput);
-    }
-
-    // Format the output
-    DateFormat formatter = DateFormat(outputFormat);
-    return formatter.format(parsedDateTime);
-  } catch (e) {
-    return 'Parse error: ${e.toString()}';
-  }
-}
-
-/// Helper function to parse various string date/time formats
-DateTime _parseStringDateTime(String input) {
-  // List of common formats to try in order of likelihood
-  List<String> formats = [
-    // Firestore/ISO formats
-    'yyyy-MM-ddTHH:mm:ss.SSSZ',
-    'yyyy-MM-ddTHH:mm:ssZ',
-    'yyyy-MM-ddTHH:mm:ss.SSS',
-    'yyyy-MM-ddTHH:mm:ss',
-
-    // Standard formats
-    'yyyy-MM-dd HH:mm:ss.SSS',
-    'yyyy-MM-dd HH:mm:ss',
-    'yyyy-MM-dd',
-
-    // US formats
-    'MM/dd/yyyy HH:mm:ss',
-    'MM/dd/yyyy hh:mm:ss a',
-    'MM/dd/yyyy',
-    'M/d/yyyy HH:mm:ss',
-    'M/d/yyyy hh:mm:ss a',
-    'M/d/yyyy',
-
-    // European formats
-    'dd/MM/yyyy HH:mm:ss',
-    'dd/MM/yyyy',
-    'd/M/yyyy HH:mm:ss',
-    'd/M/yyyy',
-    'dd-MM-yyyy HH:mm:ss',
-    'dd-MM-yyyy',
-    'd-M-yyyy',
-
-    // Time only formats
-    'HH:mm:ss.SSS',
-    'HH:mm:ss',
-    'HH:mm',
-    'hh:mm:ss a',
-    'hh:mm a',
-    'h:mm:ss a',
-    'h:mm a',
-
-    // Readable formats
-    'MMM dd, yyyy HH:mm:ss',
-    'MMM dd, yyyy hh:mm:ss a',
-    'MMM dd, yyyy',
-    'dd MMM yyyy HH:mm:ss',
-    'dd MMM yyyy',
-    'MMMM dd, yyyy',
-    'EEEE, MMMM dd, yyyy',
-
-    // Alternative formats
-    'yyyy/MM/dd HH:mm:ss',
-    'yyyy/MM/dd',
-    'dd.MM.yyyy HH:mm:ss',
-    'dd.MM.yyyy',
-    'yyyy.MM.dd HH:mm:ss',
-    'yyyy.MM.dd',
-  ];
-
-  // Try each format
-  for (String format in formats) {
-    try {
-      DateFormat formatter = DateFormat(format);
-      return formatter.parse(input);
-    } catch (e) {
-      // Continue to next format
-      continue;
-    }
-  }
-
-  // Last resort: try DateTime.parse() for ISO strings
-  try {
-    return DateTime.parse(input);
-  } catch (e) {
-    // If all else fails, try to extract timestamp from string
-    RegExp timestampRegex = RegExp(r'\d{10,13}');
-    Match? match = timestampRegex.firstMatch(input);
-    if (match != null) {
-      int timestamp = int.parse(match.group(0)!);
-      if (timestamp > 1000000000000) {
-        return DateTime.fromMillisecondsSinceEpoch(timestamp);
-      } else {
-        return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-      }
-    }
-
-    throw FormatException('Unable to parse date/time string: $input');
-  }
-}
-
 DateTime convertToDateTime(String inputString) {
   // A Function which will convert various string formats to DateTime variable including UNIX timestamp,TIMESTAMP,Etc
 
@@ -1548,4 +1346,44 @@ DateTime parseDateTime(
     targetTime.millisecond,
     targetTime.microsecond,
   );
+}
+
+int calculateTotalCustomClasses(
+  DateTime startDate,
+  List<SlotMetadataStruct> slotMetadata,
+) {
+  final DateTime endDate = DateTime.now();
+
+  const weekdayMap = {
+    'sunday': 7,
+    'monday': 1,
+    'tuesday': 2,
+    'wednesday': 3,
+    'thursday': 4,
+    'friday': 5,
+    'saturday': 6,
+  };
+
+  int getSlotOccurrences(DateTime start, DateTime end, int weekday) {
+    int daysToAdd = (weekday - start.weekday + 7) % 7;
+    DateTime firstOccurrence = start.add(Duration(days: daysToAdd));
+
+    if (firstOccurrence.isAfter(end)) return 0;
+
+    int totalDays = end.difference(firstOccurrence).inDays;
+    return (totalDays ~/ 7) + 1;
+  }
+
+  int total = 0;
+
+  for (final slot in slotMetadata) {
+    final weekdayStr = slot.weekday.toLowerCase();
+
+    if (!weekdayMap.containsKey(weekdayStr)) continue;
+
+    final weekdayInt = weekdayMap[weekdayStr]!;
+    total += getSlotOccurrences(startDate, endDate, weekdayInt);
+  }
+
+  return total;
 }

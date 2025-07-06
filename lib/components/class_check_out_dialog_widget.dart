@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'class_check_out_dialog_model.dart';
@@ -19,6 +20,7 @@ class ClassCheckOutDialogWidget extends StatefulWidget {
     bool? isCustomClass,
     required this.classEndTime,
     required this.courseName,
+    required this.isAttendedCallBack,
   }) : this.isCustomClass = isCustomClass ?? false;
 
   final String? classID;
@@ -28,6 +30,7 @@ class ClassCheckOutDialogWidget extends StatefulWidget {
   final bool isCustomClass;
   final DateTime? classEndTime;
   final String? courseName;
+  final Future Function(bool isAttendedpara)? isAttendedCallBack;
 
   @override
   State<ClassCheckOutDialogWidget> createState() =>
@@ -83,6 +86,7 @@ class _ClassCheckOutDialogWidgetState extends State<ClassCheckOutDialogWidget> {
                         fontFamily:
                             FlutterFlowTheme.of(context).headlineSmallFamily,
                         letterSpacing: 0.0,
+                        fontWeight: FontWeight.bold,
                         useGoogleFonts:
                             !FlutterFlowTheme.of(context).headlineSmallIsCustom,
                       ),
@@ -210,103 +214,138 @@ class _ClassCheckOutDialogWidgetState extends State<ClassCheckOutDialogWidget> {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 5.0, 0.0, 0.0),
-                        child: FFButtonWidget(
-                          onPressed: () async {
-                            logFirebaseEvent(
-                                'CLASS_CHECK_OUT_DIALOG_MARK_ABSENT_BTN_O');
-                            if (widget.isCustomClass) {
-                              logFirebaseEvent('Button_custom_action');
-                              _model.removeAttendanceFeedback =
-                                  await actions.removeCustomClassAttendance(
-                                widget.courseID!,
-                                currentUserReference!,
-                                widget.classStartTime!,
-                              );
-                              logFirebaseEvent('Button_show_snack_bar');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    _model.removeAttendanceFeedback!,
-                                    style: FlutterFlowTheme.of(context)
-                                        .labelLarge
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .labelLargeFamily,
-                                          color:
-                                              FlutterFlowTheme.of(context).info,
-                                          fontSize: 13.0,
-                                          letterSpacing: 0.0,
-                                          useGoogleFonts:
-                                              !FlutterFlowTheme.of(context)
-                                                  .labelLargeIsCustom,
-                                        ),
-                                  ),
-                                  duration: Duration(milliseconds: 4000),
-                                  backgroundColor:
-                                      FlutterFlowTheme.of(context).primary,
-                                ),
-                              );
-                            } else {
-                              logFirebaseEvent('Button_action_block');
-                              await action_blocks.checkOutAttendanceProtocol(
-                                context,
-                                userID: currentUserUid,
-                                enrolledCourses: (currentUserDocument
-                                            ?.coursesEnrolled
-                                            .toList() ??
-                                        [])
-                                    .map((e) => e.courseID)
-                                    .toList(),
-                                classID: widget.classID,
-                                courseID: widget.courseID,
-                                classStartTime: widget.classStartTime,
-                                classEndTime: widget.classEndTime,
-                                courseName: widget.courseName,
-                              );
-                              safeSetState(() {});
-                            }
-
-                            logFirebaseEvent('Button_dismiss_dialog');
-                            Navigator.pop(context);
-
-                            safeSetState(() {});
-                          },
-                          text: 'Mark Absent',
-                          options: FFButtonOptions(
-                            width: double.infinity,
-                            height: 44.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 0.0, 0.0, 0.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 0.0, 0.0, 0.0),
-                            color: FlutterFlowTheme.of(context).error,
-                            textStyle:
-                                FlutterFlowTheme.of(context).bodyLarge.override(
-                                      font: GoogleFonts.outfit(
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
+                      FFButtonWidget(
+                        onPressed: () async {
+                          logFirebaseEvent(
+                              'CLASS_CHECK_OUT_DIALOG_MARK_ABSENT_BTN_O');
+                          if (widget.isCustomClass) {
+                            logFirebaseEvent('Button_custom_action');
+                            _model.removeAttendanceFeedback =
+                                await actions.removeCustomClassAttendance(
+                              widget.courseID!,
+                              currentUserReference!,
+                              functions.parseDateTime(
+                                  getCurrentTimestamp, widget.classStartTime!),
+                            );
+                            logFirebaseEvent('Button_show_snack_bar');
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  _model.removeAttendanceFeedback!,
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelLarge
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelLargeFamily,
+                                        color:
+                                            FlutterFlowTheme.of(context).info,
+                                        fontSize: 13.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelLargeIsCustom,
                                       ),
-                                      color: FlutterFlowTheme.of(context).info,
-                                      letterSpacing: 0.0,
+                                ),
+                                duration: Duration(milliseconds: 4000),
+                                backgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
+                              ),
+                            );
+                          } else {
+                            logFirebaseEvent('Button_action_block');
+                            _model.feedback =
+                                await action_blocks.checkOutAttendanceProtocol(
+                              context,
+                              userID: currentUserUid,
+                              enrolledCourses: (currentUserDocument
+                                          ?.coursesEnrolled
+                                          .toList() ??
+                                      [])
+                                  .map((e) => e.courseID)
+                                  .toList(),
+                              classID: widget.classID,
+                              courseID: widget.courseID,
+                              classStartTime: widget.classStartTime,
+                              classEndTime: widget.classEndTime,
+                              courseName: widget.courseName,
+                            );
+                            logFirebaseEvent('Button_show_snack_bar');
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  _model.feedback!,
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelLarge
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelLargeFamily,
+                                        color:
+                                            FlutterFlowTheme.of(context).info,
+                                        fontSize: 13.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelLargeIsCustom,
+                                      ),
+                                ),
+                                duration: Duration(milliseconds: 4000),
+                                backgroundColor:
+                                    FlutterFlowTheme.of(context).primary,
+                              ),
+                            );
+                          }
+
+                          logFirebaseEvent('Button_custom_action');
+                          _model.isAttendedQuery =
+                              await actions.checkAttendance(
+                            widget.classID!,
+                            widget.courseID!,
+                            currentUserUid,
+                            widget.isCustomClass,
+                            widget.classStartTime,
+                          );
+                          logFirebaseEvent('Button_execute_callback');
+                          await widget.isAttendedCallBack?.call(
+                            _model.isAttendedQuery!,
+                          );
+                          logFirebaseEvent('Button_dismiss_dialog');
+                          Navigator.pop(context);
+
+                          safeSetState(() {});
+                        },
+                        text: 'Mark Absent',
+                        options: FFButtonOptions(
+                          width: double.infinity,
+                          height: 44.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          color: FlutterFlowTheme.of(context).error,
+                          textStyle:
+                              FlutterFlowTheme.of(context).bodyLarge.override(
+                                    font: GoogleFonts.outfit(
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .fontStyle,
                                     ),
-                            elevation: 0.0,
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
+                                    color: FlutterFlowTheme.of(context).info,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: FlutterFlowTheme.of(context)
+                                        .bodyLarge
+                                        .fontStyle,
+                                  ),
+                          elevation: 0.0,
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
                       Padding(
                         padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
+                            EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
                         child: FFButtonWidget(
                           onPressed: () async {
                             logFirebaseEvent(

@@ -118,7 +118,7 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                       width: 28.0,
                       height: 28.0,
                       decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).primary,
+                        color: FlutterFlowTheme.of(context).tertiary,
                         shape: BoxShape.circle,
                       ),
                       child: Align(
@@ -201,8 +201,7 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                                   animateFromLastPercent: true,
                                   progressColor:
                                       FlutterFlowTheme.of(context).primary,
-                                  backgroundColor:
-                                      FlutterFlowTheme.of(context).accent4,
+                                  backgroundColor: Color(0x93D5D4D4),
                                   center: Text(
                                     '${valueOrDefault<String>(
                                       (((widget.amplix!) /
@@ -248,6 +247,8 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                                                     .bodyMedium
                                                     .fontStyle,
                                           ),
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryText,
                                           letterSpacing: 0.0,
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
