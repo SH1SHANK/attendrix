@@ -1,10 +1,12 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
 import '/class_components/class_block_primary/class_block_primary_widget.dart';
 import '/class_components/class_block_secondary/class_block_secondary_widget.dart';
 import '/class_components/class_block_upcoming/class_block_upcoming_widget.dart';
+import '/components/a_p_o_d_previw_component_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -51,58 +53,90 @@ class _DashboardWidgetState extends State<DashboardWidget>
         return;
       }
       logFirebaseEvent('DASHBOARD_PAGE_dashboard_ON_INIT_STATE');
-      if (!((await getPermissionStatus(notificationsPermission)) || isWeb)) {
-        logFirebaseEvent('dashboard_request_permissions');
-        await requestPermission(notificationsPermission);
-      }
-      if (!(FFAppState().greetingMessageForUser != '')) {
+      if ((valueOrDefault(currentUserDocument?.username, '') != '') &&
+          ((currentUserDocument?.coursesEnrolled.toList() ?? []).length >=
+              4) &&
+          ((valueOrDefault(currentUserDocument?.semesterID, '') != '') &&
+              (valueOrDefault(currentUserDocument?.batchID, '') != ''))) {
+        if (!((await getPermissionStatus(notificationsPermission)) || isWeb)) {
+          logFirebaseEvent('dashboard_request_permissions');
+          await requestPermission(notificationsPermission);
+        }
+        if (!(FFAppState().greetingMessageForUser != '')) {
+          logFirebaseEvent('dashboard_custom_action');
+          _model.greetingMessage = await actions.generateGreetingMessage(
+            currentUserDisplayName,
+            FFAppState().weatherForecastForMessages,
+          );
+          logFirebaseEvent('dashboard_update_app_state');
+          FFAppState().greetingMessageForUser =
+              _model.greetingMessage!.primaryMessage;
+          FFAppState().shortGreetingMessageForUser =
+              _model.greetingMessage!.secondaryMessage;
+          safeSetState(() {});
+        }
+        if ((dateTimeFormat(
+              "EEEE",
+              getCurrentTimestamp,
+              locale: FFLocalizations.of(context).languageCode,
+            ).toLowerCase()) !=
+            FFAppState().customClassesCurrentDay.firstOrNull?.weekday) {
+          logFirebaseEvent('dashboard_custom_action');
+          _model.customClassesQuery = await actions.fetchCustomClasses(
+            currentUserReference!,
+            dateTimeFormat(
+              "EEEE",
+              getCurrentTimestamp,
+              locale: FFLocalizations.of(context).languageCode,
+            ).toLowerCase(),
+          );
+          logFirebaseEvent('dashboard_update_app_state');
+          FFAppState().customClassesCurrentDay =
+              _model.customClassesQuery!.toList().cast<ClassRowStruct>();
+          safeSetState(() {});
+        }
         logFirebaseEvent('dashboard_custom_action');
-        _model.greetingMessage = await actions.generateGreetingMessage(
-          currentUserDisplayName,
-          FFAppState().weatherForecastForMessages,
-        );
-        logFirebaseEvent('dashboard_update_app_state');
-        FFAppState().greetingMessageForUser =
-            _model.greetingMessage!.primaryMessage;
-        FFAppState().shortGreetingMessageForUser =
-            _model.greetingMessage!.secondaryMessage;
-        safeSetState(() {});
-      }
-      if ((dateTimeFormat(
-            "EEEE",
-            getCurrentTimestamp,
-            locale: FFLocalizations.of(context).languageCode,
-          ).toLowerCase()) !=
-          FFAppState().customClassesCurrentDay.firstOrNull?.weekday) {
-        logFirebaseEvent('dashboard_custom_action');
-        _model.customClassesQuery = await actions.fetchCustomClasses(
+        _model.updateFeedback = await actions.updateAttendanceCounts(
           currentUserReference!,
-          dateTimeFormat(
-            "EEEE",
-            getCurrentTimestamp,
-            locale: FFLocalizations.of(context).languageCode,
-          ).toLowerCase(),
         );
-        logFirebaseEvent('dashboard_update_app_state');
-        FFAppState().customClassesCurrentDay =
-            _model.customClassesQuery!.toList().cast<ClassRowStruct>();
-        safeSetState(() {});
+        if (FFAppState().isAPODEnabled) {
+          logFirebaseEvent('dashboard_custom_action');
+          await actions.runIfStale(
+            FFAppState().APOD,
+            () async {
+              logFirebaseEvent('_backend_call');
+              _model.apodResult = await ApodApiCall.call(
+                date: valueOrDefault<String>(
+                  dateTimeFormat(
+                    "yyyy-MM-dd",
+                    getCurrentTimestamp,
+                    locale: FFLocalizations.of(context).languageCode,
+                  ),
+                  '2025-07-04',
+                ),
+              );
+
+              if ((_model.apodResult?.succeeded ?? true)) {
+                logFirebaseEvent('_update_app_state');
+                FFAppState().APOD = (_model.apodResult?.jsonBody ?? '');
+                safeSetState(() {});
+              }
+            },
+          );
+        }
+      } else {
+        logFirebaseEvent('dashboard_navigate_to');
+
+        context.goNamed(
+          OnboardingWidget.routeName,
+          queryParameters: {
+            'pageIndex': serializeParam(
+              1,
+              ParamType.int,
+            ),
+          }.withoutNulls,
+        );
       }
-      logFirebaseEvent('dashboard_custom_action');
-      _model.updateFeedback = await actions.updateAttendanceCounts(
-        currentUserReference!,
-      );
-      logFirebaseEvent('dashboard_custom_action');
-      _model.newChallengesFeedback = await actions.manageUserChallenges(
-        currentUserUid,
-        750,
-        2000,
-        valueOrDefault<String>(
-          valueOrDefault(currentUserDocument?.challengeKey, ''),
-          '0525-W20',
-        ),
-        (currentUserDocument?.challengesAllotted.toList() ?? []).toList(),
-      );
     });
 
     _model.tabBarController = TabController(
@@ -1004,8 +1038,8 @@ class _DashboardWidgetState extends State<DashboardWidget>
                     elevation: 2.0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30.0),
-                        bottomRight: Radius.circular(30.0),
+                        bottomLeft: Radius.circular(28.0),
+                        bottomRight: Radius.circular(28.0),
                         topLeft: Radius.circular(0.0),
                         topRight: Radius.circular(0.0),
                       ),
@@ -1022,8 +1056,8 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           end: AlignmentDirectional(0, 1.0),
                         ),
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30.0),
-                          bottomRight: Radius.circular(30.0),
+                          bottomLeft: Radius.circular(28.0),
+                          bottomRight: Radius.circular(28.0),
                           topLeft: Radius.circular(0.0),
                           topRight: Radius.circular(0.0),
                         ),
@@ -1184,7 +1218,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           ),
                           Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 10.0, 0.0, 18.0),
+                                0.0, 10.0, 0.0, 8.0),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -1243,36 +1277,53 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                     ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      20.0, 5.0, 0.0, 0.0),
-                                  child: InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      logFirebaseEvent(
-                                          'DASHBOARD_PAGE_Image_k9733t96_ON_TAP');
-                                      logFirebaseEvent('Image_navigate_to');
-
-                                      context.pushNamed(
-                                          AnnounementWidget.routeName);
-                                    },
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: SvgPicture.asset(
-                                        'assets/images/Archive_Vector_Icon.svg',
-                                        width: 32.0,
-                                        height: 32.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               ].addToStart(SizedBox(width: 20.0)),
                             ),
                           ),
+                          if ((FFAppState().APOD != null) &&
+                              FFAppState().isAPODEnabled)
+                            Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  8.0, 0.0, 8.0, 8.0),
+                              child: wrapWithModel(
+                                model: _model.aPODPreviwComponentModel,
+                                updateCallback: () => safeSetState(() {}),
+                                child: APODPreviwComponentWidget(
+                                  title: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.title''',
+                                  ).toString(),
+                                  description: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.explanation''',
+                                  ).toString(),
+                                  date: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.date''',
+                                  ).toString(),
+                                  mediaType: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.mediaType''',
+                                  ).toString(),
+                                  hdURL: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.hdurl''',
+                                  ).toString(),
+                                  videoURL: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.url''',
+                                  ).toString(),
+                                  previewURL: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.url''',
+                                  ).toString(),
+                                  thumbnailURL: getJsonField(
+                                    FFAppState().APOD,
+                                    r'''$.thumbnail_url''',
+                                  ).toString(),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -1333,470 +1384,94 @@ class _DashboardWidgetState extends State<DashboardWidget>
                           decoration: BoxDecoration(),
                           child: Align(
                             alignment: AlignmentDirectional(0.0, 0.0),
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment(0.0, 0),
-                                  child: TabBar(
-                                    labelColor:
-                                        FlutterFlowTheme.of(context).primary,
-                                    unselectedLabelColor:
-                                        FlutterFlowTheme.of(context)
-                                            .secondaryText,
-                                    labelStyle: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .override(
-                                          font: GoogleFonts.outfit(
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 4.0, 0.0, 0.0),
+                              child: Column(
+                                children: [
+                                  Align(
+                                    alignment: Alignment(0.0, 0),
+                                    child: TabBar(
+                                      labelColor:
+                                          FlutterFlowTheme.of(context).primary,
+                                      unselectedLabelColor:
+                                          FlutterFlowTheme.of(context)
+                                              .secondaryText,
+                                      labelStyle: FlutterFlowTheme.of(context)
+                                          .titleMedium
+                                          .override(
+                                            font: GoogleFonts.outfit(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleMedium
+                                                      .fontStyle,
+                                            ),
+                                            fontSize: 17.0,
+                                            letterSpacing: 0.0,
                                             fontWeight: FontWeight.bold,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
                                                     .titleMedium
                                                     .fontStyle,
                                           ),
-                                          fontSize: 17.0,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleMedium
-                                                  .fontStyle,
-                                        ),
-                                    unselectedLabelStyle:
-                                        FlutterFlowTheme.of(context)
-                                            .titleMedium
-                                            .override(
-                                              font: GoogleFonts.outfit(
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleMedium
-                                                        .fontStyle,
-                                              ),
-                                              fontSize: 16.0,
-                                              letterSpacing: 0.0,
+                                      unselectedLabelStyle: FlutterFlowTheme.of(
+                                              context)
+                                          .titleMedium
+                                          .override(
+                                            font: GoogleFonts.outfit(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .titleMedium
                                                       .fontStyle,
                                             ),
-                                    indicatorColor:
-                                        FlutterFlowTheme.of(context).primary,
-                                    indicatorWeight: 2.4,
-                                    tabs: [
-                                      Tab(
-                                        text: 'Today',
-                                      ),
-                                      Tab(
-                                        text: 'Upcoming',
-                                      ),
-                                    ],
-                                    controller: _model.tabBarController,
-                                    onTap: (i) async {
-                                      [() async {}, () async {}][i]();
-                                    },
+                                            fontSize: 16.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w600,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleMedium
+                                                    .fontStyle,
+                                          ),
+                                      indicatorColor:
+                                          FlutterFlowTheme.of(context).primary,
+                                      indicatorWeight: 2.4,
+                                      tabs: [
+                                        Tab(
+                                          text: 'Today',
+                                        ),
+                                        Tab(
+                                          text: 'Upcoming',
+                                        ),
+                                      ],
+                                      controller: _model.tabBarController,
+                                      onTap: (i) async {
+                                        [() async {}, () async {}][i]();
+                                      },
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: TabBarView(
-                                    controller: _model.tabBarController,
-                                    children: [
-                                      KeepAliveWidgetWrapper(
-                                        builder: (context) =>
-                                            SingleChildScrollView(
-                                          primary: false,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      12.0,
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0),
-                                                          child: RichText(
-                                                            textScaler:
-                                                                MediaQuery.of(
-                                                                        context)
-                                                                    .textScaler,
-                                                            text: TextSpan(
-                                                              children: [
-                                                                TextSpan(
-                                                                  text:
-                                                                      'TODAY\'S CLASSES ',
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        font: GoogleFonts
-                                                                            .outfit(
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .bodyMedium
-                                                                              .fontStyle,
-                                                                        ),
-                                                                        fontSize:
-                                                                            14.0,
-                                                                        letterSpacing:
-                                                                            0.0,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontStyle: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .fontStyle,
-                                                                      ),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: '(',
-                                                                  style:
-                                                                      TextStyle(),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: valueOrDefault<
-                                                                      String>(
-                                                                    tabContainerTimetableRecordsRowList
-                                                                        .length
-                                                                        .toString(),
-                                                                    '0',
-                                                                  ),
-                                                                  style:
-                                                                      TextStyle(),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: ')',
-                                                                  style:
-                                                                      TextStyle(),
-                                                                )
-                                                              ],
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyMedium
-                                                                  .override(
-                                                                    font: GoogleFonts
-                                                                        .outfit(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .fontStyle,
-                                                                    ),
-                                                                    fontSize:
-                                                                        14.0,
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      0.0,
-                                                                      0.0,
-                                                                      16.0,
-                                                                      0.0),
-                                                          child: InkWell(
-                                                            splashColor: Colors
-                                                                .transparent,
-                                                            focusColor: Colors
-                                                                .transparent,
-                                                            hoverColor: Colors
-                                                                .transparent,
-                                                            highlightColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            onTap: () async {
-                                                              logFirebaseEvent(
-                                                                  'DASHBOARD_PAGE_Row_z4pblxn2_ON_TAP');
-                                                              logFirebaseEvent(
-                                                                  'Row_show_snack_bar');
-                                                              ScaffoldMessenger
-                                                                      .of(context)
-                                                                  .showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text(
-                                                                    'Feature Coming Soon!',
-                                                                    style: GoogleFonts
-                                                                        .outfit(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .info,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                    ),
-                                                                  ),
-                                                                  duration: Duration(
-                                                                      milliseconds:
-                                                                          4000),
-                                                                  backgroundColor:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .tertiary,
-                                                                ),
-                                                              );
-                                                            },
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              children: [
-                                                                InkWell(
-                                                                  splashColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  focusColor: Colors
-                                                                      .transparent,
-                                                                  hoverColor: Colors
-                                                                      .transparent,
-                                                                  highlightColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  onTap:
-                                                                      () async {
-                                                                    logFirebaseEvent(
-                                                                        'DASHBOARD_PAGE_Text_z421kzx1_ON_TAP');
-                                                                    logFirebaseEvent(
-                                                                        'Text_clear_query_cache');
-                                                                    FFAppState()
-                                                                        .clearTimetableRecordsQueryDayCacheKey(
-                                                                            'timetableRecords_${dateTimeFormat(
-                                                                      "d/M/y",
-                                                                      getCurrentTimestamp,
-                                                                      locale: FFLocalizations.of(
-                                                                              context)
-                                                                          .languageCode,
-                                                                    )}');
-                                                                  },
-                                                                  child: Text(
-                                                                    'Add to Calendar',
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyMedium
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.outfit(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).primary,
-                                                                          fontSize:
-                                                                              14.0,
-                                                                          letterSpacing:
-                                                                              0.5,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .bodyMedium
-                                                                              .fontStyle,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          5.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0),
-                                                                  child: Icon(
-                                                                    FFIcons
-                                                                        .kcalendarPlus,
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primary,
-                                                                    size: 18.0,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  5.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Builder(
-                                                        builder: (context) {
-                                                          final tabContainerVar =
-                                                              tabContainerTimetableRecordsRowList
-                                                                  .toList();
-                                                          if (tabContainerVar
-                                                              .isEmpty) {
-                                                            return Center(
-                                                              child: Container(
-                                                                width: double
-                                                                    .infinity,
-                                                                child:
-                                                                    EmptyClassWidget(
-                                                                  imageUrl:
-                                                                      'https://cdn-icons-gif.flaticon.com/14204/14204950.gif',
-                                                                  title:
-                                                                      valueOrDefault<
-                                                                          String>(
-                                                                    (String var1) {
-                                                                      return (var1.toLowerCase() != "sunday" &&
-                                                                              var1.toLowerCase() != "saturday") ??
-                                                                          true;
-                                                                    }(dateTimeFormat(
-                                                                      "EEEE",
-                                                                      getCurrentTimestamp,
-                                                                      locale: FFLocalizations.of(
-                                                                              context)
-                                                                          .languageCode,
-                                                                    ))
-                                                                        ? 'Surprise! No classes today 🎈'
-                                                                        : 'No classes today — it\'s the weekend, bestie 🎉',
-                                                                    'Surprise! No classes today 🎈',
-                                                                  ),
-                                                                  description:
-                                                                      valueOrDefault<
-                                                                          String>(
-                                                                    (String var1) {
-                                                                      return (var1.toLowerCase() != "sunday" &&
-                                                                              var1.toLowerCase() != "saturday") ??
-                                                                          true;
-                                                                    }(dateTimeFormat(
-                                                                      "EEEE",
-                                                                      getCurrentTimestamp,
-                                                                      locale: FFLocalizations.of(
-                                                                              context)
-                                                                          .languageCode,
-                                                                    ))
-                                                                        ? 'Time to unplug, recharge, and romanticize your rest. You’ve earned it!'
-                                                                        : 'Whether it’s a break or a blessing, take this as your cue to rest, reset, and vibe responsibly.',
-                                                                    'Time to unplug, recharge, and romanticize your rest. You’ve earned it!',
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            );
-                                                          }
-
-                                                          return ListView
-                                                              .builder(
-                                                            padding:
-                                                                EdgeInsets.zero,
-                                                            primary: false,
-                                                            shrinkWrap: true,
-                                                            scrollDirection:
-                                                                Axis.vertical,
-                                                            itemCount:
-                                                                tabContainerVar
-                                                                    .length,
-                                                            itemBuilder: (context,
-                                                                tabContainerVarIndex) {
-                                                              final tabContainerVarItem =
-                                                                  tabContainerVar[
-                                                                      tabContainerVarIndex];
-                                                              return Padding(
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            4.0,
-                                                                            0.0,
-                                                                            4.0,
-                                                                            4.0),
-                                                                child:
-                                                                    wrapWithModel(
-                                                                  model: _model
-                                                                      .classBlockPrimaryModels
-                                                                      .getModel(
-                                                                    tabContainerVarItem
-                                                                        .classID,
-                                                                    tabContainerVarIndex,
-                                                                  ),
-                                                                  updateCallback: () =>
-                                                                      safeSetState(
-                                                                          () {}),
-                                                                  updateOnChange:
-                                                                      true,
-                                                                  child:
-                                                                      ClassBlockPrimaryWidget(
-                                                                    key: Key(
-                                                                      'Key2fm_${tabContainerVarItem.classID}',
-                                                                    ),
-                                                                    classRecord:
-                                                                        tabContainerVarItem,
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ].addToStart(
-                                                      SizedBox(height: 10.0)),
-                                                ),
-                                              ),
-                                              if (valueOrDefault<bool>(
-                                                (_model.customClassesList
-                                                        .isNotEmpty) ==
-                                                    true,
-                                                false,
-                                              ))
-                                                Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    StyledDivider(
-                                                      thickness: 1.5,
-                                                      indent: 10.0,
-                                                      endIndent: 10.0,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .alternate,
-                                                      lineStyle:
-                                                          DividerLineStyle
-                                                              .dashed,
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  5.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Row(
+                                  Expanded(
+                                    child: TabBarView(
+                                      controller: _model.tabBarController,
+                                      children: [
+                                        KeepAliveWidgetWrapper(
+                                          builder: (context) =>
+                                              SingleChildScrollView(
+                                            primary: false,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
                                                         mainAxisSize:
                                                             MainAxisSize.max,
                                                         mainAxisAlignment:
@@ -1820,7 +1495,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                 children: [
                                                                   TextSpan(
                                                                     text:
-                                                                        'CUSTOM CLASSSES ',
+                                                                        'TODAY\'S CLASSES ',
                                                                     style: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -1851,8 +1526,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                   TextSpan(
                                                                     text: valueOrDefault<
                                                                         String>(
-                                                                      _model
-                                                                          .customClassesList
+                                                                      tabContainerTimetableRecordsRowList
                                                                           .length
                                                                           .toString(),
                                                                       '0',
@@ -1913,35 +1587,555 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                       .transparent,
                                                               onTap: () async {
                                                                 logFirebaseEvent(
-                                                                    'DASHBOARD_PAGE_Text_a6h33ylb_ON_TAP');
+                                                                    'DASHBOARD_PAGE_Row_z4pblxn2_ON_TAP');
                                                                 logFirebaseEvent(
-                                                                    'Text_navigate_to');
-
-                                                                context.pushNamed(
-                                                                    CustomClassesWidget
-                                                                        .routeName);
-                                                              },
-                                                              child: Text(
-                                                                'Customize Classes',
-                                                                style: FlutterFlowTheme.of(
+                                                                    'Row_show_snack_bar');
+                                                                ScaffoldMessenger.of(
                                                                         context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      font: GoogleFonts
+                                                                    .showSnackBar(
+                                                                  SnackBar(
+                                                                    content:
+                                                                        Text(
+                                                                      'Feature Coming Soon!',
+                                                                      style: GoogleFonts
                                                                           .outfit(
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .info,
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                      ),
+                                                                    ),
+                                                                    duration: Duration(
+                                                                        milliseconds:
+                                                                            4000),
+                                                                    backgroundColor:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .tertiary,
+                                                                  ),
+                                                                );
+                                                              },
+                                                              child: Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                children: [
+                                                                  InkWell(
+                                                                    splashColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    focusColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    hoverColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    highlightColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    onTap:
+                                                                        () async {
+                                                                      logFirebaseEvent(
+                                                                          'DASHBOARD_PAGE_Text_z421kzx1_ON_TAP');
+                                                                      logFirebaseEvent(
+                                                                          'Text_clear_query_cache');
+                                                                      FFAppState()
+                                                                          .clearTimetableRecordsQueryDayCacheKey(
+                                                                              'timetableRecords_${dateTimeFormat(
+                                                                        "d/M/y",
+                                                                        getCurrentTimestamp,
+                                                                        locale:
+                                                                            FFLocalizations.of(context).languageCode,
+                                                                      )}');
+                                                                    },
+                                                                    child: Text(
+                                                                      'Add to Calendar',
+                                                                      style: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .override(
+                                                                            font:
+                                                                                GoogleFonts.outfit(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                            ),
+                                                                            color:
+                                                                                FlutterFlowTheme.of(context).primary,
+                                                                            fontSize:
+                                                                                14.0,
+                                                                            letterSpacing:
+                                                                                0.5,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontStyle:
+                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            5.0,
+                                                                            0.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                    child: Icon(
+                                                                      FFIcons
+                                                                          .kcalendarPlus,
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .primary,
+                                                                      size:
+                                                                          18.0,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    5.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                        child: Builder(
+                                                          builder: (context) {
+                                                            final tabContainerVar =
+                                                                tabContainerTimetableRecordsRowList
+                                                                    .toList();
+                                                            if (tabContainerVar
+                                                                .isEmpty) {
+                                                              return Center(
+                                                                child:
+                                                                    Container(
+                                                                  width: double
+                                                                      .infinity,
+                                                                  child:
+                                                                      EmptyClassWidget(
+                                                                    imageUrl:
+                                                                        'https://cdn-icons-gif.flaticon.com/14204/14204950.gif',
+                                                                    title: valueOrDefault<
+                                                                        String>(
+                                                                      (String var1) {
+                                                                        return (var1.toLowerCase() != "sunday" &&
+                                                                                var1.toLowerCase() != "saturday") ??
+                                                                            true;
+                                                                      }(dateTimeFormat(
+                                                                        "EEEE",
+                                                                        getCurrentTimestamp,
+                                                                        locale:
+                                                                            FFLocalizations.of(context).languageCode,
+                                                                      ))
+                                                                          ? 'Surprise! No classes today 🎈'
+                                                                          : 'No classes today — it\'s the weekend, bestie 🎉',
+                                                                      'Surprise! No classes today 🎈',
+                                                                    ),
+                                                                    description:
+                                                                        valueOrDefault<
+                                                                            String>(
+                                                                      (String var1) {
+                                                                        return (var1.toLowerCase() != "sunday" &&
+                                                                                var1.toLowerCase() != "saturday") ??
+                                                                            true;
+                                                                      }(dateTimeFormat(
+                                                                        "EEEE",
+                                                                        getCurrentTimestamp,
+                                                                        locale:
+                                                                            FFLocalizations.of(context).languageCode,
+                                                                      ))
+                                                                          ? 'Time to unplug, recharge, and romanticize your rest. You’ve earned it!'
+                                                                          : 'Whether it’s a break or a blessing, take this as your cue to rest, reset, and vibe responsibly.',
+                                                                      'Time to unplug, recharge, and romanticize your rest. You’ve earned it!',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            return ListView
+                                                                .builder(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              primary: false,
+                                                              shrinkWrap: true,
+                                                              scrollDirection:
+                                                                  Axis.vertical,
+                                                              itemCount:
+                                                                  tabContainerVar
+                                                                      .length,
+                                                              itemBuilder: (context,
+                                                                  tabContainerVarIndex) {
+                                                                final tabContainerVarItem =
+                                                                    tabContainerVar[
+                                                                        tabContainerVarIndex];
+                                                                return Padding(
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          4.0,
+                                                                          0.0,
+                                                                          4.0,
+                                                                          4.0),
+                                                                  child:
+                                                                      wrapWithModel(
+                                                                    model: _model
+                                                                        .classBlockPrimaryModels
+                                                                        .getModel(
+                                                                      tabContainerVarItem
+                                                                          .classID,
+                                                                      tabContainerVarIndex,
+                                                                    ),
+                                                                    updateCallback: () =>
+                                                                        safeSetState(
+                                                                            () {}),
+                                                                    updateOnChange:
+                                                                        true,
+                                                                    child:
+                                                                        ClassBlockPrimaryWidget(
+                                                                      key: Key(
+                                                                        'Key2fm_${tabContainerVarItem.classID}',
+                                                                      ),
+                                                                      classRecord:
+                                                                          tabContainerVarItem,
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ].addToStart(
+                                                        SizedBox(height: 10.0)),
+                                                  ),
+                                                ),
+                                                if (valueOrDefault<bool>(
+                                                  (_model.customClassesList
+                                                          .isNotEmpty) ==
+                                                      true,
+                                                  false,
+                                                ))
+                                                  Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: [
+                                                      StyledDivider(
+                                                        thickness: 1.5,
+                                                        indent: 10.0,
+                                                        endIndent: 10.0,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .alternate,
+                                                        lineStyle:
+                                                            DividerLineStyle
+                                                                .dashed,
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    5.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          12.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                              child: RichText(
+                                                                textScaler: MediaQuery.of(
+                                                                        context)
+                                                                    .textScaler,
+                                                                text: TextSpan(
+                                                                  children: [
+                                                                    TextSpan(
+                                                                      text:
+                                                                          'CUSTOM CLASSSES ',
+                                                                      style: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .override(
+                                                                            font:
+                                                                                GoogleFonts.outfit(
+                                                                              fontWeight: FontWeight.bold,
+                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                            ),
+                                                                            fontSize:
+                                                                                14.0,
+                                                                            letterSpacing:
+                                                                                0.0,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontStyle:
+                                                                                FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                                                                          ),
+                                                                    ),
+                                                                    TextSpan(
+                                                                      text: '(',
+                                                                      style:
+                                                                          TextStyle(),
+                                                                    ),
+                                                                    TextSpan(
+                                                                      text: valueOrDefault<
+                                                                          String>(
+                                                                        _model
+                                                                            .customClassesList
+                                                                            .length
+                                                                            .toString(),
+                                                                        '0',
+                                                                      ),
+                                                                      style:
+                                                                          TextStyle(),
+                                                                    ),
+                                                                    TextSpan(
+                                                                      text: ')',
+                                                                      style:
+                                                                          TextStyle(),
+                                                                    )
+                                                                  ],
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .override(
+                                                                        font: GoogleFonts
+                                                                            .outfit(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        letterSpacing:
+                                                                            0.0,
                                                                         fontWeight:
                                                                             FontWeight.bold,
                                                                         fontStyle: FlutterFlowTheme.of(context)
                                                                             .bodyMedium
                                                                             .fontStyle,
                                                                       ),
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primary,
-                                                                      fontSize:
-                                                                          14.0,
-                                                                      letterSpacing:
-                                                                          0.5,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          0.0,
+                                                                          0.0,
+                                                                          16.0,
+                                                                          0.0),
+                                                              child: InkWell(
+                                                                splashColor: Colors
+                                                                    .transparent,
+                                                                focusColor: Colors
+                                                                    .transparent,
+                                                                hoverColor: Colors
+                                                                    .transparent,
+                                                                highlightColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                onTap:
+                                                                    () async {
+                                                                  logFirebaseEvent(
+                                                                      'DASHBOARD_PAGE_Text_a6h33ylb_ON_TAP');
+                                                                  logFirebaseEvent(
+                                                                      'Text_navigate_to');
+
+                                                                  context.pushNamed(
+                                                                      CustomClassesWidget
+                                                                          .routeName);
+                                                                },
+                                                                child: Text(
+                                                                  'Customize Classes',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .override(
+                                                                        font: GoogleFonts
+                                                                            .outfit(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .bodyMedium
+                                                                              .fontStyle,
+                                                                        ),
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .primary,
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        letterSpacing:
+                                                                            0.5,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .fontStyle,
+                                                                      ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    5.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                        child: Builder(
+                                                          builder: (context) {
+                                                            final customClassList =
+                                                                FFAppState()
+                                                                    .customClassesCurrentDay
+                                                                    .toList()
+                                                                    .take(8)
+                                                                    .toList();
+                                                            if (customClassList
+                                                                .isEmpty) {
+                                                              return EmptyClassWidget(
+                                                                imageUrl: '',
+                                                                title: '',
+                                                                description: '',
+                                                              );
+                                                            }
+
+                                                            return ListView
+                                                                .separated(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              primary: false,
+                                                              shrinkWrap: true,
+                                                              scrollDirection:
+                                                                  Axis.vertical,
+                                                              itemCount:
+                                                                  customClassList
+                                                                      .length,
+                                                              separatorBuilder: (_,
+                                                                      __) =>
+                                                                  SizedBox(
+                                                                      height:
+                                                                          2.0),
+                                                              itemBuilder: (context,
+                                                                  customClassListIndex) {
+                                                                final customClassListItem =
+                                                                    customClassList[
+                                                                        customClassListIndex];
+                                                                return Padding(
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          4.0,
+                                                                          0.0,
+                                                                          4.0,
+                                                                          0.0),
+                                                                  child:
+                                                                      wrapWithModel(
+                                                                    model: _model
+                                                                        .classBlockSecondaryModels
+                                                                        .getModel(
+                                                                      customClassListItem
+                                                                          .classID,
+                                                                      customClassListIndex,
+                                                                    ),
+                                                                    updateCallback: () =>
+                                                                        safeSetState(
+                                                                            () {}),
+                                                                    updateOnChange:
+                                                                        true,
+                                                                    child:
+                                                                        ClassBlockSecondaryWidget(
+                                                                      key: Key(
+                                                                        'Key0vr_${customClassListItem.classID}',
+                                                                      ),
+                                                                      classID:
+                                                                          customClassListItem
+                                                                              .classID,
+                                                                      courseID:
+                                                                          customClassListItem
+                                                                              .courseID,
+                                                                      courseName:
+                                                                          customClassListItem
+                                                                              .courseName,
+                                                                      isCustomClass:
+                                                                          true,
+                                                                      classStartTime:
+                                                                          customClassListItem
+                                                                              .classStartTime,
+                                                                      classEndTime:
+                                                                          customClassListItem
+                                                                              .classEndTime,
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        KeepAliveWidgetWrapper(
+                                          builder: (context) => Container(
+                                            decoration: BoxDecoration(),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: [
+                                                Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  12.0,
+                                                                  0.0,
+                                                                  0.0,
+                                                                  0.0),
+                                                      child: RichText(
+                                                        textScaler:
+                                                            MediaQuery.of(
+                                                                    context)
+                                                                .textScaler,
+                                                        text: TextSpan(
+                                                          children: [
+                                                            TextSpan(
+                                                              text:
+                                                                  'UPCOMING CLASSES ',
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    font: GoogleFonts
+                                                                        .outfit(
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
@@ -1950,148 +2144,10 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                           .bodyMedium
                                                                           .fontStyle,
                                                                     ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  5.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Builder(
-                                                        builder: (context) {
-                                                          final customClassList =
-                                                              FFAppState()
-                                                                  .customClassesCurrentDay
-                                                                  .toList()
-                                                                  .take(8)
-                                                                  .toList();
-                                                          if (customClassList
-                                                              .isEmpty) {
-                                                            return EmptyClassWidget(
-                                                              imageUrl: '',
-                                                              title: '',
-                                                              description: '',
-                                                            );
-                                                          }
-
-                                                          return ListView
-                                                              .separated(
-                                                            padding:
-                                                                EdgeInsets.zero,
-                                                            primary: false,
-                                                            shrinkWrap: true,
-                                                            scrollDirection:
-                                                                Axis.vertical,
-                                                            itemCount:
-                                                                customClassList
-                                                                    .length,
-                                                            separatorBuilder:
-                                                                (_, __) =>
-                                                                    SizedBox(
-                                                                        height:
-                                                                            2.0),
-                                                            itemBuilder: (context,
-                                                                customClassListIndex) {
-                                                              final customClassListItem =
-                                                                  customClassList[
-                                                                      customClassListIndex];
-                                                              return Padding(
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            4.0,
-                                                                            0.0,
-                                                                            4.0,
-                                                                            0.0),
-                                                                child:
-                                                                    wrapWithModel(
-                                                                  model: _model
-                                                                      .classBlockSecondaryModels
-                                                                      .getModel(
-                                                                    customClassListItem
-                                                                        .classID,
-                                                                    customClassListIndex,
-                                                                  ),
-                                                                  updateCallback: () =>
-                                                                      safeSetState(
-                                                                          () {}),
-                                                                  updateOnChange:
-                                                                      true,
-                                                                  child:
-                                                                      ClassBlockSecondaryWidget(
-                                                                    key: Key(
-                                                                      'Key0vr_${customClassListItem.classID}',
-                                                                    ),
-                                                                    classID:
-                                                                        customClassListItem
-                                                                            .classID,
-                                                                    courseID:
-                                                                        customClassListItem
-                                                                            .courseID,
-                                                                    courseName:
-                                                                        customClassListItem
-                                                                            .courseName,
-                                                                    isCustomClass:
-                                                                        true,
-                                                                    classStartTime:
-                                                                        customClassListItem
-                                                                            .classStartTime,
-                                                                    classEndTime:
-                                                                        customClassListItem
-                                                                            .classEndTime,
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      KeepAliveWidgetWrapper(
-                                        builder: (context) => Container(
-                                          decoration: BoxDecoration(),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(12.0, 0.0,
-                                                                0.0, 0.0),
-                                                    child: RichText(
-                                                      textScaler:
-                                                          MediaQuery.of(context)
-                                                              .textScaler,
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text:
-                                                                'UPCOMING CLASSES ',
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  font: GoogleFonts
-                                                                      .outfit(
+                                                                    fontSize:
+                                                                        14.0,
+                                                                    letterSpacing:
+                                                                        0.0,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
@@ -2100,10 +2156,15 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                         .bodyMedium
                                                                         .fontStyle,
                                                                   ),
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.0,
+                                                            )
+                                                          ],
+                                                          style: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .bodyMedium
+                                                              .override(
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .outfit(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
@@ -2112,14 +2173,9 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                       .bodyMedium
                                                                       .fontStyle,
                                                                 ),
-                                                          )
-                                                        ],
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .bodyMedium
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .outfit(
+                                                                fontSize: 14.0,
+                                                                letterSpacing:
+                                                                    0.0,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
@@ -2128,69 +2184,76 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                     .bodyMedium
                                                                     .fontStyle,
                                                               ),
-                                                              fontSize: 14.0,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                            ),
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(0.0, 0.0,
-                                                                16.0, 0.0),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      children: [
-                                                        InkWell(
-                                                          splashColor: Colors
-                                                              .transparent,
-                                                          focusColor: Colors
-                                                              .transparent,
-                                                          hoverColor: Colors
-                                                              .transparent,
-                                                          highlightColor: Colors
-                                                              .transparent,
-                                                          onTap: () async {
-                                                            logFirebaseEvent(
-                                                                'DASHBOARD_PAGE_Text_2ufpws39_ON_TAP');
-                                                            logFirebaseEvent(
-                                                                'Text_navigate_to');
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  0.0,
+                                                                  16.0,
+                                                                  0.0),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        children: [
+                                                          InkWell(
+                                                            splashColor: Colors
+                                                                .transparent,
+                                                            focusColor: Colors
+                                                                .transparent,
+                                                            hoverColor: Colors
+                                                                .transparent,
+                                                            highlightColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            onTap: () async {
+                                                              logFirebaseEvent(
+                                                                  'DASHBOARD_PAGE_Text_2ufpws39_ON_TAP');
+                                                              logFirebaseEvent(
+                                                                  'Text_navigate_to');
 
-                                                            context.goNamed(
-                                                              CalenderWidget
-                                                                  .routeName,
-                                                              extra: <String,
-                                                                  dynamic>{
-                                                                kTransitionInfoKey:
-                                                                    TransitionInfo(
-                                                                  hasTransition:
-                                                                      true,
-                                                                  transitionType:
-                                                                      PageTransitionType
-                                                                          .rightToLeft,
-                                                                ),
-                                                              },
-                                                            );
-                                                          },
-                                                          child: Text(
-                                                            'See all classes',
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  font: GoogleFonts
-                                                                      .outfit(
+                                                              context.goNamed(
+                                                                CalenderWidget
+                                                                    .routeName,
+                                                                extra: <String,
+                                                                    dynamic>{
+                                                                  kTransitionInfoKey:
+                                                                      TransitionInfo(
+                                                                    hasTransition:
+                                                                        true,
+                                                                    transitionType:
+                                                                        PageTransitionType
+                                                                            .rightToLeft,
+                                                                  ),
+                                                                },
+                                                              );
+                                                            },
+                                                            child: Text(
+                                                              'See all classes',
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    font: GoogleFonts
+                                                                        .outfit(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .fontStyle,
+                                                                    ),
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primary,
+                                                                    fontSize:
+                                                                        14.0,
+                                                                    letterSpacing:
+                                                                        0.5,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
@@ -2199,166 +2262,159 @@ class _DashboardWidgetState extends State<DashboardWidget>
                                                                         .bodyMedium
                                                                         .fontStyle,
                                                                   ),
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primary,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.5,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .fontStyle,
-                                                                ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                        Icon(
-                                                          FFIcons.karrowUpRight,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primary,
-                                                          size: 24.0,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 5.0, 0.0, 0.0),
-                                                child: FutureBuilder<
-                                                    List<TimetableRecordsRow>>(
-                                                  future:
-                                                      TimetableRecordsTable()
-                                                          .queryRows(
-                                                    queryFn: (q) => q
-                                                        .neqOrNull(
-                                                          'classDate',
-                                                          dateTimeFormat(
-                                                            "d/M/y",
-                                                            getCurrentTimestamp,
-                                                            locale: FFLocalizations
-                                                                    .of(context)
-                                                                .languageCode,
-                                                          ),
-                                                        )
-                                                        .gtOrNull(
-                                                          'classStartTime',
-                                                          supaSerialize<
-                                                                  DateTime>(
-                                                              getCurrentTimestamp),
-                                                        )
-                                                        .inFilterOrNull(
-                                                          'courseID',
-                                                          (currentUserDocument
-                                                                      ?.coursesEnrolled
-                                                                      .toList() ??
-                                                                  [])
-                                                              .map((e) =>
-                                                                  e.courseID)
-                                                              .toList(),
-                                                        )
-                                                        .order('classStartTime',
-                                                            ascending: true),
-                                                    limit: 6,
-                                                  ),
-                                                  builder: (context, snapshot) {
-                                                    // Customize what your widget looks like when it's loading.
-                                                    if (!snapshot.hasData) {
-                                                      return Center(
-                                                        child: SizedBox(
-                                                          width: 25.0,
-                                                          height: 25.0,
-                                                          child:
-                                                              SpinKitFadingCube(
+                                                          Icon(
+                                                            FFIcons
+                                                                .karrowUpRight,
                                                             color: FlutterFlowTheme
                                                                     .of(context)
                                                                 .primary,
-                                                            size: 25.0,
+                                                            size: 24.0,
                                                           ),
-                                                        ),
-                                                      );
-                                                    }
-                                                    List<TimetableRecordsRow>
-                                                        listViewTimetableRecordsRowList =
-                                                        snapshot.data!;
-
-                                                    if (listViewTimetableRecordsRowList
-                                                        .isEmpty) {
-                                                      return Center(
-                                                        child: EmptyClassWidget(
-                                                          imageUrl: '',
-                                                          title:
-                                                              'No classes on the horizon 🌤️',
-                                                          description:
-                                                              'Time to relax — we’ll ping you when something pops up.',
-                                                        ),
-                                                      );
-                                                    }
-
-                                                    return ListView.builder(
-                                                      padding: EdgeInsets.zero,
-                                                      primary: false,
-                                                      shrinkWrap: true,
-                                                      scrollDirection:
-                                                          Axis.vertical,
-                                                      itemCount:
-                                                          listViewTimetableRecordsRowList
-                                                              .length,
-                                                      itemBuilder: (context,
-                                                          listViewIndex) {
-                                                        final listViewTimetableRecordsRow =
-                                                            listViewTimetableRecordsRowList[
-                                                                listViewIndex];
-                                                        return Padding(
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      6.0,
-                                                                      0.0,
-                                                                      6.0,
-                                                                      3.0),
-                                                          child: wrapWithModel(
-                                                            model: _model
-                                                                .classBlockUpcomingModels
-                                                                .getModel(
-                                                              listViewTimetableRecordsRow
-                                                                  .classID,
-                                                              listViewIndex,
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                          0.0, 5.0, 0.0, 0.0),
+                                                  child: FutureBuilder<
+                                                      List<
+                                                          TimetableRecordsRow>>(
+                                                    future:
+                                                        TimetableRecordsTable()
+                                                            .queryRows(
+                                                      queryFn: (q) => q
+                                                          .neqOrNull(
+                                                            'classDate',
+                                                            dateTimeFormat(
+                                                              "d/M/y",
+                                                              getCurrentTimestamp,
+                                                              locale: FFLocalizations
+                                                                      .of(context)
+                                                                  .languageCode,
                                                             ),
-                                                            updateCallback: () =>
-                                                                safeSetState(
-                                                                    () {}),
+                                                          )
+                                                          .gtOrNull(
+                                                            'classStartTime',
+                                                            supaSerialize<
+                                                                    DateTime>(
+                                                                getCurrentTimestamp),
+                                                          )
+                                                          .inFilterOrNull(
+                                                            'courseID',
+                                                            (currentUserDocument
+                                                                        ?.coursesEnrolled
+                                                                        .toList() ??
+                                                                    [])
+                                                                .map((e) =>
+                                                                    e.courseID)
+                                                                .toList(),
+                                                          )
+                                                          .order(
+                                                              'classStartTime',
+                                                              ascending: true),
+                                                      limit: 6,
+                                                    ),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      // Customize what your widget looks like when it's loading.
+                                                      if (!snapshot.hasData) {
+                                                        return Center(
+                                                          child: SizedBox(
+                                                            width: 25.0,
+                                                            height: 25.0,
                                                             child:
-                                                                ClassBlockUpcomingWidget(
-                                                              key: Key(
-                                                                'Key0dg_${listViewTimetableRecordsRow.classID}',
-                                                              ),
-                                                              classRecord:
-                                                                  listViewTimetableRecordsRow,
+                                                                SpinKitFadingCube(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primary,
+                                                              size: 25.0,
                                                             ),
                                                           ),
                                                         );
-                                                      },
-                                                    );
-                                                  },
+                                                      }
+                                                      List<TimetableRecordsRow>
+                                                          listViewTimetableRecordsRowList =
+                                                          snapshot.data!;
+
+                                                      if (listViewTimetableRecordsRowList
+                                                          .isEmpty) {
+                                                        return Center(
+                                                          child:
+                                                              EmptyClassWidget(
+                                                            imageUrl: '',
+                                                            title:
+                                                                'No classes on the horizon 🌤️',
+                                                            description:
+                                                                'Time to relax — we’ll ping you when something pops up.',
+                                                          ),
+                                                        );
+                                                      }
+
+                                                      return ListView.builder(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        primary: false,
+                                                        shrinkWrap: true,
+                                                        scrollDirection:
+                                                            Axis.vertical,
+                                                        itemCount:
+                                                            listViewTimetableRecordsRowList
+                                                                .length,
+                                                        itemBuilder: (context,
+                                                            listViewIndex) {
+                                                          final listViewTimetableRecordsRow =
+                                                              listViewTimetableRecordsRowList[
+                                                                  listViewIndex];
+                                                          return Padding(
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        6.0,
+                                                                        0.0,
+                                                                        6.0,
+                                                                        3.0),
+                                                            child:
+                                                                wrapWithModel(
+                                                              model: _model
+                                                                  .classBlockUpcomingModels
+                                                                  .getModel(
+                                                                listViewTimetableRecordsRow
+                                                                    .classID,
+                                                                listViewIndex,
+                                                              ),
+                                                              updateCallback: () =>
+                                                                  safeSetState(
+                                                                      () {}),
+                                                              child:
+                                                                  ClassBlockUpcomingWidget(
+                                                                key: Key(
+                                                                  'Key0dg_${listViewTimetableRecordsRow.classID}',
+                                                                ),
+                                                                classRecord:
+                                                                    listViewTimetableRecordsRow,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
                                                 ),
-                                              ),
-                                            ].addToStart(
-                                                SizedBox(height: 10.0)),
+                                              ].addToStart(
+                                                  SizedBox(height: 10.0)),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );

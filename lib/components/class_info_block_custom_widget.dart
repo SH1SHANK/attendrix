@@ -1,11 +1,14 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
+import '/components/confirm_dialog_widget.dart';
 import '/components/schedule_remainder_custom_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/custom_code/actions/index.dart' as actions;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'class_info_block_custom_model.dart';
 export 'class_info_block_custom_model.dart';
 
@@ -51,6 +54,8 @@ class _ClassInfoBlockCustomWidgetState
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Container(
       width: double.infinity,
       height: 150.0,
@@ -116,49 +121,90 @@ class _ClassInfoBlockCustomWidgetState
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    InkWell(
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onTap: () async {
-                        logFirebaseEvent(
-                            'CLASS_INFO_BLOCK_CUSTOM_Icon_ujxprhcs_ON');
-                        logFirebaseEvent('Icon_alert_dialog');
-                        var confirmDialogResponse = await showDialog<bool>(
-                              context: context,
-                              builder: (alertDialogContext) {
-                                return AlertDialog(
-                                  title: Text('Delete Custom Class?'),
-                                  content: Text(
-                                      'Are you sure you want to delete this custom class? This action is permanent — all associated attendance data will be lost forever and cannot be restored.'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(
-                                          alertDialogContext, false),
-                                      child: Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(
-                                          alertDialogContext, true),
-                                      child: Text('Delete Forever'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ) ??
-                            false;
-                        if (confirmDialogResponse) {
-                          logFirebaseEvent('Icon_backend_call');
-                          await widget.classRecord!.reference.delete();
-                        }
-                        logFirebaseEvent('Icon_dismiss_dialog');
-                        Navigator.pop(context);
-                      },
-                      child: Icon(
-                        FFIcons.ktrash,
-                        color: FlutterFlowTheme.of(context).absentRed,
-                        size: 24.0,
+                    Builder(
+                      builder: (context) => InkWell(
+                        splashColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () async {
+                          logFirebaseEvent(
+                              'CLASS_INFO_BLOCK_CUSTOM_Icon_ujxprhcs_ON');
+                          logFirebaseEvent('Icon_alert_dialog');
+                          await showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (dialogContext) {
+                              return Dialog(
+                                elevation: 0,
+                                insetPadding: EdgeInsets.zero,
+                                backgroundColor: Colors.transparent,
+                                alignment: AlignmentDirectional(0.0, 0.0)
+                                    .resolve(Directionality.of(context)),
+                                child: ConfirmDialogWidget(
+                                  title: 'Delete Custom Class?',
+                                  description:
+                                      'Are you sure you want to delete this custom class? This action is permanent — all associated attendance data will be lost forever and cannot be restored.',
+                                ),
+                              );
+                            },
+                          ).then((value) => safeSetState(() =>
+                              _model.confirmnationDialogResponse = value));
+
+                          if (_model.confirmnationDialogResponse!) {
+                            logFirebaseEvent('Icon_backend_call');
+                            await widget.classRecord!.reference.delete();
+                            logFirebaseEvent('Icon_backend_call');
+                            await NotificationsConfigTable().delete(
+                              matchingRows: (rows) => rows
+                                  .eqOrNull(
+                                    'course_id',
+                                    widget.classRecord?.courseID,
+                                  )
+                                  .eqOrNull(
+                                    'user_id',
+                                    currentUserUid,
+                                  ),
+                            );
+                            logFirebaseEvent('Icon_custom_action');
+                            _model.newCustomClassesAllDay =
+                                await actions.removeCourseClasses(
+                              widget.classRecord!.courseID,
+                              FFAppState().customClassesAlldays.toList(),
+                            );
+                            logFirebaseEvent('Icon_custom_action');
+                            _model.newCustomClassesCurrentDay =
+                                await actions.fetchCustomClasses(
+                              currentUserReference!,
+                              dateTimeFormat(
+                                "EEEE",
+                                getCurrentTimestamp,
+                                locale:
+                                    FFLocalizations.of(context).languageCode,
+                              ).toLowerCase(),
+                            );
+                            logFirebaseEvent('Icon_update_app_state');
+                            FFAppState().customClassesAlldays = _model
+                                .newCustomClassesAllDay!
+                                .toList()
+                                .cast<ClassRowStruct>();
+                            FFAppState().customClassesCurrentDay = _model
+                                .newCustomClassesCurrentDay!
+                                .toList()
+                                .cast<ClassRowStruct>();
+                            FFAppState().customClassesLastUpdatedAt =
+                                getCurrentTimestamp;
+                          }
+                          logFirebaseEvent('Icon_dismiss_dialog');
+                          Navigator.pop(context);
+
+                          safeSetState(() {});
+                        },
+                        child: Icon(
+                          FFIcons.ktrash,
+                          color: FlutterFlowTheme.of(context).absentRed,
+                          size: 24.0,
+                        ),
                       ),
                     ),
                   ].divide(SizedBox(width: 8.0)),
@@ -449,44 +495,45 @@ class _ClassInfoBlockCustomWidgetState
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Expanded(
-                                child: Align(
-                                  alignment: AlignmentDirectional(1.0, 0.0),
-                                  child: InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      logFirebaseEvent(
-                                          'CLASS_INFO_BLOCK_CUSTOM_Icon_hkduj7vy_ON');
-                                      logFirebaseEvent('Icon_bottom_sheet');
-                                      await showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        context: context,
-                                        builder: (context) {
-                                          return Padding(
-                                            padding: MediaQuery.viewInsetsOf(
-                                                context),
-                                            child:
-                                                ScheduleRemainderCustomWidget(
-                                              courseID:
-                                                  widget.classRecord?.courseID,
-                                            ),
-                                          );
-                                        },
-                                      ).then((value) => safeSetState(() {}));
-                                    },
-                                    child: Icon(
-                                      FFIcons.ksetting,
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      size: 28.0,
+                              if (_model.switchValue == true)
+                                Expanded(
+                                  child: Align(
+                                    alignment: AlignmentDirectional(1.0, 0.0),
+                                    child: InkWell(
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () async {
+                                        logFirebaseEvent(
+                                            'CLASS_INFO_BLOCK_CUSTOM_Icon_hkduj7vy_ON');
+                                        logFirebaseEvent('Icon_bottom_sheet');
+                                        await showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          context: context,
+                                          builder: (context) {
+                                            return Padding(
+                                              padding: MediaQuery.viewInsetsOf(
+                                                  context),
+                                              child:
+                                                  ScheduleRemainderCustomWidget(
+                                                courseID: widget
+                                                    .classRecord?.courseID,
+                                              ),
+                                            );
+                                          },
+                                        ).then((value) => safeSetState(() {}));
+                                      },
+                                      child: Icon(
+                                        FFIcons.ksetting,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        size: 28.0,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
                             ].divide(SizedBox(width: 8.0)),
                           ),
                         ),

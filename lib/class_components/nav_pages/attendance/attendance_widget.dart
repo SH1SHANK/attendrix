@@ -557,18 +557,23 @@ class _AttendanceWidgetState extends State<AttendanceWidget> {
                                               0,
                                             ),
                                             totalClasses: valueOrDefault<int>(
-                                              functions
-                                                  .calculateTotalCustomClasses(
+                                                  functions.calculateTotalCustomClasses(
                                                       listViewCustomClassesRecord
                                                           .startDate!,
                                                       listViewCustomClassesRecord
                                                           .slotData.slotMetadata
                                                           .toList()),
-                                              0,
-                                            ),
+                                                  0,
+                                                ) -
+                                                valueOrDefault<int>(
+                                                  listViewCustomClassesRecord
+                                                      .cancelledClasses.length,
+                                                  0,
+                                                ),
                                             isEditable: true,
                                             credits: 3,
                                           ),
+                                          isCustomClass: true,
                                         ),
                                       ),
                                     ),

@@ -14,32 +14,28 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'dart:ui' as ui;
+import 'package:intl/intl.dart';
 
-// Data models
-class AttendancePoint {
+// Data model for attendance trend
+class AttendanceTrendData {
   final DateTime date;
-  final double percentage;
-  final int attendedClasses;
-  final int totalClasses;
-  AttendancePoint({
-    required this.date,
-    required this.percentage,
-    required this.attendedClasses,
-    required this.totalClasses,
-  });
+  final double attendancePercentage;
+
+  AttendanceTrendData(this.date, this.attendancePercentage);
 }
 
-class CourseAttendanceData {
-  final double currentAttendance;
-  final int attendedClasses;
-  final int totalClasses;
-  final List<AttendancePoint> points;
-  CourseAttendanceData({
-    required this.currentAttendance,
-    required this.attendedClasses,
-    required this.totalClasses,
-    required this.points,
+// Summary statistics model
+class AttendanceSummary {
+  final double averageAttendance;
+  final double recentAttendance;
+  final double trendChange;
+  final bool isAboveMinimum;
+
+  AttendanceSummary({
+    required this.averageAttendance,
+    required this.recentAttendance,
+    required this.trendChange,
+    required this.isAboveMinimum,
   });
 }
 
@@ -53,11 +49,11 @@ class AttendanceGraphWidget extends StatefulWidget {
     required this.period,
   });
 
+  final double? width;
+  final double? height;
   final String userID;
   final String courseID;
   final String period;
-  final double? width;
-  final double? height;
 
   @override
   State<AttendanceGraphWidget> createState() => _AttendanceGraphWidgetState();
@@ -65,334 +61,610 @@ class AttendanceGraphWidget extends StatefulWidget {
 
 class _AttendanceGraphWidgetState extends State<AttendanceGraphWidget>
     with SingleTickerProviderStateMixin {
-  CourseAttendanceData? _data;
-  bool _isLoading = false;
-  String? _error;
-  late final AnimationController _controller;
+  List<AttendanceTrendData> attendanceData = [];
+  AttendanceSummary? summary;
+  bool isLoading = true;
+  String? error;
+  String courseName = '';
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1800),
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
       vsync: this,
-    )..repeat();
-    _fetchAttendanceData();
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    // Check if required parameters are provided
+    if (_areRequiredParametersProvided()) {
+      _loadAttendanceData();
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(AttendanceGraphWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.period != widget.period ||
+        oldWidget.courseID != widget.courseID ||
+        oldWidget.userID != widget.userID) {
+      if (_areRequiredParametersProvided()) {
+        _loadAttendanceData();
+      } else {
+        setState(() {
+          attendanceData = [];
+          summary = null;
+          isLoading = false;
+          error = null;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
-  Future<void> _fetchAttendanceData() async {
+  bool _areRequiredParametersProvided() {
+    return widget.courseID.isNotEmpty &&
+        widget.period.isNotEmpty &&
+        widget.userID.isNotEmpty;
+  }
+
+  DateTime _getStartDate() {
+    final now = DateTime.now();
+    switch (widget.period) {
+      case '7d':
+        return now.subtract(const Duration(days: 7));
+      case '14d':
+        return now.subtract(const Duration(days: 14));
+      case '30d':
+        return now.subtract(const Duration(days: 30));
+      case 'all':
+        return now.subtract(const Duration(days: 365)); // Fallback for "all"
+      default:
+        return now.subtract(const Duration(days: 7));
+    }
+  }
+
+  Future<void> _loadAttendanceData() async {
     setState(() {
-      _isLoading = true;
-      _error = null;
+      isLoading = true;
+      error = null;
     });
+
     try {
-      final response = await SupaFlow.client.rpc(
-        'get_single_course_attendance_with_padding',
-        params: {
-          'p_user_id': widget.userID,
-          'p_course_id': widget.courseID,
-          'p_period': widget.period,
-        },
-      );
-      if (response == null || response is! List) {
-        throw Exception('No data');
-      }
-      List<AttendancePoint> points = [];
-      int attended = 0, total = 0;
-      for (final row in response) {
-        final date = DateTime.parse(row['class_date']);
-        attended = row['attended_classes'] ?? attended;
-        total = row['total_classes'] ?? total;
-        final percent = row['cumulative_percent']?.toDouble() ?? 0;
-        points.add(AttendancePoint(
-          date: date,
-          percentage: percent,
-          attendedClasses: attended,
-          totalClasses: total,
-        ));
-      }
-      setState(() {
-        _data = CourseAttendanceData(
-          currentAttendance: points.isNotEmpty ? points.last.percentage : 0,
-          attendedClasses: points.isNotEmpty ? points.last.attendedClasses : 0,
-          totalClasses: points.isNotEmpty ? points.last.totalClasses : 0,
-          points: points,
-        );
-        _isLoading = false;
+      final supabase = SupaFlow.client;
+      final startDate = _getStartDate();
+      final endDate = DateTime.now();
+
+      // Get course name
+      final courseResponse = await supabase
+          .from('courseRecords')
+          .select('"courseName"')
+          .eq('courseID', widget.courseID)
+          .single();
+
+      courseName = courseResponse['courseName'] ?? 'Unknown Course';
+
+      // Get attendance data with daily aggregation
+      final attendanceResponse =
+          await supabase.rpc('get_daily_attendance_percentage', params: {
+        'user_id': widget.userID,
+        'course_id': widget.courseID,
+        'start_date': startDate.toIso8601String(),
+        'end_date': endDate.toIso8601String(),
       });
+
+      // Parse the response and create trend data
+      final List<AttendanceTrendData> trendData = [];
+
+      if (attendanceResponse is List) {
+        for (final record in attendanceResponse) {
+          final date = DateTime.parse(record['date']);
+          final percentage =
+              (record['attendance_percentage'] as num).toDouble();
+          trendData.add(AttendanceTrendData(date, percentage));
+        }
+      }
+
+      // Sort by date
+      trendData.sort((a, b) => a.date.compareTo(b.date));
+
+      // Calculate summary statistics
+      final summaryStats = _calculateSummary(trendData);
+
+      setState(() {
+        attendanceData = trendData;
+        summary = summaryStats;
+        isLoading = false;
+      });
+
+      _animationController.forward();
     } catch (e) {
       setState(() {
-        _error = e.toString();
-        _isLoading = false;
+        error = 'Unable to load attendance data. Please try again later.';
+        isLoading = false;
+        attendanceData = [];
+        summary = null;
       });
     }
   }
 
-  List<AttendancePoint> _minAttendanceLine() {
-    if (_data == null || _data!.points.isEmpty) return [];
-    return [
-      AttendancePoint(
-        date: _data!.points.first.date,
-        percentage: 80,
-        attendedClasses: 0,
-        totalClasses: 0,
-      ),
-      AttendancePoint(
-        date: _data!.points.last.date,
-        percentage: 80,
-        attendedClasses: 0,
-        totalClasses: 0,
-      ),
-    ];
-  }
-
-  List<AttendancePoint> _reducePoints(List<AttendancePoint> points) {
-    if (widget.period == '30d' || widget.period == '90d') {
-      return [
-        for (int i = 0; i < points.length; i += 2) points[i],
-        if (points.length % 2 == 0) points.last
-      ];
+  AttendanceSummary _calculateSummary(List<AttendanceTrendData> data) {
+    if (data.isEmpty) {
+      return AttendanceSummary(
+        averageAttendance: 0.0,
+        recentAttendance: 0.0,
+        trendChange: 0.0,
+        isAboveMinimum: false,
+      );
     }
-    return points;
-  }
 
-  Widget _buildShimmerText(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return ShaderMask(
-          shaderCallback: (Rect bounds) {
-            return LinearGradient(
-              colors: [
-                theme.primary,
-                theme.secondary,
-                theme.primary,
-              ],
-              stops: [
-                (_controller.value - 0.3).clamp(0.0, 1.0),
-                _controller.value,
-                (_controller.value + 0.3).clamp(0.0, 1.0),
-              ],
-            ).createShader(bounds);
-          },
-          child: Text(
-            'Getting your attendance data…',
-            style: theme.bodyLarge.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              letterSpacing: 1.1,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        );
-      },
+    final average =
+        data.map((e) => e.attendancePercentage).reduce((a, b) => a + b) /
+            data.length;
+    final recent = data.last.attendancePercentage;
+
+    // Calculate trend change (comparing recent vs earlier average)
+    double trendChange = 0.0;
+    if (data.length > 1) {
+      final earlierAverage = data.length > 3
+          ? data
+                  .take(data.length ~/ 2)
+                  .map((e) => e.attendancePercentage)
+                  .reduce((a, b) => a + b) /
+              (data.length ~/ 2)
+          : data.first.attendancePercentage;
+      trendChange = recent - earlierAverage;
+    }
+
+    return AttendanceSummary(
+      averageAttendance: average,
+      recentAttendance: recent,
+      trendChange: trendChange,
+      isAboveMinimum: recent >= 80.0,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
-    final isBelowMin =
-        _data?.currentAttendance != null && _data!.currentAttendance < 80;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = FlutterFlowTheme.of(context).primary;
 
     return Container(
-      width: widget.width ?? double.infinity,
-      height: widget.height ?? 420,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: theme.alternate.withOpacity(0.07),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+      width: widget.width,
+      height: widget.height,
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Section
+          _buildHeader(isDarkMode),
+
+          const SizedBox(height: 20),
+
+          // Chart Section
+          Expanded(
+            child: !_areRequiredParametersProvided()
+                ? _buildEmptyWidget()
+                : isLoading
+                    ? _buildLoadingIndicator()
+                    : error != null
+                        ? _buildErrorWidget()
+                        : _buildChart(isDarkMode, primaryColor),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Summary Card
+          if (summary != null && !isLoading && _areRequiredParametersProvided())
+            _buildSummaryCard(isDarkMode),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(bool isDarkMode) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            courseName.isNotEmpty ? courseName : 'Course Attendance',
+            style: FlutterFlowTheme.of(context).headlineMedium.override(
+                  fontFamily: 'Inter',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _areRequiredParametersProvided()
+                ? 'Attendance Trend - ${_getPeriodLabel()}'
+                : 'Please provide course and period information',
+            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  color: FlutterFlowTheme.of(context).secondaryText,
+                ),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.primaryBackground.withAlpha((0.85 * 255).toInt()),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: isBelowMin
-                    ? Colors.amber.withAlpha((0.5 * 255).toInt())
-                    : theme.alternate.withAlpha((0.12 * 255).toInt()),
-                width: 2,
+    );
+  }
+
+  String _getPeriodLabel() {
+    switch (widget.period) {
+      case '7d':
+        return 'Last 7 Days';
+      case '14d':
+        return 'Last 14 Days';
+      case '30d':
+        return 'Last 30 Days';
+      case 'all':
+        return 'All Time';
+      default:
+        return 'Last 7 Days';
+    }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: CircularProgressIndicator(
+        color: FlutterFlowTheme.of(context).primary,
+      ),
+    );
+  }
+
+  Widget _buildEmptyWidget() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: FlutterFlowTheme.of(context).secondaryBackground,
+        border: Border.all(
+          color: FlutterFlowTheme.of(context).alternate,
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: 48,
+              color: FlutterFlowTheme.of(context).secondaryText,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Data Available',
+              style: FlutterFlowTheme.of(context).bodyLarge.override(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please ensure course ID and period are provided',
+              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    color: FlutterFlowTheme.of(context).secondaryText,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: FlutterFlowTheme.of(context).secondaryBackground,
+        border: Border.all(
+          color: FlutterFlowTheme.of(context).alternate,
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: FlutterFlowTheme.of(context).warning,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Service Temporarily Unavailable',
+              style: FlutterFlowTheme.of(context).bodyLarge.override(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please try again in a moment',
+              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    color: FlutterFlowTheme.of(context).secondaryText,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                if (_areRequiredParametersProvided()) {
+                  _loadAttendanceData();
+                }
+              },
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text('Retry'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: FlutterFlowTheme.of(context).primary,
+                foregroundColor: FlutterFlowTheme.of(context).info,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Attendance Trend',
-                        style: theme.titleLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (_isLoading) _buildShimmerText(context),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (_error != null)
-                    Center(
-                      child: Text(
-                        _error!,
-                        style: theme.bodyMedium.copyWith(
-                          color: theme.error,
-                        ),
-                      ),
-                    ),
-                  if (!_isLoading && _data != null)
-                    Expanded(
-                      child: SfCartesianChart(
-                        margin: const EdgeInsets.symmetric(vertical: 12),
-                        primaryXAxis: DateTimeAxis(
-                          intervalType: DateTimeIntervalType.days,
-                          interval:
-                              widget.period == '30d' || widget.period == '90d'
-                                  ? 2
-                                  : 1,
-                          dateFormat:
-                              widget.period == '7d' || widget.period == '14d'
-                                  ? DateFormat('EEE')
-                                  : DateFormat('dd MMM'),
-                          majorGridLines: const MajorGridLines(width: 0.2),
-                          axisLine: const AxisLine(width: 0.5),
-                        ),
-                        primaryYAxis: NumericAxis(
-                          minimum: 0,
-                          maximum: 100,
-                          interval: 10,
-                          majorGridLines: const MajorGridLines(width: 0.1),
-                          axisLine: const AxisLine(width: 0.5),
-                          title: AxisTitle(text: 'Attendance (%)'),
-                        ),
-                        series: <CartesianSeries>[
-                          AreaSeries<AttendancePoint, DateTime>(
-                            dataSource: _reducePoints(_data!.points),
-                            xValueMapper: (AttendancePoint p, _) => p.date,
-                            yValueMapper: (AttendancePoint p, _) =>
-                                p.percentage,
-                            color: isBelowMin
-                                ? Colors.amber.withAlpha((0.3 * 255).toInt())
-                                : theme.primary.withAlpha((0.3 * 255).toInt()),
-                            borderColor:
-                                isBelowMin ? Colors.amber : theme.primary,
-                            borderWidth: 2,
-                            markerSettings:
-                                const MarkerSettings(isVisible: true),
-                            animationDuration: 1200,
-                          ),
-                          LineSeries<AttendancePoint, DateTime>(
-                            dataSource: _minAttendanceLine(),
-                            xValueMapper: (AttendancePoint p, _) => p.date,
-                            yValueMapper: (AttendancePoint p, _) =>
-                                p.percentage,
-                            color: Colors.amber,
-                            dashArray: const <double>[8, 5],
-                            width: 2,
-                            name: 'Minimum 80%',
-                            markerSettings:
-                                const MarkerSettings(isVisible: false),
-                          ),
-                        ],
-                        legend: Legend(isVisible: false),
-                        tooltipBehavior: TooltipBehavior(enable: true),
-                      ),
-                    ),
-                  if (!_isLoading && _data != null)
-                    Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 18, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: isBelowMin
-                            ? Colors.amber.withAlpha((0.18 * 255).toInt())
-                            : theme.secondaryBackground
-                                .withAlpha((0.7 * 255).toInt()),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isBelowMin
-                              ? Colors.amber
-                              : theme.alternate.withAlpha((0.15 * 255).toInt()),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isBelowMin
-                                ? Icons.warning_amber_rounded
-                                : Icons.check_circle_rounded,
-                            color: isBelowMin ? Colors.amber : Colors.green,
-                            size: 26,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Current Attendance',
-                                  style: theme.bodyMedium,
-                                ),
-                                Text(
-                                  '${_data!.currentAttendance.toStringAsFixed(1)}%',
-                                  style: theme.titleLarge.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: isBelowMin
-                                        ? Colors.amber[900]
-                                        : Colors.green[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '${_data!.attendedClasses}/${_data!.totalClasses} Classes',
-                                style: theme.bodyMedium,
-                              ),
-                              Text(
-                                isBelowMin
-                                    ? 'Below minimum (80%)'
-                                    : 'Above minimum (80%)',
-                                style: theme.bodyMedium.copyWith(
-                                  color: isBelowMin
-                                      ? Colors.amber[900]
-                                      : Colors.green[800],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChart(bool isDarkMode, Color primaryColor) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+        ),
+        padding: const EdgeInsets.all(16),
+        child: SfCartesianChart(
+          primaryXAxis: DateTimeAxis(
+            dateFormat: DateFormat('MM/dd'),
+            intervalType: DateTimeIntervalType.days,
+            majorGridLines: const MajorGridLines(width: 0),
+            axisLine: const AxisLine(width: 0),
+            labelStyle: TextStyle(
+              color: FlutterFlowTheme.of(context).secondaryText,
+              fontSize: 12,
+            ),
+          ),
+          primaryYAxis: NumericAxis(
+            minimum: 0,
+            maximum: 100,
+            interval: 20,
+            axisLine: const AxisLine(width: 0),
+            majorTickLines: const MajorTickLines(width: 0),
+            labelFormat: '{value}%',
+            labelStyle: TextStyle(
+              color: FlutterFlowTheme.of(context).secondaryText,
+              fontSize: 12,
+            ),
+            majorGridLines: MajorGridLines(
+              width: 1,
+              color: FlutterFlowTheme.of(context).alternate,
+            ),
+          ),
+          tooltipBehavior: TooltipBehavior(
+            enable: true,
+            format: 'point.x: point.y%',
+            borderWidth: 0,
+            color: FlutterFlowTheme.of(context).secondaryBackground,
+            textStyle: TextStyle(
+              color: FlutterFlowTheme.of(context).primaryText,
+            ),
+          ),
+          series: <CartesianSeries>[
+            SplineAreaSeries<AttendanceTrendData, DateTime>(
+              dataSource: attendanceData,
+              xValueMapper: (data, _) => data.date,
+              yValueMapper: (data, _) => data.attendancePercentage,
+              splineType: SplineType.natural,
+              color: primaryColor.withValues(alpha: 0.3),
+              borderColor: primaryColor,
+              borderWidth: 2,
+              animationDuration: 1000,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  primaryColor.withValues(alpha: 0.4),
+                  primaryColor.withValues(alpha: 0.1),
                 ],
               ),
             ),
-          ),
+          ],
+          annotations: <CartesianChartAnnotation>[
+            CartesianChartAnnotation(
+              widget: Container(
+                width: double.infinity,
+                height: 1,
+                decoration: BoxDecoration(
+                  color:
+                      FlutterFlowTheme.of(context).error.withValues(alpha: 0.6),
+                  border: Border.all(
+                    color: FlutterFlowTheme.of(context).error,
+                    width: 1,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+              ),
+              coordinateUnit: CoordinateUnit.point,
+              x: attendanceData.isNotEmpty
+                  ? attendanceData.first.date
+                  : DateTime.now(),
+              y: 80,
+              horizontalAlignment: ChartAlignment.far,
+              verticalAlignment: ChartAlignment.center,
+            ),
+            CartesianChartAnnotation(
+              widget: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color:
+                      FlutterFlowTheme.of(context).error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: FlutterFlowTheme.of(context)
+                        .error
+                        .withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text(
+                  'Min: 80%',
+                  style: TextStyle(
+                    color: FlutterFlowTheme.of(context).error,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              coordinateUnit: CoordinateUnit.point,
+              x: attendanceData.isNotEmpty
+                  ? attendanceData.first.date
+                  : DateTime.now(),
+              y: 80,
+              horizontalAlignment: ChartAlignment.near,
+              verticalAlignment: ChartAlignment.near,
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard(bool isDarkMode) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: FlutterFlowTheme.of(context).secondaryBackground,
+          boxShadow: [
+            BoxShadow(
+              color:
+                  FlutterFlowTheme.of(context).alternate.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Summary',
+              style: FlutterFlowTheme.of(context).bodyLarge.override(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildSummaryItem(
+                  'Average',
+                  '${summary!.averageAttendance.toStringAsFixed(1)}%',
+                  Icons.trending_up,
+                  isDarkMode,
+                ),
+                _buildSummaryItem(
+                  'Recent',
+                  '${summary!.recentAttendance.toStringAsFixed(1)}%',
+                  Icons.today,
+                  isDarkMode,
+                  statusColor: summary!.isAboveMinimum
+                      ? FlutterFlowTheme.of(context).success
+                      : FlutterFlowTheme.of(context).error,
+                ),
+                _buildSummaryItem(
+                  'Trend',
+                  '${summary!.trendChange >= 0 ? '+' : ''}${summary!.trendChange.toStringAsFixed(1)}%',
+                  summary!.trendChange >= 0
+                      ? Icons.arrow_upward
+                      : Icons.arrow_downward,
+                  isDarkMode,
+                  trendColor: summary!.trendChange >= 0
+                      ? FlutterFlowTheme.of(context).success
+                      : FlutterFlowTheme.of(context).error,
+                ),
+                _buildSummaryItem(
+                  'Status',
+                  summary!.isAboveMinimum ? 'Safe' : 'At Risk',
+                  summary!.isAboveMinimum ? Icons.check_circle : Icons.warning,
+                  isDarkMode,
+                  statusColor: summary!.isAboveMinimum
+                      ? FlutterFlowTheme.of(context).success
+                      : FlutterFlowTheme.of(context).error,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(
+      String label, String value, IconData icon, bool isDarkMode,
+      {Color? trendColor, Color? statusColor}) {
+    final displayColor =
+        trendColor ?? statusColor ?? FlutterFlowTheme.of(context).secondaryText;
+
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: displayColor,
+            size: 20,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  fontFamily: 'Outfit',
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: displayColor,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            label,
+            style: FlutterFlowTheme.of(context).bodySmall.override(
+                  fontFamily: 'Outfit',
+                  fontSize: 11,
+                  color: FlutterFlowTheme.of(context).secondaryText,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

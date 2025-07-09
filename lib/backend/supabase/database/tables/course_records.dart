@@ -41,9 +41,9 @@ class CourseRecordsRow extends SupabaseDataRow {
   set electiveScope(List<String>? value) =>
       setListField<String>('electiveScope', value);
 
-  String? get classDate => getField<String>('classDate');
-  set classDate(String? value) => setField<String>('classDate', value);
-
   int get enrolledStudents => getField<int>('enrolledStudents')!;
   set enrolledStudents(int value) => setField<int>('enrolledStudents', value);
+
+  String? get departmentId => getField<String>('department_id');
+  set departmentId(String? value) => setField<String>('department_id', value);
 }

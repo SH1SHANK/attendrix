@@ -25,3 +25,6 @@ export 'mark_all_courses_editable.dart' show markAllCoursesEditable;
 export 'grade_calculator.dart' show gradeCalculator;
 export 'check_attendance.dart' show checkAttendance;
 export 'extract_metadata.dart' show extractMetadata;
+export 'remove_course_classes.dart' show removeCourseClasses;
+export 'run_if_stale.dart' show runIfStale;
+export 'send_notification.dart' show sendNotification;

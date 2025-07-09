@@ -52,8 +52,8 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 220.0,
-      height: 200.0,
+      width: 250.0,
+      height: 260.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).secondaryBackground,
         boxShadow: [
@@ -73,6 +73,7 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
         padding: EdgeInsetsDirectional.fromSTEB(8.0, 6.0, 8.0, 6.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
@@ -83,7 +84,7 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                 style: FlutterFlowTheme.of(context).headlineSmall.override(
                       fontFamily:
                           FlutterFlowTheme.of(context).headlineSmallFamily,
-                      fontSize: 16.0,
+                      fontSize: 20.0,
                       letterSpacing: 0.0,
                       useGoogleFonts:
                           !FlutterFlowTheme.of(context).headlineSmallIsCustom,
@@ -101,7 +102,7 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                         fontStyle:
                             FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                       ),
-                      fontSize: 12.0,
+                      fontSize: 15.0,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.w500,
                       fontStyle:
@@ -145,8 +146,8 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                 },
                 text: ' Yes, Cancel',
                 options: FFButtonOptions(
-                  width: 200.0,
-                  height: 30.0,
+                  width: double.infinity,
+                  height: 38.0,
                   padding: EdgeInsets.all(8.0),
                   iconPadding:
                       EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
@@ -160,7 +161,7 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                               FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         ),
                         color: FlutterFlowTheme.of(context).info,
-                        fontSize: 12.0,
+                        fontSize: 16.0,
                         letterSpacing: 0.0,
                         fontWeight:
                             FlutterFlowTheme.of(context).bodyMedium.fontWeight,
@@ -186,12 +187,12 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                 },
                 text: 'Nevermind',
                 options: FFButtonOptions(
-                  width: 200.0,
-                  height: 30.0,
+                  width: double.infinity,
+                  height: 38.0,
                   padding: EdgeInsets.all(8.0),
                   iconPadding:
                       EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                  color: FlutterFlowTheme.of(context).primaryBackground,
+                  color: FlutterFlowTheme.of(context).alternate,
                   textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
                         font: GoogleFonts.outfit(
                           fontWeight: FlutterFlowTheme.of(context)
@@ -201,7 +202,7 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                               FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         ),
                         color: FlutterFlowTheme.of(context).primaryText,
-                        fontSize: 12.0,
+                        fontSize: 16.0,
                         letterSpacing: 0.0,
                         fontWeight:
                             FlutterFlowTheme.of(context).bodyMedium.fontWeight,
@@ -216,7 +217,7 @@ class _CancelCustomClassWidgetState extends State<CancelCustomClassWidget> {
                 ),
               ),
             ),
-          ].addToStart(SizedBox(height: 20.0)),
+          ],
         ),
       ),
     );

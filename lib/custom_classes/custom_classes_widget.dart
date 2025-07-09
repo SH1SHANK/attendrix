@@ -1,7 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/class_info_block_custom_widget.dart';
-import '/components/custom_class_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -58,56 +57,45 @@ class _CustomClassesWidgetState extends State<CustomClassesWidget> {
           child: Scaffold(
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            floatingActionButton: Builder(
-              builder: (context) => FloatingActionButton.extended(
-                onPressed: () async {
-                  logFirebaseEvent('CUSTOM_CLASSES_FloatingActionButton_rrxz');
-                  logFirebaseEvent('FloatingActionButton_alert_dialog');
-                  await showDialog(
-                    context: context,
-                    builder: (dialogContext) {
-                      return Dialog(
-                        elevation: 0,
-                        insetPadding: EdgeInsets.zero,
-                        backgroundColor: Colors.transparent,
-                        alignment: AlignmentDirectional(0.0, 0.0)
-                            .resolve(Directionality.of(context)),
-                        child: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(dialogContext).unfocus();
-                            FocusManager.instance.primaryFocus?.unfocus();
-                          },
-                          child: CustomClassWidget(),
-                        ),
-                      );
-                    },
-                  );
-                },
-                backgroundColor: FlutterFlowTheme.of(context).primary,
-                icon: Icon(
-                  FFIcons.kplus,
-                  color: FlutterFlowTheme.of(context).info,
-                  size: 24.0,
-                ),
-                elevation: 8.0,
-                label: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(
-                      'Add Class',
-                      style: FlutterFlowTheme.of(context).labelLarge.override(
-                            fontFamily:
-                                FlutterFlowTheme.of(context).labelLargeFamily,
-                            color: FlutterFlowTheme.of(context).info,
-                            fontSize: 14.0,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.bold,
-                            useGoogleFonts: !FlutterFlowTheme.of(context)
-                                .labelLargeIsCustom,
-                          ),
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: () async {
+                logFirebaseEvent('CUSTOM_CLASSES_FloatingActionButton_rrxz');
+                logFirebaseEvent('FloatingActionButton_navigate_to');
+
+                context.pushNamed(
+                  CreateCustomClassWidget.routeName,
+                  extra: <String, dynamic>{
+                    kTransitionInfoKey: TransitionInfo(
+                      hasTransition: true,
+                      transitionType: PageTransitionType.rightToLeft,
                     ),
-                  ],
-                ),
+                  },
+                );
+              },
+              backgroundColor: FlutterFlowTheme.of(context).primary,
+              icon: Icon(
+                FFIcons.kplus,
+                color: FlutterFlowTheme.of(context).info,
+                size: 24.0,
+              ),
+              elevation: 8.0,
+              label: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(
+                    'Add Class',
+                    style: FlutterFlowTheme.of(context).labelLarge.override(
+                          fontFamily:
+                              FlutterFlowTheme.of(context).labelLargeFamily,
+                          color: FlutterFlowTheme.of(context).info,
+                          fontSize: 14.0,
+                          letterSpacing: 0.0,
+                          fontWeight: FontWeight.bold,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).labelLargeIsCustom,
+                        ),
+                  ),
+                ],
               ),
             ),
             body: SafeArea(

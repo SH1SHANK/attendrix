@@ -80,6 +80,69 @@ class SupabaseAdminVerificationCall {
       ));
 }
 
+class ApodApiCall {
+  static Future<ApiCallResponse> call({
+    String? apiKey,
+    String? date = '2025-07-04',
+  }) async {
+    apiKey ??= FFDevEnvironmentValues().APODKEY;
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'APOD API ',
+      apiUrl: 'https://api.nasa.gov/planetary/apod',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {
+        'api_key': apiKey,
+        'thumbs': true,
+        'date': date,
+      },
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: true,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? date(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.date''',
+      ));
+  static String? description(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.explanation''',
+      ));
+  static String? mediaType(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.media_type''',
+      ));
+  static String? title(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.title''',
+      ));
+  static String? previewURL(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.url''',
+      ));
+  static String? hdURL(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.hdurl''',
+      ));
+  static String? copyright(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.copyright''',
+      ));
+  static String? thumbnailURL(dynamic response) =>
+      castToType<String>(getJsonField(
+        response,
+        r'''$.thumbnail_url''',
+      ));
+}
+
 class ApiPagingParams {
   int nextPageNumber = 0;
   int numItems = 0;

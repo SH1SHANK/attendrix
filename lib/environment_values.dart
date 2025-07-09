@@ -20,8 +20,12 @@ class FFDevEnvironmentValues {
       final String response =
           await rootBundle.loadString(environmentValuesPath);
       final data = await json.decode(response);
+      _APODKEY = data['APODKEY'];
     } catch (e) {
       print('Error loading environment values: $e');
     }
   }
+
+  String _APODKEY = '';
+  String get APODKEY => _APODKEY;
 }

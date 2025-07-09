@@ -1,9 +1,11 @@
+import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
 import '/class_components/class_block_primary/class_block_primary_widget.dart';
 import '/class_components/class_block_secondary/class_block_secondary_widget.dart';
 import '/class_components/class_block_upcoming/class_block_upcoming_widget.dart';
+import '/components/a_p_o_d_previw_component_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/request_manager.dart';
 
@@ -35,8 +37,10 @@ class DashboardModel extends FlutterFlowModel<DashboardWidget> {
   List<ClassRowStruct>? customClassesQuery;
   // Stores action output result for [Custom Action - updateAttendanceCounts] action in dashboard widget.
   String? updateFeedback;
-  // Stores action output result for [Custom Action - manageUserChallenges] action in dashboard widget.
-  String? newChallengesFeedback;
+  // Stores action output result for [Backend Call - API (APOD API )] action in dashboard widget.
+  ApiCallResponse? apodResult;
+  // Model for APODPreviwComponent component.
+  late APODPreviwComponentModel aPODPreviwComponentModel;
   // State field(s) for TabBar widget.
   TabController? tabBarController;
   int get tabBarCurrentIndex =>
@@ -74,6 +78,8 @@ class DashboardModel extends FlutterFlowModel<DashboardWidget> {
 
   @override
   void initState(BuildContext context) {
+    aPODPreviwComponentModel =
+        createModel(context, () => APODPreviwComponentModel());
     classBlockPrimaryModels =
         FlutterFlowDynamicModels(() => ClassBlockPrimaryModel());
     classBlockSecondaryModels =
@@ -84,6 +90,7 @@ class DashboardModel extends FlutterFlowModel<DashboardWidget> {
 
   @override
   void dispose() {
+    aPODPreviwComponentModel.dispose();
     tabBarController?.dispose();
     classBlockPrimaryModels.dispose();
     classBlockSecondaryModels.dispose();

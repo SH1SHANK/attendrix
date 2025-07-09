@@ -25,6 +25,17 @@ enum RecordType {
   customClass,
 }
 
+enum HolidayType {
+  holiday,
+  exam,
+  event,
+  vacation,
+  midsem,
+  endsem,
+  fest,
+  other,
+}
+
 extension FFEnumExtensions<T extends Enum> on T {
   String serialize() => name;
 }
@@ -44,6 +55,8 @@ T? deserializeEnum<T>(String? value) {
       return ChallengeType.values.deserialize(value) as T?;
     case (RecordType):
       return RecordType.values.deserialize(value) as T?;
+    case (HolidayType):
+      return HolidayType.values.deserialize(value) as T?;
     default:
       return null;
   }

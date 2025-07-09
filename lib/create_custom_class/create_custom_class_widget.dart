@@ -9,6 +9,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
+import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -310,6 +311,20 @@ class _CreateCustomClassWidgetState extends State<CreateCustomClassWidget> {
                                           !FlutterFlowTheme.of(context)
                                               .labelLargeIsCustom,
                                     ),
+                                counterStyle: FlutterFlowTheme.of(context)
+                                    .labelLarge
+                                    .override(
+                                      fontFamily: FlutterFlowTheme.of(context)
+                                          .labelLargeFamily,
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryText,
+                                      fontSize: 10.0,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w600,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .labelLargeIsCustom,
+                                    ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color:
@@ -357,14 +372,9 @@ class _CreateCustomClassWidgetState extends State<CreateCustomClassWidget> {
                                   ),
                               maxLines: 5,
                               minLines: 3,
-                              maxLength: 200,
+                              maxLength: 250,
                               maxLengthEnforcement:
                                   MaxLengthEnforcement.enforced,
-                              buildCounter: (context,
-                                      {required currentLength,
-                                      required isFocused,
-                                      maxLength}) =>
-                                  null,
                               validator: _model.textController2Validator
                                   .asValidator(context),
                             ),
@@ -1004,37 +1014,45 @@ class _CreateCustomClassWidgetState extends State<CreateCustomClassWidget> {
                           }
                         },
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Toggle Notifications',
-                            style: FlutterFlowTheme.of(context)
-                                .labelLarge
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .labelLargeFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .labelLargeIsCustom,
-                                ),
-                          ),
-                          Switch.adaptive(
-                            value: _model.switchValue!,
-                            onChanged: (newValue) async {
-                              safeSetState(
-                                  () => _model.switchValue = newValue);
-                            },
-                            activeColor: FlutterFlowTheme.of(context).info,
-                            activeTrackColor:
-                                FlutterFlowTheme.of(context).tertiary,
-                            inactiveTrackColor:
-                                FlutterFlowTheme.of(context).alternate,
-                            inactiveThumbColor:
-                                FlutterFlowTheme.of(context).info,
-                          ),
-                        ],
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Toggle Notifications',
+                              style: FlutterFlowTheme.of(context)
+                                  .labelLarge
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .labelLargeFamily,
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.bold,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .labelLargeIsCustom,
+                                  ),
+                            ),
+                            Switch.adaptive(
+                              value: _model.switchValue!,
+                              onChanged: (newValue) async {
+                                safeSetState(
+                                    () => _model.switchValue = newValue);
+                              },
+                              activeColor: FlutterFlowTheme.of(context).info,
+                              activeTrackColor:
+                                  FlutterFlowTheme.of(context).tertiary,
+                              inactiveTrackColor:
+                                  FlutterFlowTheme.of(context).alternate,
+                              inactiveThumbColor:
+                                  FlutterFlowTheme.of(context).info,
+                            ),
+                          ],
+                        ),
                       ),
                       if (_model.switchValue ?? true)
                         Padding(
@@ -1053,8 +1071,11 @@ class _CreateCustomClassWidgetState extends State<CreateCustomClassWidget> {
                                       .override(
                                         fontFamily: FlutterFlowTheme.of(context)
                                             .labelLargeFamily,
-                                        fontSize: 13.0,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontSize: 12.0,
                                         letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
                                         useGoogleFonts:
                                             !FlutterFlowTheme.of(context)
                                                 .labelLargeIsCustom,
@@ -1122,159 +1143,223 @@ class _CreateCustomClassWidgetState extends State<CreateCustomClassWidget> {
                         children: [
                           Expanded(
                             child: FFButtonWidget(
-                              onPressed: () async {
-                                logFirebaseEvent(
-                                    'CREATE_CUSTOM_CLASS_SAVE_CLASS_BTN_ON_TA');
-                                logFirebaseEvent('Button_backend_call');
+                              onPressed: !((_model.addedSlots.isNotEmpty) ||
+                                      (_model.textController1.text != '') ||
+                                      (_model.textController2.text != '') ||
+                                      (_model.startDate?.secondsSinceEpoch !=
+                                          null))
+                                  ? null
+                                  : () async {
+                                      logFirebaseEvent(
+                                          'CREATE_CUSTOM_CLASS_SAVE_CLASS_BTN_ON_TA');
+                                      logFirebaseEvent('Button_backend_call');
 
-                                var customClassesRecordReference =
-                                    CustomClassesRecord.createDoc(
-                                        currentUserReference!);
-                                await customClassesRecordReference
-                                    .set(createCustomClassesRecordData(
-                                  courseName: _model.textController1.text,
-                                  courseDescription:
-                                      _model.textController2.text,
-                                  isCustomSlot: _model.isCustomSlot,
-                                  slotData: updateSlotInfoStruct(
-                                    _model.isCustomSlot
-                                        ? SlotInfoStruct(
-                                            slotName:
-                                                _model.textController4.text,
-                                            slotMetadata: _model.addedSlots,
-                                          )
-                                        : _model.instituteSlotsCall
-                                            .where((e) =>
-                                                e.slotName ==
-                                                _model.dropDownValue2)
-                                            .toList()
-                                            .firstOrNull,
-                                    clearUnsetFields: false,
-                                    create: true,
-                                  ),
-                                  toggleNotfications: _model.switchValue,
-                                  notificationMinutesBefore:
-                                      valueOrDefault<int>(
-                                    _model.countControllerValue,
-                                    0,
-                                  ),
-                                  classAssets: _model.textController3.text,
-                                  courseID: functions
-                                      .randomNumberGenerator(
-                                          10000000,
-                                          99999999,
-                                          getCurrentTimestamp
-                                              .microsecondsSinceEpoch
-                                              .toString())
-                                      .toString(),
-                                  startDate: _model.startDate,
-                                ));
-                                _model.generatedCustomClass =
-                                    CustomClassesRecord.getDocumentFromData(
-                                        createCustomClassesRecordData(
-                                          courseName:
-                                              _model.textController1.text,
-                                          courseDescription:
-                                              _model.textController2.text,
-                                          isCustomSlot: _model.isCustomSlot,
-                                          slotData: updateSlotInfoStruct(
-                                            _model.isCustomSlot
-                                                ? SlotInfoStruct(
-                                                    slotName: _model
-                                                        .textController4.text,
-                                                    slotMetadata:
-                                                        _model.addedSlots,
-                                                  )
-                                                : _model.instituteSlotsCall
-                                                    .where((e) =>
-                                                        e.slotName ==
-                                                        _model.dropDownValue2)
-                                                    .toList()
-                                                    .firstOrNull,
-                                            clearUnsetFields: false,
-                                            create: true,
-                                          ),
-                                          toggleNotfications:
-                                              _model.switchValue,
-                                          notificationMinutesBefore:
-                                              valueOrDefault<int>(
-                                            _model.countControllerValue,
-                                            0,
-                                          ),
-                                          classAssets:
-                                              _model.textController3.text,
-                                          courseID: functions
-                                              .randomNumberGenerator(
-                                                  10000000,
-                                                  99999999,
-                                                  getCurrentTimestamp
-                                                      .microsecondsSinceEpoch
-                                                      .toString())
-                                              .toString(),
-                                          startDate: _model.startDate,
+                                      var customClassesRecordReference =
+                                          CustomClassesRecord.createDoc(
+                                              currentUserReference!);
+                                      await customClassesRecordReference
+                                          .set(createCustomClassesRecordData(
+                                        courseName: _model.textController1.text,
+                                        courseDescription:
+                                            _model.textController2.text,
+                                        isCustomSlot: _model.isCustomSlot,
+                                        slotData: updateSlotInfoStruct(
+                                          _model.isCustomSlot
+                                              ? SlotInfoStruct(
+                                                  slotName: _model
+                                                      .textController4.text,
+                                                  slotMetadata:
+                                                      _model.addedSlots,
+                                                )
+                                              : _model.instituteSlotsCall
+                                                  .where((e) =>
+                                                      e.slotName ==
+                                                      _model.dropDownValue2)
+                                                  .toList()
+                                                  .firstOrNull,
+                                          clearUnsetFields: false,
+                                          create: true,
                                         ),
-                                        customClassesRecordReference);
-                                logFirebaseEvent('Button_backend_call');
-                                await NotificationsConfigTable().insert({
-                                  'course_id':
-                                      _model.generatedCustomClass?.courseID,
-                                  'user_id': currentUserUid,
-                                  'slot_data': getJsonField(
-                                    (_model.isCustomSlot
-                                            ? SlotInfoStruct(
-                                                slotName:
-                                                    _model.textController4.text,
-                                                slotMetadata: _model.addedSlots,
-                                              )
-                                            : _model.instituteSlotsCall
-                                                .where((e) =>
-                                                    e.slotName ==
-                                                    _model.dropDownValue2)
-                                                .toList()
-                                                .firstOrNull)
-                                        ?.toMap(),
-                                    r'''$.slotMetadata''',
-                                  ),
-                                  'toggle_notifications': _model.switchValue,
-                                  'minutes_before_class': valueOrDefault<int>(
-                                    _model.countControllerValue,
-                                    15,
-                                  ),
-                                  'class_name': _model.textController1.text,
-                                  'username': currentUserDisplayName,
-                                  'is_active': true,
-                                });
-                                logFirebaseEvent('Button_show_snack_bar');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '${_model.textController1.text} Class Added Successfully!',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelLarge
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelLargeFamily,
-                                            color: FlutterFlowTheme.of(context)
-                                                .info,
-                                            letterSpacing: 0.0,
-                                            useGoogleFonts:
-                                                !FlutterFlowTheme.of(context)
-                                                    .labelLargeIsCustom,
+                                        toggleNotfications: _model.switchValue,
+                                        notificationMinutesBefore:
+                                            valueOrDefault<int>(
+                                          _model.countControllerValue,
+                                          10,
+                                        ),
+                                        classAssets:
+                                            _model.textController3.text,
+                                        courseID: functions
+                                            .randomNumberGenerator(
+                                                10000000,
+                                                99999999,
+                                                getCurrentTimestamp
+                                                    .microsecondsSinceEpoch
+                                                    .toString())
+                                            .toString(),
+                                        startDate: _model.startDate,
+                                      ));
+                                      _model.generatedCustomClass =
+                                          CustomClassesRecord
+                                              .getDocumentFromData(
+                                                  createCustomClassesRecordData(
+                                                    courseName: _model
+                                                        .textController1.text,
+                                                    courseDescription: _model
+                                                        .textController2.text,
+                                                    isCustomSlot:
+                                                        _model.isCustomSlot,
+                                                    slotData:
+                                                        updateSlotInfoStruct(
+                                                      _model.isCustomSlot
+                                                          ? SlotInfoStruct(
+                                                              slotName: _model
+                                                                  .textController4
+                                                                  .text,
+                                                              slotMetadata: _model
+                                                                  .addedSlots,
+                                                            )
+                                                          : _model
+                                                              .instituteSlotsCall
+                                                              .where((e) =>
+                                                                  e.slotName ==
+                                                                  _model
+                                                                      .dropDownValue2)
+                                                              .toList()
+                                                              .firstOrNull,
+                                                      clearUnsetFields: false,
+                                                      create: true,
+                                                    ),
+                                                    toggleNotfications:
+                                                        _model.switchValue,
+                                                    notificationMinutesBefore:
+                                                        valueOrDefault<int>(
+                                                      _model
+                                                          .countControllerValue,
+                                                      10,
+                                                    ),
+                                                    classAssets: _model
+                                                        .textController3.text,
+                                                    courseID: functions
+                                                        .randomNumberGenerator(
+                                                            10000000,
+                                                            99999999,
+                                                            getCurrentTimestamp
+                                                                .microsecondsSinceEpoch
+                                                                .toString())
+                                                        .toString(),
+                                                    startDate: _model.startDate,
+                                                  ),
+                                                  customClassesRecordReference);
+                                      logFirebaseEvent('Button_backend_call');
+                                      await NotificationsConfigTable().insert({
+                                        'course_id': _model
+                                            .generatedCustomClass?.courseID,
+                                        'user_id': currentUserUid,
+                                        'slot_data': getJsonField(
+                                          (_model.isCustomSlot
+                                                  ? SlotInfoStruct(
+                                                      slotName: _model
+                                                          .textController4.text,
+                                                      slotMetadata:
+                                                          _model.addedSlots,
+                                                    )
+                                                  : _model.instituteSlotsCall
+                                                      .where((e) =>
+                                                          e.slotName ==
+                                                          _model.dropDownValue2)
+                                                      .toList()
+                                                      .firstOrNull)
+                                              ?.toMap(),
+                                          r'''$.slotMetadata''',
+                                        ),
+                                        'toggle_notifications':
+                                            _model.switchValue,
+                                        'minutes_before_class':
+                                            valueOrDefault<int>(
+                                          _model.countControllerValue,
+                                          15,
+                                        ),
+                                        'class_name':
+                                            _model.textController1.text,
+                                        'username': currentUserDisplayName,
+                                        'is_active': true,
+                                      });
+                                      logFirebaseEvent('Button_show_snack_bar');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            '${_model.textController1.text} Class Added Successfully!',
+                                            style: FlutterFlowTheme.of(context)
+                                                .labelLarge
+                                                .override(
+                                                  fontFamily:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .labelLargeFamily,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .info,
+                                                  letterSpacing: 0.0,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .labelLargeIsCustom,
+                                                ),
                                           ),
-                                    ),
-                                    duration: Duration(milliseconds: 4000),
-                                    backgroundColor:
-                                        FlutterFlowTheme.of(context)
-                                            .presentGreen,
-                                  ),
-                                );
-                                logFirebaseEvent('Button_navigate_to');
+                                          duration:
+                                              Duration(milliseconds: 4000),
+                                          backgroundColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .presentGreen,
+                                        ),
+                                      );
+                                      logFirebaseEvent(
+                                          'Button_clear_query_cache');
+                                      FFAppState().clearCustomClassesCache();
+                                      logFirebaseEvent('Button_navigate_to');
 
-                                context.goNamed(CustomClassesWidget.routeName);
+                                      context.goNamed(
+                                        CustomClassesWidget.routeName,
+                                        extra: <String, dynamic>{
+                                          kTransitionInfoKey: TransitionInfo(
+                                            hasTransition: true,
+                                            transitionType:
+                                                PageTransitionType.leftToRight,
+                                          ),
+                                        },
+                                      );
 
-                                safeSetState(() {});
-                              },
+                                      logFirebaseEvent('Button_custom_action');
+                                      _model.newCustomClassesAllday =
+                                          await actions.fetchCustomClasses(
+                                        currentUserReference!,
+                                        '',
+                                      );
+                                      logFirebaseEvent(
+                                          'Button_update_app_state');
+                                      FFAppState().customClassesCurrentDay =
+                                          _model.newCustomClassesAllday!
+                                              .where((e) =>
+                                                  e.weekday ==
+                                                  (dateTimeFormat(
+                                                    "EEEE",
+                                                    getCurrentTimestamp,
+                                                    locale: FFLocalizations.of(
+                                                            context)
+                                                        .languageCode,
+                                                  ).toLowerCase()))
+                                              .toList()
+                                              .cast<ClassRowStruct>();
+                                      FFAppState().customClassesLastUpdatedAt =
+                                          getCurrentTimestamp;
+                                      FFAppState().customClassesAlldays = _model
+                                          .newCustomClassesAllday!
+                                          .toList()
+                                          .cast<ClassRowStruct>();
+
+                                      safeSetState(() {});
+                                    },
                               text: 'Save Class',
                               options: FFButtonOptions(
                                 width: 180.0,
@@ -1300,12 +1385,16 @@ class _CreateCustomClassWidgetState extends State<CreateCustomClassWidget> {
                                     ),
                                 elevation: 0.0,
                                 borderRadius: BorderRadius.circular(14.0),
+                                disabledColor:
+                                    FlutterFlowTheme.of(context).secondaryText,
+                                disabledTextColor:
+                                    FlutterFlowTheme.of(context).primaryText,
                               ),
                             ),
                           ),
                         ].divide(SizedBox(width: 16.0)),
                       ),
-                    ],
+                    ].addToStart(SizedBox(height: 20.0)),
                   ),
                 ),
               ),

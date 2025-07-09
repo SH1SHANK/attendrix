@@ -6,7 +6,7 @@ import '/class_components/class_block_custom/class_block_custom_widget.dart';
 import '/class_components/class_block_general/class_block_general_widget.dart';
 import '/class_components/class_block_missed/class_block_missed_widget.dart';
 import '/components/confirm_dialog_widget.dart';
-import '/components/empty_calender_widget.dart';
+import '/components/holiday_card_widget.dart';
 import '/components/progress_bar_widget.dart';
 import '/empty_list_comp/empty_class/empty_class_widget.dart';
 import '/flutter_flow/flutter_flow_button_tabbar.dart';
@@ -708,10 +708,16 @@ class _ClassesWidgetState extends State<ClassesWidget>
                                                         if (listViewTimetableRecordsRowList
                                                             .isEmpty) {
                                                           return Center(
-                                                            child: Container(
-                                                              height: 1.0,
-                                                              child:
-                                                                  EmptyCalenderWidget(),
+                                                            child:
+                                                                HolidayCardWidget(
+                                                              scheduledDate:
+                                                                  dateTimeFormat(
+                                                                "yyyy-MM-dd",
+                                                                pastDateItem,
+                                                                locale: FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode,
+                                                              ),
                                                             ),
                                                           );
                                                         }

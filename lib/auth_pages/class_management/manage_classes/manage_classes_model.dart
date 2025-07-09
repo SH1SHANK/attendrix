@@ -68,7 +68,6 @@ class ManageClassesModel extends FlutterFlowModel<ManageClassesWidget> {
       isExtraClassValueController?.value = val != null ? [val] : [];
   // Stores action output result for [Backend Call - Insert Row] action in scheduleButton widget.
   TimetableRecordsRow? generatedClass;
-  Stream<List<TimetableRecordsRow>>? listViewSupabaseStream;
 
   @override
   void initState(BuildContext context) {}

@@ -1,6 +1,6 @@
 import '/backend/backend.dart';
 import '/backend/supabase/supabase.dart';
-import '/class_components/elective_selection_block/elective_selection_block_widget.dart';
+import '/components/elective_block_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/index.dart';
@@ -24,19 +24,6 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
           int index, Function(CourseRecordsRow) updateFn) =>
       coursesEnrolled[index] = updateFn(coursesEnrolled[index]);
 
-  List<CourseRecordsRow> coreCoursesSelected = [];
-  void addToCoreCoursesSelected(CourseRecordsRow item) =>
-      coreCoursesSelected.add(item);
-  void removeFromCoreCoursesSelected(CourseRecordsRow item) =>
-      coreCoursesSelected.remove(item);
-  void removeAtIndexFromCoreCoursesSelected(int index) =>
-      coreCoursesSelected.removeAt(index);
-  void insertAtIndexInCoreCoursesSelected(int index, CourseRecordsRow item) =>
-      coreCoursesSelected.insert(index, item);
-  void updateCoreCoursesSelectedAtIndex(
-          int index, Function(CourseRecordsRow) updateFn) =>
-      coreCoursesSelected[index] = updateFn(coreCoursesSelected[index]);
-
   List<CourseRecordsRow> batchElectiveCourses = [];
   void addToBatchElectiveCourses(CourseRecordsRow item) =>
       batchElectiveCourses.add(item);
@@ -49,8 +36,6 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   void updateBatchElectiveCoursesAtIndex(
           int index, Function(CourseRecordsRow) updateFn) =>
       batchElectiveCourses[index] = updateFn(batchElectiveCourses[index]);
-
-  int? loopParameter = 0;
 
   List<CoursesEnrolledStruct> coursesEnrolledStruct = [];
   void addToCoursesEnrolledStruct(CoursesEnrolledStruct item) =>
@@ -66,25 +51,31 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
           int index, Function(CoursesEnrolledStruct) updateFn) =>
       coursesEnrolledStruct[index] = updateFn(coursesEnrolledStruct[index]);
 
-  List<CourseRecordsRow> electiveCoursesSelected = [];
-  void addToElectiveCoursesSelected(CourseRecordsRow item) =>
-      electiveCoursesSelected.add(item);
-  void removeFromElectiveCoursesSelected(CourseRecordsRow item) =>
-      electiveCoursesSelected.remove(item);
-  void removeAtIndexFromElectiveCoursesSelected(int index) =>
-      electiveCoursesSelected.removeAt(index);
-  void insertAtIndexInElectiveCoursesSelected(
-          int index, CourseRecordsRow item) =>
-      electiveCoursesSelected.insert(index, item);
-  void updateElectiveCoursesSelectedAtIndex(
-          int index, Function(CourseRecordsRow) updateFn) =>
-      electiveCoursesSelected[index] = updateFn(electiveCoursesSelected[index]);
+  List<String> skippedElectives = [];
+  void addToSkippedElectives(String item) => skippedElectives.add(item);
+  void removeFromSkippedElectives(String item) => skippedElectives.remove(item);
+  void removeAtIndexFromSkippedElectives(int index) =>
+      skippedElectives.removeAt(index);
+  void insertAtIndexInSkippedElectives(int index, String item) =>
+      skippedElectives.insert(index, item);
+  void updateSkippedElectivesAtIndex(int index, Function(String) updateFn) =>
+      skippedElectives[index] = updateFn(skippedElectives[index]);
 
-  String? courseEnrollmentFeedback;
+  int loopPara = 0;
 
-  bool isAdmin = false;
-
-  int verifyCount = 0;
+  List<String> requiredElectiveCategories = [];
+  void addToRequiredElectiveCategories(String item) =>
+      requiredElectiveCategories.add(item);
+  void removeFromRequiredElectiveCategories(String item) =>
+      requiredElectiveCategories.remove(item);
+  void removeAtIndexFromRequiredElectiveCategories(int index) =>
+      requiredElectiveCategories.removeAt(index);
+  void insertAtIndexInRequiredElectiveCategories(int index, String item) =>
+      requiredElectiveCategories.insert(index, item);
+  void updateRequiredElectiveCategoriesAtIndex(
+          int index, Function(String) updateFn) =>
+      requiredElectiveCategories[index] =
+          updateFn(requiredElectiveCategories[index]);
 
   ///  State fields for stateful widgets in this page.
 
@@ -93,9 +84,11 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   // Stores action output result for [Backend Call - Read Document] action in onboarding widget.
   UsersRecord? userDoc;
   // Stores action output result for [Backend Call - Query Rows] action in onboarding widget.
-  List<CourseRecordsRow>? coreCourses;
+  List<BatchRecordsRow>? batchRecord1;
   // Stores action output result for [Backend Call - Query Rows] action in onboarding widget.
-  List<CourseRecordsRow>? electiveCourses;
+  List<CourseRecordsRow>? coreCourses1;
+  // Stores action output result for [Backend Call - Query Rows] action in onboarding widget.
+  List<CourseRecordsRow>? electiveCourses1;
   // State field(s) for onboardingPages widget.
   PageController? onboardingPagesController;
 
@@ -142,6 +135,12 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   bool? checkboxValue2;
   // Stores action output result for [Validate Form] action in Button widget.
   bool? academicProfileValidation;
+  // Stores action output result for [Backend Call - Query Rows] action in Button widget.
+  List<BatchRecordsRow>? batchRecord;
+  // Stores action output result for [Backend Call - Query Rows] action in Button widget.
+  List<CourseRecordsRow>? coreCourses;
+  // Stores action output result for [Backend Call - Query Rows] action in Button widget.
+  List<CourseRecordsRow>? electiveCourses;
   // State field(s) for username widget.
   FocusNode? usernameFocusNode2;
   TextEditingController? usernameTextController2;
@@ -165,16 +164,14 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
   UsersRecord? usernameAvailability;
   // Stores action output result for [Custom Action - getUniqueUsername] action in IconButton widget.
   String? uniqueUsername;
-  // Models for electiveSelectionBlock dynamic component.
-  late FlutterFlowDynamicModels<ElectiveSelectionBlockModel>
-      electiveSelectionBlockModels;
+  // Models for electiveBlock dynamic component.
+  late FlutterFlowDynamicModels<ElectiveBlockModel> electiveBlockModels;
 
   @override
   void initState(BuildContext context) {
     usernameTextController1Validator = _usernameTextController1Validator;
     usernameTextController2Validator = _usernameTextController2Validator;
-    electiveSelectionBlockModels =
-        FlutterFlowDynamicModels(() => ElectiveSelectionBlockModel());
+    electiveBlockModels = FlutterFlowDynamicModels(() => ElectiveBlockModel());
   }
 
   @override
@@ -188,6 +185,6 @@ class OnboardingModel extends FlutterFlowModel<OnboardingWidget> {
     usernameFocusNode2?.dispose();
     usernameTextController2?.dispose();
 
-    electiveSelectionBlockModels.dispose();
+    electiveBlockModels.dispose();
   }
 }

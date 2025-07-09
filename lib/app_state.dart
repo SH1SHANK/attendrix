@@ -91,6 +91,22 @@ class FFAppState extends ChangeNotifier {
               (await secureStorage.getInt('ff_customClassesLastUpdatedAt'))!)
           : _customClassesLastUpdatedAt;
     });
+    await _safeInitAsync(() async {
+      if (await secureStorage.read(key: 'ff_APOD') != null) {
+        try {
+          _APOD = jsonDecode(await secureStorage.getString('ff_APOD') ?? '');
+        } catch (e) {
+          print("Can't decode persisted json. Error: $e.");
+        }
+      }
+    });
+    await _safeInitAsync(() async {
+      _isAPODEnabled =
+          await secureStorage.getBool('ff_isAPODEnabled') ?? _isAPODEnabled;
+    });
+    await _safeInitAsync(() async {
+      _OneSignal = await secureStorage.getString('ff_OneSignal') ?? _OneSignal;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -284,7 +300,8 @@ class FFAppState extends ChangeNotifier {
         _customClassesAlldays.map((x) => x.serialize()).toList());
   }
 
-  DateTime? _customClassesLastUpdatedAt;
+  DateTime? _customClassesLastUpdatedAt =
+      DateTime.fromMillisecondsSinceEpoch(1751567400000);
   DateTime? get customClassesLastUpdatedAt => _customClassesLastUpdatedAt;
   set customClassesLastUpdatedAt(DateTime? value) {
     _customClassesLastUpdatedAt = value;
@@ -296,6 +313,40 @@ class FFAppState extends ChangeNotifier {
 
   void deleteCustomClassesLastUpdatedAt() {
     secureStorage.delete(key: 'ff_customClassesLastUpdatedAt');
+  }
+
+  dynamic _APOD;
+  dynamic get APOD => _APOD;
+  set APOD(dynamic value) {
+    _APOD = value;
+    secureStorage.setString('ff_APOD', jsonEncode(value));
+  }
+
+  void deleteAPOD() {
+    secureStorage.delete(key: 'ff_APOD');
+  }
+
+  bool _isAPODEnabled = true;
+  bool get isAPODEnabled => _isAPODEnabled;
+  set isAPODEnabled(bool value) {
+    _isAPODEnabled = value;
+    secureStorage.setBool('ff_isAPODEnabled', value);
+  }
+
+  void deleteIsAPODEnabled() {
+    secureStorage.delete(key: 'ff_isAPODEnabled');
+  }
+
+  String _OneSignal =
+      'os_v2_app_62g6lyqeifcplogc6lmr4dyblfeeobmbo4iuhkfcxpax2ckejjsp56dn5pcfyei7uogddlyxhsjanxgidm3xkob5wv6qyaoxcnm2qoi';
+  String get OneSignal => _OneSignal;
+  set OneSignal(String value) {
+    _OneSignal = value;
+    secureStorage.setString('ff_OneSignal', value);
+  }
+
+  void deleteOneSignal() {
+    secureStorage.delete(key: 'ff_OneSignal');
   }
 
   final _timetableRecordsQueryDayManager =
@@ -378,6 +429,22 @@ class FFAppState extends ChangeNotifier {
   void clearStudyMaterialsCache() => _studyMaterialsManager.clear();
   void clearStudyMaterialsCacheKey(String? uniqueKey) =>
       _studyMaterialsManager.clearRequest(uniqueKey);
+
+  final _holidayRecordsManager =
+      FutureRequestManager<List<HolidayrecordsRow>>();
+  Future<List<HolidayrecordsRow>> holidayRecords({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<HolidayrecordsRow>> Function() requestFn,
+  }) =>
+      _holidayRecordsManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearHolidayRecordsCache() => _holidayRecordsManager.clear();
+  void clearHolidayRecordsCacheKey(String? uniqueKey) =>
+      _holidayRecordsManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {

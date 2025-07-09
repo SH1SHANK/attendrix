@@ -4,6 +4,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:aligned_dialog/aligned_dialog.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -14,9 +15,11 @@ class CourseAttendanceWidget extends StatefulWidget {
   const CourseAttendanceWidget({
     super.key,
     required this.courseData,
-  });
+    bool? isCustomClass,
+  }) : this.isCustomClass = isCustomClass ?? false;
 
   final CoursesEnrolledStruct? courseData;
+  final bool isCustomClass;
 
   @override
   State<CourseAttendanceWidget> createState() => _CourseAttendanceWidgetState();
@@ -74,62 +77,110 @@ class _CourseAttendanceWidgetState extends State<CourseAttendanceWidget> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
-                      child: Text(
-                        valueOrDefault<String>(
-                          widget.courseData?.courseName,
-                          '[courseName]',
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        AutoSizeText(
+                          valueOrDefault<String>(
+                            widget.courseData?.courseName,
+                            '[courseName]',
+                          ),
+                          maxLines: 1,
+                          minFontSize: 10.0,
+                          style: FlutterFlowTheme.of(context)
+                              .labelMedium
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .labelMediumFamily,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                fontSize: 14.0,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .labelMediumIsCustom,
+                              ),
                         ),
-                        style: FlutterFlowTheme.of(context)
-                            .labelMedium
-                            .override(
-                              fontFamily: FlutterFlowTheme.of(context)
-                                  .labelMediumFamily,
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              fontSize: 14.0,
-                              letterSpacing: 0.0,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .labelMediumIsCustom,
-                            ),
-                      ),
-                    ),
-                    Builder(
-                      builder: (context) => InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          logFirebaseEvent(
-                              'COURSE_ATTENDANCE_Icon_olt1lecs_ON_TAP');
-                          logFirebaseEvent('Icon_alert_dialog');
-                          await showAlignedDialog(
-                            context: context,
-                            isGlobal: false,
-                            avoidOverflow: true,
-                            targetAnchor: AlignmentDirectional(-1.0, 1.0)
-                                .resolve(Directionality.of(context)),
-                            followerAnchor: AlignmentDirectional(0.0, 0.0)
-                                .resolve(Directionality.of(context)),
-                            builder: (dialogContext) {
-                              return Material(
-                                color: Colors.transparent,
-                                child: AttendanceDropdownWidget(
-                                  courseID: widget.courseData!.courseID,
+                        if (widget.isCustomClass)
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                6.0, 0.0, 0.0, 0.0),
+                            child: Container(
+                              height: 20.0,
+                              decoration: BoxDecoration(
+                                color: Color(0x76F94F06),
+                                borderRadius: BorderRadius.circular(18.0),
+                                border: Border.all(
+                                  color: Color(0x80F44D04),
+                                  width: 2.0,
                                 ),
-                              );
-                            },
-                          );
-                        },
-                        child: Icon(
-                          FFIcons.kdotsThreeBold,
-                          color: FlutterFlowTheme.of(context).primaryText,
-                          size: 24.0,
+                              ),
+                              child: Align(
+                                alignment: AlignmentDirectional(0.0, -1.0),
+                                child: Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      8.0, 0.0, 8.0, 0.0),
+                                  child: Text(
+                                    'Custom',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMediumFamily,
+                                          color:
+                                              FlutterFlowTheme.of(context).info,
+                                          fontSize: 12.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w600,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (!valueOrDefault<bool>(
+                      widget.isCustomClass,
+                      true,
+                    ))
+                      Builder(
+                        builder: (context) => InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            logFirebaseEvent(
+                                'COURSE_ATTENDANCE_Icon_olt1lecs_ON_TAP');
+                            logFirebaseEvent('Icon_alert_dialog');
+                            await showAlignedDialog(
+                              context: context,
+                              isGlobal: false,
+                              avoidOverflow: true,
+                              targetAnchor: AlignmentDirectional(-1.0, 1.0)
+                                  .resolve(Directionality.of(context)),
+                              followerAnchor: AlignmentDirectional(0.0, 0.0)
+                                  .resolve(Directionality.of(context)),
+                              builder: (dialogContext) {
+                                return Material(
+                                  color: Colors.transparent,
+                                  child: AttendanceDropdownWidget(
+                                    courseID: widget.courseData!.courseID,
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Icon(
+                            FFIcons.kdotsThreeBold,
+                            color: FlutterFlowTheme.of(context).primaryText,
+                            size: 24.0,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

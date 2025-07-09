@@ -135,7 +135,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: OnboardingWidget.routeName,
               path: OnboardingWidget.routePath,
               requireAuth: true,
-              builder: (context, params) => OnboardingWidget(),
+              builder: (context, params) => OnboardingWidget(
+                pageIndex: params.getParam(
+                  'pageIndex',
+                  ParamType.int,
+                ),
+              ),
             ),
             FFRoute(
               name: EnrolledCoursesWidget.routeName,
@@ -303,6 +308,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: CreateCustomClassWidget.routePath,
               requireAuth: true,
               builder: (context, params) => CreateCustomClassWidget(),
+            ),
+            FFRoute(
+              name: AdminPanelWidget.routeName,
+              path: AdminPanelWidget.routePath,
+              requireAuth: true,
+              builder: (context, params) => AdminPanelWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),

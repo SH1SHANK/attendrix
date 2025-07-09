@@ -79,6 +79,8 @@ class CreateCustomClassModel extends FlutterFlowModel<CreateCustomClassWidget> {
   int? countControllerValue;
   // Stores action output result for [Backend Call - Create Document] action in Button widget.
   CustomClassesRecord? generatedCustomClass;
+  // Stores action output result for [Custom Action - fetchCustomClasses] action in Button widget.
+  List<ClassRowStruct>? newCustomClassesAllday;
 
   @override
   void initState(BuildContext context) {

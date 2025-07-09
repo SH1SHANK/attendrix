@@ -262,6 +262,8 @@ dynamic deserializeParam<T>(
             return UserCourseRecordsRow(data);
           case ClassNotificationLogRow:
             return ClassNotificationLogRow(data);
+          case HolidayrecordsRow:
+            return HolidayrecordsRow(data);
           case AmplixChallengeProgressRow:
             return AmplixChallengeProgressRow(data);
           case AdminusersRow:
@@ -276,12 +278,8 @@ dynamic deserializeParam<T>(
             return ChallengeTemplatesRow(data);
           case TaskRecordsRow:
             return TaskRecordsRow(data);
-          case TimetableSubscriptionsRow:
-            return TimetableSubscriptionsRow(data);
           case PendingadminrequestsRow:
             return PendingadminrequestsRow(data);
-          case ErrorLogsRow:
-            return ErrorLogsRow(data);
           case AmplixLogsRow:
             return AmplixLogsRow(data);
           case PreapprovedadminemailsRow:

@@ -224,7 +224,7 @@ class _NavBarPageState extends State<NavBarPage> {
         haptic: false,
         tabs: [
           GButton(
-            icon: currentIndex == 0 ? FFIcons.khome : FFIcons.khomeHouse5,
+            icon: currentIndex == 0 ? FFIcons.khome : FFIcons.ksmartHome,
             text: 'Dashboard',
             textStyle: GoogleFonts.outfit(
               color: FlutterFlowTheme.of(context).info,

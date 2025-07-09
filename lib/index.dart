@@ -41,3 +41,4 @@ export '/request_access_follow_up/request_access_follow_up_widget.dart'
 export '/admin_page/admin_page_widget.dart' show AdminPageWidget;
 export '/create_custom_class/create_custom_class_widget.dart'
     show CreateCustomClassWidget;
+export '/admin_panel/admin_panel_widget.dart' show AdminPanelWidget;

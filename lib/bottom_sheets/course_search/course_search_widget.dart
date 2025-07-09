@@ -19,7 +19,8 @@ class CourseSearchWidget extends StatefulWidget {
   }) : this.electiveType = electiveType ?? 'OE';
 
   final List<CourseRecordsRow>? electiveCatelog;
-  final Future Function(String? courseId, bool? skipSelection)? callback;
+  final Future Function(CourseRecordsRow? courseRecord, bool? skipSelection)?
+      callback;
   final String electiveType;
 
   @override
@@ -260,7 +261,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                                 'COURSE_SEARCH_COMP_taskDetails_ON_TAP');
                             logFirebaseEvent('taskDetails_execute_callback');
                             await widget.callback?.call(
-                              electivesItem.courseID,
+                              electivesItem,
                               false,
                             );
                             logFirebaseEvent('taskDetails_bottom_sheet');
@@ -471,7 +472,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                                 'COURSE_SEARCH_COMP_taskDetails_ON_TAP');
                             logFirebaseEvent('taskDetails_execute_callback');
                             await widget.callback?.call(
-                              electivesItem.courseID,
+                              electivesItem,
                               false,
                             );
                             logFirebaseEvent('taskDetails_bottom_sheet');
@@ -715,7 +716,7 @@ class _CourseSearchWidgetState extends State<CourseSearchWidget> {
                   Navigator.pop(context);
                   logFirebaseEvent('Button_execute_callback');
                   await widget.callback?.call(
-                    'null',
+                    widget.electiveCatelog?.firstOrNull,
                     true,
                   );
                 },
