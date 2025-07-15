@@ -1,15 +1,12 @@
-# Attendrix ![GitHub tag](https://img.shields.io/github/v/tag/sh1shank/attendrix?sort=semver)
-
-**Smart Attendance Management & Academic Assistant for NIT Calicut**
-
-[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
-[![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
-[![FlutterFlow](https://img.shields.io/badge/FlutterFlow-6C5CE7?style=for-the-badge&logo=flutter&logoColor=white)](https://flutterflow.io/)
-
-[![GitHub stars](https://img.shields.io/github/stars/sh1shank/attendrix?style=for-the-badge&logo=github&logoColor=white&color=FFD93D)](https://github.com/sh1shank/attendrix/stargazers)
-[![License](https://img.shields.io/badge/License-Apache%202.0-A855F7?style=for-the-badge&logo=apache&logoColor=white)](LICENSE)
-
-Attendrix revolutionizes the way NIT Calicut students manage their academic schedules, attendance, and study materials. Built with Flutter and powered by intelligent automation, Attendrix makes attending classes engaging, organized, and rewarding.
+ # Attendrix
+ ## What is Attendrix?
+ **Attendrix revolutionizes how students manage academics** — seamlessly blending attendance tracking, personalized scheduling, study resources, and engaging gamification. Built on modern full-stack tech, it brings automation and clarity to daily academic life.
+> 
+<p align="center">
+  <img src="https://img.shields.io/github/stars/sh1shank/attendrix?style=for-the-badge" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/license/sh1shank/attendrix?style=for-the-badge&color=purple" alt="Apache 2.0 License" />
+   <img src="https://img.shields.io/github/v/tag/sh1shank/attendrix?style=for-the-badge&color=orange" alt="Current Version" />
+</p>
 
 ---
 
