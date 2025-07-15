@@ -1,11 +1,11 @@
-# Attendrix 🎓
+# Attendrix ![GitHub tag](https://img.shields.io/github/v/tag/sh1shank/attendrix?sort=semver)
 
 **Smart Attendance Management & Academic Assistant for NIT Calicut**
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
 [![FlutterFlow](https://img.shields.io/badge/FlutterFlow-6C5CE7?style=for-the-badge&logo=flutter&logoColor=white)](https://flutterflow.io/)
-![GitHub tag](https://img.shields.io/github/v/tag/sh1shank/attendrix?sort=semver)
+
 [![GitHub stars](https://img.shields.io/github/stars/sh1shank/attendrix?style=for-the-badge&logo=github&logoColor=white&color=FFD93D)](https://github.com/sh1shank/attendrix/stargazers)
 [![License](https://img.shields.io/badge/License-Apache%202.0-A855F7?style=for-the-badge&logo=apache&logoColor=white)](LICENSE)
 
