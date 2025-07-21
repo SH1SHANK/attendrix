@@ -101,7 +101,8 @@
 
 <div align="center">
 
-[![Download APK](https://img.shields.io/badge/Download-Latest%20APK-6366F1?style=for-the-badge&logo=android&logoColor=white)](https://github.com/SH1SHANK/attendrix/releases/download/v0.8.0-alpha/Attendrix.Alpha.Release.v0.8.0.apk)
+[![Download APK](https://img.shields.io/badge/Download-Latest%20APK-6366F1?style=for-the-badge&logo=android&logoColor=white)](https://github.com/SH1SHANK/attendrix/releases/latest/download/Attendrix_Release_v1.0.0.apk)
+
 
 **⚠️ Alpha Testing Phase**  
 *Attendrix is currently in alpha testing. Features may be unstable, and bugs are expected. Please report any issues you encounter.*
