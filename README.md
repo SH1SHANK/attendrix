@@ -1,6 +1,6 @@
  # Attendrix
  ## What is Attendrix?
- **Attendrix revolutionizes how students manage academics** — seamlessly blending attendance tracking, personalized scheduling, study resources, and engaging gamification. Built on modern full-stack tech, it brings automation and clarity to daily academic life.
+ **Attendrix revolutionises how students manage academics** — seamlessly blending attendance tracking, personalised scheduling, study resources, and engaging gamification. Built on modern full-stack tech, it brings automation and clarity to daily academic life.
 > 
 <p align="center">
   <img src="https://img.shields.io/github/stars/sh1shank/attendrix?style=for-the-badge" alt="GitHub stars" />
@@ -9,7 +9,17 @@
 </p>
 
 ---
+## Download Attendrix
+<div align="center">
+Latest Release (Currently in Public Beta!)
+ 
+[![Download APK](https://img.shields.io/badge/Download-Latest%20APK-6366F1?style=for-the-badge&logo=android&logoColor=white)](https://github.com/SH1SHANK/attendrix/releases/latest/download/Attendrix_Release_v1.0.0.apk)
 
+</div>
+
+---
+
+ 
 ## 🌟 Key Features
 
 ### 📚 **Smart Course Management**
@@ -19,7 +29,7 @@
 
 ### 🏫 **Dynamic Class Management**
 - **Custom Class Creation**: Create personalized classes with custom slots and timings
-- **Institute Slot Support**: Utilize existing NIT Calicut time slots for standardized scheduling
+- **Institute Slot Support**: Utilise existing NIT Calicut time slots for standardised scheduling
 - **Real-time Schedule Updates**: Stay updated with any changes to your class schedule
 
 ### 📝 **Academic Tracking**
@@ -95,17 +105,13 @@
 
 ---
 
-## 📲 Download
+## Download Attendrix
 
-### Latest Release (Currently in Alpha Testing)
+### Latest Release (Currently in Public Beta!)
 
 <div align="center">
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-6366F1?style=for-the-badge&logo=android&logoColor=white)](https://github.com/SH1SHANK/attendrix/releases/latest/download/Attendrix_Release_v1.0.0.apk)
-
-
-**⚠️ Alpha Testing Phase**  
-*Attendrix is currently in alpha testing. Features may be unstable, and bugs are expected. Please report any issues you encounter.*
 
 </div>
 
@@ -160,7 +166,7 @@
 
 ### 📁 Repository Structure
 - **`main` branch**: Documentation, README, and project assets
-- **`flutterflow` branch**: Complete Flutter/FlutterFlow source code
+- **`flutterflow` branch**: Complete Flutter/Dart source code
 
 ---
 ## 🏗️ Architecture
