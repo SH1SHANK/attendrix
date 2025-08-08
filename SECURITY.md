@@ -6,10 +6,10 @@ We actively maintain and provide security updates for the following versions of 
 
 | Version | Supported          | Notes                    |
 | ------- | ------------------ | ------------------------ |
-| 2.x.x   | :white_check_mark: | Current stable release   |
-| 1.5.x   | :white_check_mark: | LTS - Critical fixes only |
-| 1.4.x   | :x:                | End of life             |
-| < 1.4   | :x:                | No longer supported     |
+| 1.1.x   | :white_check_mark: | Current stable release   |
+| 1.1.x   | :white_check_mark: | LTS - Critical fixes only |
+| 1.0.0   | :x:                | End of life             |
+| < 1.0   | :x:                | No longer supported     |
 
 ## Reporting a Vulnerability
 
