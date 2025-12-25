@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "642972352871",
+    "project_id": "attendrix-njs4x1",
+    "storage_bucket": "attendrix-njs4x1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642972352871:android:0a38322f53bbf733d02fc2",
+        "android_client_info": {
+          "package_name": "com.archonstudios.attendrix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642972352871-j8quet0bkk9liah945fite4tahu8g3u4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.archonstudios.attendrix",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "642972352871-2hsts46tufpd17ffcttq2hteu0gvajmu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbsHY5PHOHqYptP7Fj3Bb3yyu7STSaNzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642972352871-0i2kb4q8p3rht0t8gi6eprcpdtsehvbj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "642972352871-a9ldjj3cob6m77j0l0liq13vf6eegr4r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shashankstudios.attendrix"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642972352871:android:7e50855a7df7c9acd02fc2",
+        "android_client_info": {
+          "package_name": "com.shashankstudios.attendrix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642972352871-sr8u2dvvc3nhkvml6qc1plepup17360c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shashankstudios.attendrix",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "642972352871-2hsts46tufpd17ffcttq2hteu0gvajmu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbsHY5PHOHqYptP7Fj3Bb3yyu7STSaNzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642972352871-0i2kb4q8p3rht0t8gi6eprcpdtsehvbj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "642972352871-a9ldjj3cob6m77j0l0liq13vf6eegr4r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shashankstudios.attendrix"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
